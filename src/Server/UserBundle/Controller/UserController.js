@@ -1,26 +1,19 @@
 (function () {
     'use strict';
-    function UserController(app){   
-        return{
-            getAllAction:function(req, res, next) {
-                try {
-                    res.end('All User');
-                } catch (err) {
-                    next("[]");
-                    return false;
-                };
-             },
-             getOneAction:function(req, res, next) {
-                try {
-                    var id = parseInt(req.params.id);
-                    res.end('User id '+id);
-                } catch (err) {
-                    next("[]");
-                    return false;
-                };
-             }
+    var UserController=   {
+  
+            getAllAction:function() {
+                this.get("mail");
+   
+                return this.render('All User');
              
-        } 
+             },
+             getOneAction:function(id) {
+                 
+               return this.render('one user'+this.request.get("id"));
+           
+             }
+     
     };
     module.exports = UserController;
 })();
