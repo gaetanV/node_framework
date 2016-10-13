@@ -5,7 +5,7 @@
         var yaml = require('js-yaml');
         var fs = require('fs');
         var bundleController = require('./controller.js');
-        
+        var path=__dirname;
         function getParam(route,req){
             var params=[];
             for (var key in route.requirements) {
@@ -17,7 +17,7 @@
                         if (!req.params[key].match(m)) {
                             throw "error route param no match requirements " + key + " :: " +route.requirements[key];
                         }
-                        params[key]=req.params[key];
+                        params.push(req.params[key]);
                     };
                     return params;
         }
