@@ -1,0 +1,1 @@
+restrict: include/(.)*.(css|js)

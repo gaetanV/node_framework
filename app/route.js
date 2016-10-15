@@ -1,11 +1,15 @@
 (function () {
     'use strict';
 
-    function Root(app) {
+    function Root(app,express) {
+        
+        
+         var PATH = require("path");
         var yaml = require('js-yaml');
         var fs = require('fs');
         var bundleController = require('./controller.js');
         var path=__dirname;
+        
         function getParam(route,req){
             var params=[];
             for (var key in route.requirements) {
@@ -44,28 +48,29 @@
                     var doc = yaml.safeLoad(fs.readFileSync(path, 'utf8'));
                     for (var i in doc) {
                         var route = doc[i];
-                        var c = route.defaults._controller;
-                        var controller = c.split(":");
-                        var bundleName = controller[0];
-                        var controllerName = controller[1];
-                        // route.path.match(/{([^{}]*)}/g).map(function(m) { return m.slice(1, -1); });
-                        var route = {
-                            methods: route.methods.map(function (m) {
-                                return m.toUpperCase()
-                            }),
-                            fn: controller[2] + "Action",
-                            path: racine + route.path.replace(/{([^}]*)}/g, ":$1"),
-                            requirements: route.requirements
+                        if(route.defaults.hasOwnProperty("_controller")){
+                                    var c = route.defaults._controller;
+                              var controller = c.split(":");
+                              var bundleName = controller[0];
+                              var controllerName = controller[1];
+                              // route.path.match(/{([^{}]*)}/g).map(function(m) { return m.slice(1, -1); });
+                              var route = {
+                                  methods: route.methods.map(function (m) {
+                                      return m.toUpperCase()
+                                  }),
+                                  fn: controller[2] + "Action",
+                                  path: racine + route.path.replace(/{([^}]*)}/g, ":$1"),
+                                  requirements: route.requirements
+                              }
+                              if (!$bundles[bundleName]) {
+                                  $bundles[bundleName] = []
+                              };
+                              if (!$bundles[bundleName][controllerName]) {
+                                  $bundles[bundleName][controllerName] = []
+                              }
+                              ;
+                              $bundles[bundleName][controllerName].push(route);
                         }
-                        if (!$bundles[bundleName]) {
-                            $bundles[bundleName] = []
-                        }
-                        ;
-                        if (!$bundles[bundleName][controllerName]) {
-                            $bundles[bundleName][controllerName] = []
-                        }
-                        ;
-                        $bundles[bundleName][controllerName].push(route);
                     }
                     ;
                 } catch (e) {
@@ -85,7 +90,46 @@
                         }
                     }
                 }
+            },
+            public:function(redirect,staticpath){
+                
+                   var path=PATH.join(__dirname,'../',staticpath,'htacess.yml');
+          
+                   var restricts=[];
+                   if (fs.existsSync(path)) {
+                                   
+                                var doc = yaml.safeLoad(fs.readFileSync(path, 'utf8'));
+                                for(var i in doc){
+                                 
+                                     if(i=="restrict"){
+                                            restricts.push(redirect+doc[i]);
+                                     }
+                                }
+                                
+                               
+                    }
+                   
+                    function restrict(req, res, next){
+                        console.log(req.path);
+                        try{
+                            for(var i in restricts){
+                                var m=new RegExp('^'+restricts[i]+'$', 'gi');
+                                console.log(m);
+                                 if (req.path.match(m)) {
+                                   throw "not allow";
+                               }
+                           }
+                           console.log("ok");
+                           next();
+                        }catch (err) {
+                            res.status(404).send(err);
+                            return false;
+                        };  
+                    }
+                   app.use(redirect,restrict,express.static(staticpath));
+                   
             }
+            
         }
     }
     module.exports = Root;

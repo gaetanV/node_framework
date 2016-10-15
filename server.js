@@ -2,15 +2,13 @@
     'use strict';
  
     var express = require('express');
+    var app = express();
     require('http').Server(app);
     var port = process.env.PORT|| 7200; 
-    var app = express();
-    app.use('/', express.static('./web/'));
-    
-    var route=require('./app/route.js')(app);
-    
-    
+   app.listen(port);
+    var route=require('./app/route.js')(app,express);
+    route.public("/","./web/");
     route.add("./src/UserBundle/routing.yml","/user");
-    app.listen(port);
+
 
 })();
