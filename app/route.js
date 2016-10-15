@@ -5,10 +5,24 @@
         
         
          var PATH = require("path");
+         var RESTRICT=[];
+         var INDEX="index.html";
         var yaml = require('js-yaml');
         var fs = require('fs');
         var bundleController = require('./controller.js');
-        var path=__dirname;
+  
+        var doc = yaml.safeLoad(fs.readFileSync(PATH.join(__dirname,"./config.yml"), 'utf8'));
+        if(doc.hasOwnProperty("restrict")){
+                for(var i in doc.restrict){
+
+                      
+                      RESTRICT.push(doc.restrict[i]);
+                                      
+                }
+        }
+         if(doc.hasOwnProperty("index")){
+             INDEX=doc.index;
+         }
         
         function getParam(route,req){
             var params=[];
@@ -92,20 +106,26 @@
                 }
             },
             public:function(redirect,staticpath){
-                
+                    var index=+INDEX;
                    var path=PATH.join(__dirname,'../',staticpath,'htacess.yml');
-          
-                   var restricts=[];
+                 
+                   var restricts=RESTRICT.slice(0);
+                     
                    if (fs.existsSync(path)) {
                                    
                                 var doc = yaml.safeLoad(fs.readFileSync(path, 'utf8'));
-                                for(var i in doc){
-                                 
-                                     if(i=="restrict"){
-                                            restricts.push(redirect+doc[i]);
-                                     }
+                                if(doc.hasOwnProperty("restrict")){
+                                        for(var i in doc.restrict){
+
+
+                                              restricts.push(redirect+doc.restrict[i]);
+
+                                        }
                                 }
-                                
+                                   if(doc.hasOwnProperty("index")){
+                                       index= doc.index;
+                                       
+                                   }
                                
                     }
                    
@@ -126,7 +146,8 @@
                             return false;
                         };  
                     }
-                   app.use(redirect,restrict,express.static(staticpath));
+            
+                   app.use(redirect,restrict,express.static(staticpath, { index: index}));
                    
             }
             

@@ -1,0 +1,4 @@
+restrict: [(.)*.(asp|aspx|php|jar|java|yml)]
+index: index.html
+
+   

@@ -1,1 +1,2 @@
-restrict: include/(.)*.(css|js)
+restrict: [include/(.)*.(css|js)]
+index: home.html
