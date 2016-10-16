@@ -1,4 +1,7 @@
-restrict: [(.)*.(asp|aspx|php|jar|java|yml)]
-index: index.html
-
-   
+restrict: [
+    (.)*.(asp|aspx|php|jar|java|yml),
+    /include/(.)*.(css|js)
+]
+index: home.html
+bundles:
+    UserBundle: \UserBundle\

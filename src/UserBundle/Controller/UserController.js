@@ -1,9 +1,7 @@
 (function () {
-
     'use strict';
-    var UserController=   {
-  
-            getAllAction:function() {
+    var UserController =   {
+             getAllAction:function() {
                 this.get("mail");
                 return this.render('index.html');
              
@@ -13,8 +11,14 @@
                  console.log(this.request.get("id"));
                return this.send('one user'+id);
            
+             },
+             test:function(id) {
+               
+                 console.log(id);
+              
+           
              }
      
     };
-    module.exports = UserController;
+    Controller(UserController);
 })();
