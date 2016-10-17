@@ -55,7 +55,7 @@
                 for (var i = 0; i < dir.length; i++) {
                     if (ACCESS[i]) {
                         if (ACCESS[i][dir[i - 1]]) {
-                            ACCESS[dir.length - 1][dir[dir.length - 2]][dir[dir.length - 1]].push({path: doc.access_control[i].path, roles: doc.access_control[i].roles});
+                            ACCESS[dir.length - 1][dir[dir.length - 2]][dir[dir.length - 1]].unshift({path: doc.access_control[i].path, roles: doc.access_control[i].roles});
                         }
                     }
                 }
@@ -99,13 +99,15 @@
                 }
                 var temp = getTimeMSFloat();
 
-
+                var path=req.path;
+               // var split=req.path.slice(1).split('/');
+              //  var index=split[split.length - 2];
                 try {
-                    var access_control = access_c[req.path.slice(1).split('/').length - 1];
-                    console.log(access_control);
+                    
+                    //var access_control = access_c[split.length - 1];
                     for (var i in access_control) {
                         var m = new RegExp('^' + access_control[i].path + '$', 'gi');
-                        if (req.path.match(m)) {
+                        if (path.match(m)) {
                             if (access_control[i].roles === "IS_AUTHENTICATED_ANONYMOUSLY") {
                                 next();
                                 return false;
