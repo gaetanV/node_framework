@@ -34,7 +34,7 @@
                                 requirements: route.requirements
                             }
                            
-                            BUNDLES[bundleName].controllers[controllerName].addGet(route);
+                           BUNDLES[bundleName].controllers[controllerName].addGet(route);
                         }
                     }
                     ;
@@ -45,22 +45,24 @@
 
             },
         }
+        
         var doc = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../app", "./config.yml"), 'utf8'));
         if (doc.hasOwnProperty("bundles")) {
             var all=Object.keys(doc.bundles).length;
             
             var cmp=0;
-            function load(){
-                cmp++;
+           function load(){
+               cmp++;
                  console.log("load "+(all/cmp)*100+"%");
                 if(cmp>=all){
-                      onload(ONLOAD);
+                    onload(ONLOAD);
                 }
-               
+           
             }
+             
             for (var i in doc.bundles) {
-
-                BUNDLES[i] = new $bundle(i, $fs, $path, $app, $controller,load);
+             
+                BUNDLES[i] = new $bundle(doc.bundles[i], $fs, $path, $app, $controller,load);
             }
         };
       

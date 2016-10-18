@@ -1,8 +1,9 @@
 (function () {
     'use strict';
     require=function(){};
-    var ControllerBundle = function ( actions, view,$app,$path) {
+    var ControllerBundle = function ( actions,templating,parser, view,$app,$path) {
         var vm = this;
+        this.templating=templating;
         //this.bundle = bundle;
         
         this.controller=actions;
@@ -58,10 +59,12 @@
                         }
 
                     },
-                    render: function (path) {
+                    render: function (path,param) {
                         try {
-                            console.log(bundle);
-                            res.sendFile($path.join(view, path));
+                            console.log(vm.templating);
+                            console.log(param);
+                            res.end( parser($path.join(view, path),param));
+                            //res.sendFile($path.join(view, path));
                             //  res.sendFile(PATH.join(__dirname,'../src',this.bundle,'/Ressources/',path));
                         } catch (err) {
                             console.log(err);

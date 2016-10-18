@@ -3,12 +3,13 @@ restrict: [
     /include/(.)*.(css|js)
 ]
 index: home.html
+
+# pug | mustache | html
 bundles:
-    UserBundle: \UserBundle\
-        
-role_hierarchy:
-     ROLE_ADMIN:  [ROLE_ADMIN]
-     
+    UserBundle: { path: \UserBundle\ , templating: mustache}  
+    
+
+
 access_control:
      -  { path: /admin/login.html  , roles: IS_AUTHENTICATED_ANONYMOUSLY }
      -  { path: /admin/login_check , roles: IS_AUTHENTICATED_ANONYMOUSLY }
