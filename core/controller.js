@@ -5,8 +5,10 @@
         var vm = this;
         this.templating=templating;
         //this.bundle = bundle;
-        
+       
         this.controller=actions;
+       
+     
        
         var GET = {
             getParam: function (route, req) {
@@ -63,7 +65,7 @@
                         try {
                             console.log(vm.templating);
                             console.log(param);
-                            res.end( parser($path.join(view, path),param));
+                            res.end( parser(path,param));
                             //res.sendFile($path.join(view, path));
                             //  res.sendFile(PATH.join(__dirname,'../src',this.bundle,'/Ressources/',path));
                         } catch (err) {

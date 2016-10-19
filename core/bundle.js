@@ -24,12 +24,13 @@
            
         this.path=bundle.path;
         this.templating=bundle.templating;
-        
+        this.cash=[];
         this.controllers=[];
          var vm=this;
         try{
               
              var path=$path.join(__dirname, "../src/",vm.path,"/Controller/"); 
+             var pathView=$path.join(__dirname, "../src/",vm.path,"/Ressources/","views"); 
              $fs.statSync(path);
              $fs.readdir(path, function (err, files) {
                
@@ -50,18 +51,22 @@
                                  default: 
                                      throw vm.templating + " templating is not in charge"
                                  case "html":
-                                     parser=$fs.readFileSync;
+                                     parser=function(path,param){
+                                        return vm.cash[path];
+                                     }
                                      break;
                                  case "jade":
                                  case "pug":
                                      var pug = include('pug');
-                                     parser=pug.renderFile;
+                                     parser=function(path,param){
+                                         return pug.render(vm.cash[path],param);
+                                    }
                                      break;
                                  case "mustache":
                                      var Mustache = include('Mustache');
                                      parser=function(path,param){
-                                         
-                                        return  Mustache.render($fs.readFileSync(path,'utf8'),param);
+                                    
+                                        return  Mustache.render(vm.cash[path],param);
                                      }
                                      break;
                              }
@@ -73,7 +78,24 @@
  
                   });
                   
-                  onload();
+                  
+       
+                  $fs.statSync(pathView);
+                  $fs.readdir(pathView, function (err, files) {
+                    
+                        files.forEach(function (file) {
+                            var view=$fs.readFileSync($path.join(pathView,file), 'utf8');
+
+                            vm.cash[file]=view;
+                        });
+                        onload();
+                      
+                   });
+                   
+                   
+                   
+             
+              
                    
              });
              
