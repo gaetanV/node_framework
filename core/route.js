@@ -4,15 +4,14 @@
     var $fs = require('fs');
     var $controller = require('./controller.js');
     var $bundle = require('./bundle.js');
-    var $htaccess = require('./htacess.js');
+    var $security = require('./security.js');
     var $path = require("path");
 
     module.exports = Root;
-    function Root($app, $express, onload) {
-        $htaccess($app, $express, $fs, $yaml, $path);
+    function Root($app, $express) {
+        $security($app, $express, $fs, $yaml, $path);
         var BUNDLES = [];
-        var ONLOAD = {
-            add: function (path, racine) {
+        function add(path, racine) {
 
 
                 try {
@@ -43,10 +42,13 @@
                 }
 
 
-            },
+            
         }
         
         var doc = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../app", "./config.yml"), 'utf8'));
+         if (!doc.hasOwnProperty("framework")){throw ('ERROR IN CONFIG FRAMEWORK')}
+        doc=doc.framework;
+       
         if (doc.hasOwnProperty("bundles")) {
             var all=Object.keys(doc.bundles).length;
             
@@ -55,13 +57,22 @@
                cmp++;
                  console.log("load "+(all/cmp)*100+"%");
                 if(cmp>=all){
-                    onload(ONLOAD);
+                    
+                    var doc = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../app", "./routing.yml"), 'utf8'));
+                    for (var i in doc) {
+                        console.log(doc[i]);
+                        if(!doc[i].hasOwnProperty("resource")||!doc[i].hasOwnProperty("prefix")){
+                            throw "error";
+                        }
+                         add($path.join(__dirname, "../src/", doc[i].resource),doc[i].prefix);
+                    }
                 }
            
             }
              
             for (var i in doc.bundles) {
-             
+                doc.bundles[i].path=i.replace(new RegExp(":", 'g'), "/");
+                doc.bundles[i].name=i;
                 BUNDLES[i] = new $bundle(doc.bundles[i], $fs, $path, $app, $controller,load);
             }
         };

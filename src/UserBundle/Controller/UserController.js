@@ -8,7 +8,7 @@
              },
              getOneAction:function(id) {
                
-                 console.log(this.request.get("id"));
+            
                  return this.send('one user'+id);
            
              },

@@ -1,17 +1,14 @@
-restrict: [
-    (.)*.(asp|aspx|php|jar|java|yml),
-    /include/(.)*.(css|js)
-]
-index: home.html
-
-# pug | mustache | html
-bundles:
-    UserBundle: { path: \UserBundle\ , templating: mustache}  
-    
-
-
-access_control:
-     -  { path: /admin/login.html  , roles: IS_AUTHENTICATED_ANONYMOUSLY }
-     -  { path: /admin/login_check , roles: IS_AUTHENTICATED_ANONYMOUSLY }
-     -  { path: /admin/.*            , roles: [ROLE_ADMIN] }
-     -  { path: /.*                , roles: IS_AUTHENTICATED_ANONYMOUSLY }
+framework:
+    templating:
+        engines: ['pug','mustache','html']
+    bundles:
+        UserBundle: { templating: mustache}  
+        
+security:
+    index: home.html
+    access_control:
+             -  { path: (.)*.(asp|aspx|php|jar|java|yml) , roles: DENY_ALL }
+             -  { path: /admin/login.html                , roles: IS_AUTHENTICATED_ANONYMOUSLY , whiteip:[192.168.0.11]}
+             -  { path: /admin/login_check               , roles: IS_AUTHENTICATED_ANONYMOUSLY , whiteip:[192.168.0.11] }
+             -  { path: /admin/.*                        , roles: [ROLE_ADMIN] }
+             -  { path: /.*                              , roles: IS_AUTHENTICATED_ANONYMOUSLY }

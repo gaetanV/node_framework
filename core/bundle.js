@@ -21,7 +21,7 @@
     };
     
     var  Bundle = function (bundle,$fs,$path,$app,$controller,onload) {
-           
+        this.name=bundle.name;
         this.path=bundle.path;
         this.templating=bundle.templating;
         this.cash=[];
@@ -69,10 +69,12 @@
                                         return  Mustache.render(vm.cash[path],param);
                                      }
                                      break;
+                         
+                                     
                              }
                              
                            
-                             vm.controllers[controllerName[1]]=new $controller(actions,vm.templating,parser,view, $app,$path);
+                             vm.controllers[controllerName[1]]=new $controller(actions,parser, $app);
                           
                         }
  

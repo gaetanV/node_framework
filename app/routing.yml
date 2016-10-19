@@ -1,0 +1,5 @@
+# USER API   
+user_api:
+    resource: "UserBundle/routing.yml"
+    prefix:   /user
+    

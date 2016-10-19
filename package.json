@@ -1,13 +1,29 @@
 {
   "name": "framework",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Structure Express with Symfony security",
   "main": "server.js",
   "dependencies": {
+    "angular-template": "^2.0.11",
     "express": "^4.14.0",
     "http": "^0.0.0",
     "js-yaml": "^3.6.1",
-    "path": "^0.12.7"
+    "mustache": "^2.2.1",
+    "path": "^0.12.7",
+    "pug": "^2.0.0-beta6"
   },
-  "devDependencies": {}
+  "scripts": {
+    "start": "node server.js"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gaetanV/node_framework.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gaetanV/node_framework/issues"
+  },
+  "homepage": "https://github.com/gaetanV/node_framework#readme"
 }
