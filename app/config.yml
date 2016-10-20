@@ -2,6 +2,8 @@ framework:
     templating:
         engines: ['pug','mustache','html']
     compression_gzip: true
+    session : Ops56qs5dé=&à&é=dkqs^d
+    
     bundles:
         UserBundle: { templating: mustache}  
         

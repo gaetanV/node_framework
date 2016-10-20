@@ -2,10 +2,22 @@
 <html>
     <head>
         <title>Home sweet home</title>
+        <script src="/js/socket.io.js"></script>
+        
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
+        <script>
+            
+            var socket = io.connect('http://localhost:7200');
+                
+            socket.on('isConnect', function (data) {
+                console.log(data);
+
+            });
+
+            </script>
         <div>Welcome to your new page</div>
     </body>
 </html>

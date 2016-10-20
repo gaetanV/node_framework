@@ -4,17 +4,14 @@
    
     var app = express();
     
-    
-
-    
-    require('http').Server(app);
+var server = require('http').createServer(app);
     var port = process.env.PORT|| 7200; 
-  
-    app.listen(port);
 
-    require('./core/route.js')(app,express);
 
- 
+require('./core/route.js')(app,server,express);
+
+server.listen(port);
+
 
   
 })();
