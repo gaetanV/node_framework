@@ -24,7 +24,7 @@
         this.name=bundle.name;
         this.path=bundle.path;
         this.templating=bundle.templating;
-        this.cash=[];
+        this.views=[];
         this.controllers=[];
          var vm=this;
         try{
@@ -52,21 +52,21 @@
                                      throw vm.templating + " templating is not in charge"
                                  case "html":
                                      parser=function(path,param){
-                                        return vm.cash[path];
+                                        return vm.views[path];
                                      }
                                      break;
                                  case "jade":
                                  case "pug":
                                      var pug = include('pug');
                                      parser=function(path,param){
-                                         return pug.render(vm.cash[path],param);
+                                         return pug.render(vm.views[path],param);
                                     }
                                      break;
                                  case "mustache":
                                      var Mustache = include('Mustache');
                                      parser=function(path,param){
                                     
-                                        return  Mustache.render(vm.cash[path],param);
+                                        return  Mustache.render(vm.views[path],param);
                                      }
                                      break;
                          
@@ -87,8 +87,10 @@
                     
                         files.forEach(function (file) {
                             var view=$fs.readFileSync($path.join(pathView,file), 'utf8');
+                            
+                            
 
-                            vm.cash[file]=view;
+                            vm.views[file]=view;
                         });
                         onload();
                       

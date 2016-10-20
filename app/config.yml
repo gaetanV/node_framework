@@ -1,6 +1,7 @@
 framework:
     templating:
         engines: ['pug','mustache','html']
+    compression_gzip: true
     bundles:
         UserBundle: { templating: mustache}  
         

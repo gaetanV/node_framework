@@ -29,6 +29,11 @@
         publicArea("/", "./web/");
         function publicArea(redirect, staticpath) {
             function security(req, res, next) {
+                 
+                
+                    
+                    
+                    
                 var temp = getTimeMSFloat();
                 try {
                  
@@ -39,7 +44,7 @@
                         var m = new RegExp('^' + access_control[i].path + '$', 'gi');
                         if (req.path.match(m)) {
                             if (access_control[i].roles === "IS_AUTHENTICATED_ANONYMOUSLY") {
-                                console.log(getTimeMSFloat() - temp);
+                               
                                 
                                  if(access_control[i].hasOwnProperty("whiteip")){
                                         var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress ||  req.socket.remoteAddress ||  req.connection.socket.remoteAddress;
@@ -57,7 +62,7 @@
 
                                 }
                                 
-                                
+                                console.log(getTimeMSFloat() - temp);
                                 next();
                                 return false;
                             } else {
@@ -72,7 +77,8 @@
                     return false;
                 }
             }
-            app.use(redirect, security, express.static(staticpath, {index: INDEX}));
+            var oneYear = 1 * 365 * 24 * 60 * 60 * 1000;
+            app.use(redirect, security, express.static(staticpath, {maxAge: oneYear,index: INDEX}));
         }
         ;
 

@@ -6,10 +6,14 @@
     var $bundle = require('./bundle.js');
     var $security = require('./security.js');
     var $path = require("path");
-
+    var compression = require('compression');
     module.exports = Root;
     function Root($app, $express) {
         $security($app, $express, $fs, $yaml, $path);
+
+        
+      
+        
         var BUNDLES = [];
         function add(path, racine) {
 
@@ -49,6 +53,10 @@
          if (!doc.hasOwnProperty("framework")){throw ('ERROR IN CONFIG FRAMEWORK')}
         doc=doc.framework;
        
+         if (doc.hasOwnProperty("compression_gzip")) {
+                   if (doc.compression_gzip===true) {$app.use(compression({threshold:0,filter:function(){return true;}}))};
+         }
+         
         if (doc.hasOwnProperty("bundles")) {
             var all=Object.keys(doc.bundles).length;
             
