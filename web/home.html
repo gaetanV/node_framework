@@ -16,7 +16,15 @@
                 console.log(data);
 
             });
+            
+            socket.emit('watch', {room:'message',id:1});
+            socket.emit('watch', {space:'flux'});
+            
+            socket.on('info', function (data) {
+                console.log(data);
 
+            });
+            
             </script>
         <div>Welcome to your new page</div>
     </body>

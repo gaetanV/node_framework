@@ -4,17 +4,19 @@
     var $fs = require('fs');
     var $controller = require('./controller.js');
     var $bundle = require('./bundle.js');
-    var $security = require('./security.js');
-    var $socket = require('./socket.js');
+    var $security = require('./security.js'); 
+    var $service = require('./service.js');
     var $path = require("path");
     var compression = require('compression');
     var session = require('express-session');
-    
+
+
     module.exports = Root;
     function Root($app, $server ,$express) {
-        $socket($server);
+
         $security($app, $express, $fs, $yaml, $path);
         var BUNDLES = [];
+        var SERVICE = [];
         function add(path, racine) {
                 try {
                     var doc = $yaml.safeLoad($fs.readFileSync(path, 'utf8'));
@@ -44,7 +46,19 @@
                 } 
         }
         
+             
+
+     
         var doc = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../app", "./config.yml"), 'utf8'));
+        
+        if (doc.hasOwnProperty("services")) {
+            
+             for (var i in doc.services) {
+                SERVICE[i] = new $service(doc.services[i],{$server:$server},$path); 
+             }
+        }
+ 
+        
          if (!doc.hasOwnProperty("framework")){throw ('ERROR IN CONFIG FRAMEWORK')}
         doc=doc.framework;
         
@@ -56,12 +70,11 @@
         /*Session*/
         if (doc.hasOwnProperty("session")) {
                 var sessionStore  = new session.MemoryStore;
-                $app.use(session({secret: doc.session , store: sessionStore,resave:true,saveUninitialized: true}));
+                $app.set('trust proxy', 1)
+                $app.use(session({secret: doc.session , store: sessionStore,resave:true,saveUninitialized: true,cookie: { httpOnly: true,secure: true }}));
         }
         
-         
-         
-         
+    
         if (doc.hasOwnProperty("bundles")) {
            var all=Object.keys(doc.bundles).length; 
            var cmp=0;

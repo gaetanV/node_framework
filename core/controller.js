@@ -34,6 +34,7 @@
                 };
                 console.log("function : " + fn);
                 vm.controller[fn].apply({
+                    
                     get:  function (service) {
                         if (service = "mail") {
                             console.log("mail is ready");
@@ -71,6 +72,8 @@
 
         this.addGet = function (route) {
             $app.get(route.path, function (req, res, next) {
+                var sess = req.session;
+                console.log(sess);
                 try {
                     var params = GET.getParam(route, res, req);
                     console.log("GET match " + route.path);
