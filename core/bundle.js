@@ -20,7 +20,7 @@
           return actions;  
     };
     
-    var  Bundle = function (bundle,$fs,$path,$app,$controller,onload) {
+    var  Bundle = function (bundle,SERVICE,$fs,$path,$app,$controller,onload) {
         this.name=bundle.name;
         this.path=bundle.path;
         this.templating=bundle.templating;
@@ -74,7 +74,7 @@
                              }
                              
                            
-                             vm.controllers[controllerName[1]]=new $controller(actions,parser, $app);
+                             vm.controllers[controllerName[1]]=new $controller(actions,SERVICE,parser, $app);
                           
                         }
  

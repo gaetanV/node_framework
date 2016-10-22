@@ -3,29 +3,53 @@
     <head>
         <title>Home sweet home</title>
         <script src="/js/socket.io.js"></script>
-        
+
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
         <script>
-            
-            var socket = io.connect('http://localhost:7200');
+          
+                var $scope={article:[]};
                 
-            socket.on('isConnect', function (data) {
-                console.log(data);
+                
+                var socket = io.connect('http://localhost:7200');
 
-            });
-            
-            socket.emit('watch', {room:'message',id:1});
-            socket.emit('watch', {space:'flux'});
-            
-            socket.on('info', function (data) {
-                console.log(data);
+                socket.on('isConnect', function (data) {
+                    console.log(data);
 
-            });
+                });
+               
+                
+                socket.emit('watch', {room: 'user', id: 1});
+                socket.emit('watch', {space: 'flux'});
+               
+                
+                socket.on('info', function (data) {
+                    console.log(data);
+                });
+                
+
+                socket.on('SPACE:flux', function (data) {
+                    console.log(data.message);
+                    document.querySelector("#flux").innerHTML+="<div>"+data+"</div>";
+
+                });
+                
+                socket.on('ROOM:user:1', function (data) {            
+                  
+                    console.log(data);
+                     document.querySelector("#flux").innerHTML+="<div>"+data+"</div>";
+                });
+                
+                
             
-            </script>
-        <div>Welcome to your new page</div>
+        </script>
+        <div>
+            Welcome to your new page  
+        </div>
+        <div id="flux">
+            
+        </div>
     </body>
 </html>

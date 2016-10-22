@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     require=function(){};
-    var ControllerBundle = function ( actions,parser,$app) {
+    var ControllerBundle = function ( actions,SERVICE,parser,$app) {
         var vm = this;
 
         this.controller=actions;
@@ -35,10 +35,11 @@
                 console.log("function : " + fn);
                 vm.controller[fn].apply({
                     
-                    get:  function (service) {
-                        if (service = "mail") {
-                            console.log("mail is ready");
+                    get:  function (service_name) {
+                        if(SERVICE[service_name]){
+                            return SERVICE[service_name]
                         }
+                        
                     },
                     send: function (string) {
                         try {

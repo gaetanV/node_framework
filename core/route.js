@@ -97,7 +97,7 @@
             for (var i in doc.bundles) {
                 doc.bundles[i].path=i.replace(new RegExp(":", 'g'), "/");
                 doc.bundles[i].name=i;
-                BUNDLES[i] = new $bundle(doc.bundles[i], $fs, $path, $app, $controller,load);
+                BUNDLES[i] = new $bundle(doc.bundles[i],SERVICE, $fs, $path, $app, $controller,load);
             }
         };
       

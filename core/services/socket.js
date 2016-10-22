@@ -9,11 +9,12 @@
 
 
 
-        function ROOM(roles) {
+        function ROOM(name,roles) {
+            this.name=name;
             this.roles = roles;
             var space = [];
             this.addSpace = function (id) {
-                space[id] = new SPACE(this.roles);
+                space[id] = new SPACE(this.name+":"+id,this.roles);
             }
             this.getSpace = function (id) {
                 if (!space.hasOwnProperty(id)) {
@@ -25,7 +26,9 @@
         }
 
 
-        function SPACE(roles) {
+        function SPACE(name,roles,id) {
+            this.name=name;
+            this.id=id;
             this.roles = roles;
             this.client = [];
             this.garbage = function () {
@@ -37,12 +40,29 @@
                 }
 
             }
+            this.broadcast = function(data){
+                console.log("********************* ");
+                console.log("broadcast "+this.name);
+                console.log(this);
+                 for (var i in this.client) { 
+                    if (!clients.hasOwnProperty(i)) {
+                        delete this.client[i];
+                    }
+                    
+                 
+                    clients[i].emit(this.name,data);
+                   
+                 }
+                 console.log("********************* ");
+            }
 
         }
-
+       
+        
+        
         var NAMESPACE = {};
         var ROOMSPACE = {};
-
+       
 
 
 
@@ -111,12 +131,12 @@
         };
 
         var setRoom = function (namespace, roles) {
-            ROOMSPACE[namespace] = new ROOM(roles);
+            ROOMSPACE[namespace] = new ROOM("ROOM:"+namespace,roles);
             return ROOMSPACE[namespace];
         };
 
         var setSpace = function (namespace, roles) {
-            NAMESPACE[namespace] = new SPACE(roles);
+            NAMESPACE[namespace] = new SPACE("SPACE:"+namespace,roles);
             return NAMESPACE[namespace];
         }
         
@@ -128,7 +148,7 @@
         };
 
 
-        var room = setRoom("message", ["ROLE_ADMIN"]);
+        var room = setRoom("user", ["ROLE_ADMIN"]);
         room.addSpace(1);
         setSpace("flux", "IS_AUTHENTICATED_ANONYMOUSLY");
 

@@ -35,6 +35,6 @@ security:
              -  { path: /admin/login.html                , roles: IS_AUTHENTICATED_ANONYMOUSLY , whiteip:[192.168.0.11]}
              -  { path: /admin/login_check               , roles: IS_AUTHENTICATED_ANONYMOUSLY , whiteip:[192.168.0.11] }
              -  { path: /admin/.*                        , roles: [ROLE_ADMIN]                 , whiteip:[192.168.0.11]  }
-             -  { path: /user/.*                         , roles: [ROLE_API]                   , auth: api_area }
+             #-  { path: /user/.*                         , roles: [ROLE_API]                   , auth: api_area }
              -  { path: /.*                              , roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
