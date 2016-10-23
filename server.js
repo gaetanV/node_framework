@@ -13,5 +13,5 @@ require('./core/route.js')(app,server,express);
 server.listen(port);
 
 
-  
+
 })();

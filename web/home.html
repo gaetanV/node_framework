@@ -9,47 +9,53 @@
     </head>
     <body>
         <script>
-          
-                var $scope={article:[]};
-                
-                
-                var socket = io.connect('http://localhost:7200');
+            var ws = new WebSocket("ws://localhost:8098");
 
-                socket.on('isConnect', function (data) {
+
+            ws.onopen = function () {
+                ws.send(JSON.stringify({watch: "user:1"}));
+            }
+
+            ws.onmessage = function (e) {
+                try {
+                    var data = JSON.parse(e.data);
                     console.log(data);
+                    if (!data.hasOwnProperty("type")) {
+                        throw "error"
+                    }
+                    switch (data.type) {
+                        case "MESSAGE":
+                            if (!data.hasOwnProperty("data")) {
+                                throw "error"
+                            }
+                            document.querySelector("#flux").innerHTML += "<div>" + data.data + "</div>";
+                            break;
+                        case "WATCH":
+                            if (!data.hasOwnProperty("id") || !data.hasOwnProperty("data")) {
+                                throw "error"
+                            }
 
-                });
-               
-                
-                socket.emit('watch', {room: 'user', id: 1});
-                socket.emit('watch', {space: 'flux'});
-               
-                
-                socket.on('info', function (data) {
-                    console.log(data);
-                });
-                
+                            switch (data.id) {
+                                case "user:1":
+                                    document.querySelector("#flux").innerHTML += "<div>" + data.data + "</div>";
+                                    break;
+                            }
+                            break;
+                    }
 
-                socket.on('SPACE:flux', function (data) {
-                    console.log(data.message);
-                    document.querySelector("#flux").innerHTML+="<div>"+data+"</div>";
+                } catch (err) {
+                    console.log(e);
+                }
 
-                });
-                
-                socket.on('ROOM:user:1', function (data) {            
-                  
-                    console.log(data);
-                     document.querySelector("#flux").innerHTML+="<div>"+data+"</div>";
-                });
-                
-                
-            
+            };
+
+
         </script>
         <div>
             Welcome to your new page  
         </div>
         <div id="flux">
-            
+
         </div>
     </body>
 </html>

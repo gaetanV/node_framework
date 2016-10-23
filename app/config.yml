@@ -8,10 +8,12 @@ framework:
 
 
 services:
-    socket:
-        class:  core\services\socket
-        arguments: [ "$server" ]
-        
+   # socket:
+   #     class:  core\services\socket
+   #     arguments: [ "$server" ]
+    ws:
+        class:  core\services\ws
+        arguments: [  ]    
     
 private_services:       
     apikey_authenticator:
