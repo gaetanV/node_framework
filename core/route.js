@@ -12,7 +12,7 @@
 
 
     module.exports = Root;
-    function Root($app, $server ,$express) {
+    function Root($app, $server,$port,$host ,$express) {
 
         $security($app, $express, $fs, $yaml, $path);
         var BUNDLES = [];
@@ -54,7 +54,7 @@
         if (doc.hasOwnProperty("services")) {
             
              for (var i in doc.services) {
-                SERVICE[i] = new $service(doc.services[i],{$server:$server},$path); 
+                SERVICE[i] = new $service(doc.services[i],{$port:$port,$host:$host},$path); 
              }
         }
  

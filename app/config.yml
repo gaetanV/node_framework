@@ -8,12 +8,10 @@ framework:
 
 
 services:
-   # socket:
-   #     class:  core\services\socket
-   #     arguments: [ "$server" ]
     ws:
         class:  core\services\ws
-        arguments: [  ]    
+        arguments: [$host]    
+        params: { port: 8098 }
     
 private_services:       
     apikey_authenticator:
