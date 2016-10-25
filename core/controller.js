@@ -72,6 +72,7 @@
         }
 
         this.addGet = function (route) {
+            
             $app.get(route.path, function (req, res, next) {
                 var sess = req.session;
                 console.log(sess);

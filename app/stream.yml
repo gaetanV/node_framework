@@ -1,0 +1,9 @@
+# USER API   
+user_getOne:
+    path:     /user/{id}/
+    defaults: { _controller: "UserBundle:User:getOneStream" }
+    requirements:
+        id: \d+
+user_getAll:
+    path:     /user/
+    defaults: { _controller: "UserBundle:User:getAllStream" }

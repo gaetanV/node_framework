@@ -8,19 +8,35 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <script>
+
+        <div>
+            Welcome to your new page  
+        </div>
+        <div id="flux">
+
+        </div>
+         <div id="user1">
+
+        </div>
+        <div id="users">
+
+        </div>
+         <script>
             var ws = new WebSocket("ws://192.168.0.11:8098");
 
 
             ws.onopen = function () {
-                ws.send(JSON.stringify({watch: "user:1"}));
-                ws.send(JSON.stringify({watch: "public:flux"}));
+                
+                ws.send(JSON.stringify({watch: "/user/1/" ,param:{}}));
+                ws.send(JSON.stringify({watch: "/user/"   ,param:{}}));
+             
+              
             }
 
             ws.onmessage = function (e) {
                 try {
                     var data = JSON.parse(e.data);
-                    console.log(data);
+                
                     if (!data.hasOwnProperty("type")) {
                         throw "error"
                     }
@@ -31,18 +47,21 @@
                             }
                             document.querySelector("#flux").innerHTML += "<div>" + data.data + "</div>";
                             break;
-                        case "WATCH":
-                            if (!data.hasOwnProperty("id") || !data.hasOwnProperty("data")) {
+                        case "data":
+                            
+                            
+                            if (!data.hasOwnProperty("watch") || !data.hasOwnProperty("data")) {
                                 throw "error"
                             }
-
-                            switch (data.id) {
-                                case "user:1":
+                           console.log(data);
+                            switch (data.watch) {
+                                case "/user/1/":
+                                   
                                     document.querySelector("#user1").innerHTML = "<div>" + data.data + "</div>";
                                     break;
                                     
-                                 case "public:flux":
-                                     document.querySelector("#flux").innerHTML += "<div>" + data.data + "</div>";
+                                 case "/user/":
+                                     document.querySelector("#users").innerHTML = "<div>" + data.data + "</div>";
                                      break;
                             }
                             break;
@@ -56,15 +75,6 @@
 
 
         </script>
-        <div>
-            Welcome to your new page  
-        </div>
-        <div id="flux">
-
-        </div>
-         <div id="user1">
-
-        </div>
         
     </body>
 </html>

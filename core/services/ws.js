@@ -1,68 +1,79 @@
 (function () {
     'use strict';
     module.exports = Ws;
-    function Ws(inject,params) {
+    function Ws(inject, params) {
         var WebSocketServer = require('ws').Server;
-        var port=params.port|8098;
-        console.log(params);
-        var wss = new WebSocketServer({port: port, host: inject.$host});
-        var clients = [];
-       
-        
-        
-        function ROOM(name, roles) {
-            this.name = name;
-            this.roles = roles;
-            var space = [];
-            this.addSpace = function (id,data) {
-                space[id] = new SPACE(this.name + ":" + id, this.roles,data);
+        var port = params.port | 8098;
+        var $fs = inject.$fs;
+        var $yaml = inject.$yaml;
+        var $path = inject.$path;
+        var STREAM = [];
+        var setStream = function (route) {
+            route.param = [];
+            if (route.path.match(/{([^{}]*)}/g)) {
+                var t = route.path.replace(/{([^{}]*)}/g,
+                        function (match) {
+
+                            var c = match.slice(1, -1);
+                            route.param.push(c);
+                            if (route.requirements.hasOwnProperty(c)) {
+                                var r = route.requirements.id;
+                                return "([" + r + "^/])";
+                            }
+                            return "([.^/]{1,})"
+                        }
+                );
+            } else {
+                var t = route.path;
             }
-            this.getSpace = function (id) {
-                if (!space.hasOwnProperty(id)) {
-                    return false;
-                }
-                return space[id];
-            }
+            route.regex = new RegExp('^' + t + '$', 'gi');
+            STREAM.push(route);
         }
-        
-        function SPACE(name, roles,data) {
-            this.name = name;
-            try{
-                this.data=JSON.stringify(data);
-            }catch(e){
-                this.data=data;
+
+
+        var getStream = function (path, option) {
+            for (var i in  STREAM) {
+                if (path.match(STREAM[i].regex)) {
+
+                    var r = {};
+                    var t = STREAM[i].regex.exec(path);
+
+                    for (var j = 0; j < STREAM[i].param.length; j++) {
+                        r[STREAM[i].param[j]] = t[j + 1];
+
+                    }
+                    ;
+                    return STREAM[i].getSpace(r, {}, path);
+                }
             }
-            
-            this.roles = roles;
+            return false;
+        }
+
+        function SPACE(data, index, path) {
+            var user = 1; // FROM SESSION
             this.client = [];
-            this.garbage = function () {
-                for (var i in this.client) {
-                    if (!clients.hasOwnProperty(i)) {
-                        delete this.client[i];
-                    }
-
-                }
-
+            this.path = path;
+            this.index = index;
+            this.register = function (socket) {
+                this.client[socket.id] = socket;
+            };
+            this.date = {
+                create: {date: Date.now(), user: user},
+                update: {date: Date.now(), user: user},
             }
+            this.data = data;
             this.broadcast = function (data) {
-                if(data){
-                    try{
-                        this.data=JSON.stringify(data);
-                    }catch(e){
-                        this.data=data;
-                    }
-                }
-                //this.garbage();
-                console.log("********************* ");
-                console.log("broadcast " + this.name);
-                console.log(this);
-
+                var user = 1; // FROM SESSION
+                this.date.update = {date: Date.now(), user: user};
+                this.data = data;
+     
                 for (var i in this.client) {
                     try {
                         var client = clients[i];
                         client.send(
                                 JSON.stringify(
-                                        {type: "WATCH", id: this.name, data:this.data}
+                                        {type: "data", watch: this.path, data: JSON.stringify(this.data)}
+
                                 )
                                 );
 
@@ -71,12 +82,57 @@
                         delete this.client[i];
                     }
                 }
-                console.log("********************* ");
             }
+        }
+        function ROOM(path, fn, requirements) {
+            this.fn = fn;
+            this.path = path;
+            this.requirements = requirements;
 
+            var cash = [];
+
+            this.getSpace = function (param, option, path) {
+                var o = JSON.stringify(option);
+                var p = JSON.stringify(param);
+                var index = (p != undefined ? p : "{}") + "-" + (o != undefined ? o : "{}");
+                if (!cash.hasOwnProperty(index)) {
+                    cash[index] = new SPACE(this.fn.apply(
+                            {},
+                            Object.keys(param).map(function (k) {
+                        return param[k]
+                    }
+                    )), index,
+                            path);
+                }
+                return cash[index];
+            }
         }
 
-        var ROOMSPACE = {};
+        if (inject.$bundles) {
+            var BUNDLES = inject.$bundles;
+            console.log("bundles");
+
+
+            var config = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../../", params.router.resource), 'utf8'));
+            for (var i in config) {
+                var c = config[i].defaults["_controller"];
+                var controller = c.split(":");
+                var bundleName = controller[0];
+                var controllerName = controller[1];
+                var fn = controller[2];
+
+                var option = {
+                    path: config[i].path,
+                    fn: BUNDLES[bundleName].controllers[controllerName].controller[fn],
+                    requirements: config[i].requirements ? config[i].requirements : {}
+                }
+                setStream(new ROOM(option.path, option.fn, option.requirements));
+            }
+        }
+
+        var wss = new WebSocketServer({port: port, host: inject.$host});
+        var clients = [];
+
 
         function guid() {
             function s4() {
@@ -92,65 +148,29 @@
             ws.id = guid();
             console.log("********** NEW   " + ws.id + "**********");
             clients[ws.id] = ws;
-            
-
             ws.send(
                     JSON.stringify({type: "MESSAGE", data: "now you can register @stream"})
-            );
+                    );
 
             ws.on('close', function () {
                 console.log("********** DELETE   " + ws.id + "**********");
                 delete clients[ws.id];
 
             });
-
             ws.on('message', function (param) {
+
                 var message = JSON.parse(param);
                 if (message.hasOwnProperty("watch")) {
-                    var space = (message.watch).split(":");
-                    if (space.length === 2) {
+                    var mystream = getStream(message.watch, {});
+                    mystream.register(ws);
+                    ws.send(JSON.stringify({type: "data", watch: message.watch, data: JSON.stringify(mystream.data)}))
 
-                        var room = getRoom(space[0], space[1]);
-                        if (room) {
-                            room.client[ws.id] = "new client";
-                            room.broadcast();
-                            ws.send(JSON.stringify(
-                                    {type: "MESSAGE", data:
-                                                "you are register in room " + space[0]
-                                    }
-                            ))
-                        }
-                    }
                 }
             });
         });
 
-
-        var getRoom = function (namespace, id) {
-            if (!ROOMSPACE.hasOwnProperty(namespace)) {
-                return false;
-            }
-            var room = ROOMSPACE[namespace];
-
-            var space = room.getSpace(id);
-            return space;
-        };
-
-        var setRoom = function (namespace, roles) {
-            ROOMSPACE[namespace] = new ROOM(namespace, roles);
-            return ROOMSPACE[namespace];
-        };
-
-
-        var room = setRoom("user", ["ROLE_ADMIN"]);
-        room.addSpace(1,{name:"dynamic name",type:"sync"});
-        var rootscoop = setRoom("public", "IS_AUTHENTICATED_ANONYMOUSLY");
-        rootscoop.addSpace("flux");
-
-
         return {
-            setRoom: setRoom,
-            getRoom: getRoom,
+            getStream: getStream
         };
 
     }

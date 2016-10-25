@@ -5,13 +5,20 @@ framework:
     session : Ops56qs5dé=&à&é=dkqs^d
     bundles:
         UserBundle: { templating: mustache}  
-
+    router:
+        resource: /app/routing.yml
 
 services:
     ws:
         class:  core\services\ws
-        arguments: [$host]    
-        params: { port: 8098 }
+        arguments: [ $host ,$bundles,$fs,$yaml ,$path]    
+        params: 
+            port: 8098  
+            router: 
+                resource: /app/stream.yml
+            access_control:    
+                -  { path: /user/.*                        , roles: [ROLE_ADMIN]          , auth: api_area       , whiteip:[192.168.0.11]  }
+    
     
 private_services:       
     apikey_authenticator:
@@ -19,7 +26,7 @@ private_services:
     apikey_userprovider:
         class:  UserBundle\Security\ApiKeyUserProvider   
         
-        
+       
 security:
     index: home.html
 

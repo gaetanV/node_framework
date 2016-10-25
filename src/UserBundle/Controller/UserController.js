@@ -3,26 +3,40 @@
     var UserController =   {
              getAllAction:function() {
                 var socket=this.get("ws");
-                var space=socket.getRoom("public","flux");
+                   var object=[{name:Math.random(),type:"sync"}, {name:Math.random(),type:"sync"}];
+                var space=socket.getStream("/user/");
                 if(space){
-                     space.broadcast("user get all action ");
+                     space.broadcast(object);
                     
                 }
-                return this.render('index.pug',{name:"dynamic"});
+                return this.render('index.pug',{name:"objects change"});
              
              },
              getOneAction:function(id) {
                
-                var socket=this.get("ws");
-                var space=socket.getRoom("user",id);
+                //UPDATE IN DB
+                var object={name:Math.random(),type:"sync",id:id};
+                var space=this.get("ws").getStream("/user/"+id+"/",{});
                 if(space){
-                     space.broadcast({name:Math.random(),type:"sync"});
+                     space.broadcast(object);
                     
                 }
+                
   
-                return this.send('one user'+id);
+                return this.send("object change");
            
              },
+             getOneStreamAction:function(id){
+                 /// GET FROM BD
+                 return {name:Math.random(),type:"sync",id:id};
+                 
+             },
+             getAllStreamAction:function() {
+                   /// GET FROM BD
+                  return [{name:Math.random(),type:"sync"}, {name:Math.random(),type:"sync"}];
+                  
+             },
+             
              test:function(id) {
                
                  console.log(id);
