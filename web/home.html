@@ -1,79 +1,32 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Home sweet home</title>
-        
-
+        <title>The Hostel</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="/js/Stream.js"></script>
     </head>
     <body>
 
         <div>
-            Welcome to your new page  
+            Welcome to the hostel
         </div>
-        <div id="flux">
+        <div id="flux" >
 
         </div>
-         <div id="user1">
+         <div id="user1" data-stream="/user/1/" data-param="" >
 
         </div>
-        <div id="users">
+        <div id="users"  data-stream="/user/" data-param="" >
 
         </div>
          <script>
-            var ws = new WebSocket("ws://192.168.0.11:8098");
-
-
-            ws.onopen = function () {
-                
-                ws.send(JSON.stringify({watch: "/user/1/" ,param:{}}));
-                ws.send(JSON.stringify({watch: "/user/"   ,param:{}}));
+           
+                var s=new Stream("ws://192.168.0.11:8098");
+                s.info(function(data){
+                      document.querySelector("#flux").innerHTML = "<div>" + data + "</div>";
+                });
              
-              
-            }
-
-            ws.onmessage = function (e) {
-                try {
-                    var data = JSON.parse(e.data);
-                
-                    if (!data.hasOwnProperty("type")) {
-                        throw "error"
-                    }
-                    switch (data.type) {
-                        case "MESSAGE":
-                            if (!data.hasOwnProperty("data")) {
-                                throw "error"
-                            }
-                            document.querySelector("#flux").innerHTML += "<div>" + data.data + "</div>";
-                            break;
-                        case "data":
-                            
-                            
-                            if (!data.hasOwnProperty("watch") || !data.hasOwnProperty("data")) {
-                                throw "error"
-                            }
-                           console.log(data);
-                            switch (data.watch) {
-                                case "/user/1/":
-                                   
-                                    document.querySelector("#user1").innerHTML = "<div>" + data.data + "</div>";
-                                    break;
-                                    
-                                 case "/user/":
-                                     document.querySelector("#users").innerHTML = "<div>" + data.data + "</div>";
-                                     break;
-                            }
-                            break;
-                    }
-
-                } catch (err) {
-                    console.log(e);
-                }
-
-            };
-
-
         </script>
         
     </body>

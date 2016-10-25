@@ -1,12 +1,12 @@
-user_getOne:
+user_setOne:
     path:     /{id}/
-    defaults: { _controller: "UserBundle:User:getOne" }
+    defaults: { _controller: "UserBundle:User:setOne" }
     methods:  [GET,POST]
     requirements:
         id: \d+
-user_getAll:
+user_setAll:
     path:     /
-    defaults: { _controller: "UserBundle:User:getAll" }
+    defaults: { _controller: "UserBundle:User:setAll" }
     methods:  [GET]
     
 

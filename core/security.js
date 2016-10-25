@@ -28,7 +28,7 @@
         }
         if (doc.hasOwnProperty("auth")) {
             for (var i in doc.auth) {
-                console.log(doc.auth[i]);
+            
                 if (!doc.auth[i].hasOwnProperty("stateless") || !doc.auth[i].hasOwnProperty("authenticator") || !doc.auth[i].hasOwnProperty("provider") ) {
                     throw ('ERROR IN CONFIG auth')
                 }

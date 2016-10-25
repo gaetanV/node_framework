@@ -86,7 +86,7 @@
 
                     var doc = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../app", "./routing.yml"), 'utf8'));
                     for (var i in doc) {
-                        console.log(doc[i]);
+                   
                         if (!doc[i].hasOwnProperty("resource") || !doc[i].hasOwnProperty("prefix")) {
                             throw "error";
                         }

@@ -110,7 +110,7 @@
 
         if (inject.$bundles) {
             var BUNDLES = inject.$bundles;
-            console.log("bundles");
+         
 
 
             var config = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../../", params.router.resource), 'utf8'));
@@ -158,13 +158,16 @@
 
             });
             ws.on('message', function (param) {
+                try{
+                    var message = JSON.parse(param);
+                    if (message.hasOwnProperty("watch")) {
+                        var mystream = getStream(message.watch, {});
+                        mystream.register(ws);
+                        ws.send(JSON.stringify({type: "data", watch: message.watch, data: JSON.stringify(mystream.data)}))
 
-                var message = JSON.parse(param);
-                if (message.hasOwnProperty("watch")) {
-                    var mystream = getStream(message.watch, {});
-                    mystream.register(ws);
-                    ws.send(JSON.stringify({type: "data", watch: message.watch, data: JSON.stringify(mystream.data)}))
-
+                    }
+                }catch(err){
+                    console.log(err);
                 }
             });
         });

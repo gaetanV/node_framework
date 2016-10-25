@@ -28,11 +28,11 @@
             exec: function (options, req, res, next) {
                 var fn = options.fn;
                 var params = options.params;
-                console.log(fn);
+            
                 if (typeof vm.controller[fn] !== "function") {
                     throw "error function"
                 };
-                console.log("function : " + fn);
+               
                 vm.controller[fn].apply({
                     
                     get:  function (service_name) {
@@ -75,7 +75,7 @@
             
             $app.get(route.path, function (req, res, next) {
                 var sess = req.session;
-                console.log(sess);
+                
                 try {
                     var params = GET.getParam(route, res, req);
                     console.log("GET match " + route.path);

@@ -1,9 +1,10 @@
 (function () {
     'use strict';
     var UserController =   {
-             getAllAction:function() {
+             setAllAction:function() {
+               //UPDATE IN DB
                 var socket=this.get("ws");
-                   var object=[{name:Math.random(),type:"sync"}, {name:Math.random(),type:"sync"}];
+                var object=[{name:Math.random(),type:"sync"}, {name:Math.random(),type:"sync"}];
                 var space=socket.getStream("/user/");
                 if(space){
                      space.broadcast(object);
@@ -12,8 +13,7 @@
                 return this.render('index.pug',{name:"objects change"});
              
              },
-             getOneAction:function(id) {
-               
+             setOneAction:function(id) {
                 //UPDATE IN DB
                 var object={name:Math.random(),type:"sync",id:id};
                 var space=this.get("ws").getStream("/user/"+id+"/",{});
