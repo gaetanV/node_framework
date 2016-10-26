@@ -5,28 +5,67 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="/js/Stream.js"></script>
+        <script src="/js/vue.js"></script>
     </head>
     <body>
 
         <div>
             Welcome to the hostel
         </div>
-        <div id="flux" >
-
+        <div id="flux" ></div>
+        <div id="user1"  >
+             <h2> Sync User</h2>
+            {{ user.name }} {{user.type}}
+       
+            <div>
+                 <h2>Now Change me</h2>
+                  {{pull}}
+                
+                  <div>
+                NAME:
+               <input v-model="pull.name" >
+               TYPE:
+               <input v-model="pull.type" >
+                  </div> 
+               <a href="javascript:void(0)"  v-on:click="push">-------- PUSH ME -----------</a>
+                <h1>List Synch</h1>
+                {{users}}
+            </div>
         </div>
-         <div id="user1" data-stream="/user/1/" data-param="" >
-
-        </div>
-        <div id="users"  data-stream="/user/" data-param="" >
-
-        </div>
+ 
          <script>
-           
-                var s=new Stream("ws://192.168.0.11:8098");
+              var s=new Stream("ws://192.168.0.11:8098");
+              new Vue({
+                        el: '#user1',
+                        data:{
+                            user:{name:"",type:""},
+                            users:[],
+                            pull:{name:"",type:""},
+                        },methods: {
+                            
+                            push: function (event) {
+                                 s.push("/user/1/",{},this.pull);
+                            }
+                        },created: function () {
+                               var vm=this;
+                               s.watch("/user/1/",{},function(data){
+                                    vm.user=JSON.parse(data);
+                                });
+                                s.watch("/user/",{},function(data){
+                                    vm.users=JSON.parse(data);
+                                });
+                                s.pull("/user/1/",{},function(data){
+                                     vm.pull=JSON.parse(data);
+                                });
+                        }
+               })
                 s.info(function(data){
                       document.querySelector("#flux").innerHTML = "<div>" + data + "</div>";
                 });
              
+                
+             
+                
         </script>
         
     </body>

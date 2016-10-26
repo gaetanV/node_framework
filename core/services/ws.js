@@ -62,6 +62,7 @@
                 update: {date: Date.now(), user: user},
             }
             this.data = data;
+         
             this.broadcast = function (data) {
                 var user = 1; // FROM SESSION
                 this.date.update = {date: Date.now(), user: user};
@@ -166,6 +167,25 @@
                         ws.send(JSON.stringify({type: "data", watch: message.watch, data: JSON.stringify(mystream.data)}))
 
                     }
+                    if (message.hasOwnProperty("pull")) {
+                        
+                        var mystream = getStream(message.pull, {});
+                        console.log("-************");
+                        ws.send(JSON.stringify({type: "pull", watch: message.pull, data: JSON.stringify(mystream.data)}))
+
+                    }
+                    if (message.hasOwnProperty("push")) {
+                          if (message.hasOwnProperty("data")) {
+                              
+                                var mystream = getStream(message.push, {});
+                                mystream.broadcast (message.data);
+                                
+                                ws.send(JSON.stringify({type: "push", watch: message.push, data: "Broadcast"}))
+                          }
+                    }
+        
+                    
+                    
                 }catch(err){
                     console.log(err);
                 }
