@@ -1,0 +1,10 @@
+ id: 
+    type: bigint
+    writable : ["$SELF","ADMIN"]
+ name:
+    type: string
+    writable : ["$SELF","ADMIN"]  
+ mail:
+    type: string
+    writable : ["$SELF","ADMIN"]  
+    readable : false

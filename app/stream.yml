@@ -1,9 +1,31 @@
 # USER API   
-user_getOne:
+user:
     path:     /user/{id}/
     defaults: { _controller: "UserBundle:User:getOneStream" }
+    attributes:
+        name: ~
+        mail: ~
+        id: ~
+
+    persistence:
+        OneToOne:
+            targetEntity: user
+            join:  id
+ 
     requirements:
         id: \d+
-user_getAll:
+                
+users:
+    persistence:
+        OneToMany: 
+            targetEntity: user
+            join:  id
+            referenced: $index.id
+
+    attributes:
+        $index:
+            id: ~
+            name: ~
+            
     path:     /user/
     defaults: { _controller: "UserBundle:User:getAllStream" }
