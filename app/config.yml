@@ -11,7 +11,7 @@ framework:
 services:
     ws:
         class:  core\services\ws
-        arguments: [ $host ,$bundles,$fs,$yaml ,$path]    
+        arguments: [ $host ,$bundles, $fs ,$yaml ,$path ,$db ]    
         params: 
             port: 8098  
             router: 

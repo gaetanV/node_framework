@@ -17,6 +17,12 @@
         $security($app, $express, $fs, $yaml, $path);
         var BUNDLES = [];
         var SERVICE = [];
+        
+        var $db={
+            user:[{id:1,name:Math.random(),type:"sync"}, {id:2,name:Math.random(),type:"sync"}]
+        }
+
+        
         function add(path, racine) {
             try {
                 var doc = $yaml.safeLoad($fs.readFileSync(path, 'utf8'));
@@ -95,6 +101,7 @@
                     }
 
                     if (config.hasOwnProperty("services")) {
+                        
                         for (var i in config.services) {
                             SERVICE[i] = new $service(config.services[i], {
                                 $port: $port,
@@ -102,9 +109,11 @@
                                 $bundles: BUNDLES,
                                 $fs:$fs,
                                 $path:$path,
-                                $yaml:$yaml
+                                $yaml:$yaml,
+                                $db:$db,
                             }, $path);
                         }
+                        
                     };
 
 

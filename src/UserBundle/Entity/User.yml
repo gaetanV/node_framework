@@ -1,6 +1,6 @@
  id: 
     type: bigint
-    writable : ["$SELF","ADMIN"]
+    writable : false
  name:
     type: string
     writable : ["$SELF","ADMIN"]  

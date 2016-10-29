@@ -1,5 +1,7 @@
 (function () {
     'use strict';
+    
+
     var UserController =   {
              setAllAction:function() {
                //UPDATE IN DB
@@ -27,15 +29,19 @@
            
              },
              getOneStreamAction:function(id){
-                 /// GET FROM BD
-                 return {name:Math.random(),type:"sync",id:id};
+                 
+
+                 return this.db.user[0];
                  
              },
              getAllStreamAction:function() {
                    /// GET FROM BD
-                  return [{name:Math.random(),type:"sync"}, {name:Math.random(),type:"sync"}];
+      
+                  return this.db.user;
                   
              },
+             
+     
              
              test:function(id) {
                
