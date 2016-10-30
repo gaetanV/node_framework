@@ -63,15 +63,12 @@ var Stream
         };
 
         
-        
-        ws.onmessage = function (e) {
-            try {
-                console.log(e);
-                var data = JSON.parse(e.data);
+        function switchResponse(data){
+              console.log(data);
                 if (!data.hasOwnProperty("type")) {
                     throw "error"
                 }
-                switch (data.type) {
+                       switch (data.type) {
                     case "MESSAGE":
                         if (!data.hasOwnProperty("data")) {
                             throw "error"
@@ -98,6 +95,7 @@ var Stream
                              delete PULL[data.watch];
                         }
                         break;
+               
                     case "push":
                          console.log("push");
                         if (!data.hasOwnProperty("watch") || !data.hasOwnProperty("data")) {
@@ -107,8 +105,29 @@ var Stream
                              PUSH[data.watch].fn(data.data);
                              delete PUSH[data.watch];
                         }
+                        break;
                 }
                 ;
+        }
+        ws.onmessage = function (e) {
+            try {
+              
+                var data = JSON.parse(e.data);
+                if (!data.hasOwnProperty("type")) {
+                    throw "error"
+                }
+                if(data.type=="buffer"){
+                    var data = JSON.parse(data.data);
+                   
+                    for(var i in data){
+
+                       switchResponse(JSON.parse(data[i]));
+                    }
+                  
+                }else{
+                    switchResponse(data);
+                }
+         
             } catch (err) {
                 console.log(e);
             }
