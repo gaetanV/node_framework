@@ -4,8 +4,12 @@
         <title>The Hostel</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
         <script src="/js/Stream.js"></script>
+        <script src="/js/LongPolling.js"></script>
+         
         <script src="/js/vue.js"></script>
+         <script src="/js/jquery.min.js"></script>
     </head>
     <body>
 
@@ -48,7 +52,7 @@
                             }
                         },created: function () {
                                var vm=this;
-                               s.watch("/user/1/",{},function(data){
+                                s.watch("/user/1/",{},function(data){
                                     vm.user=JSON.parse(data);
                                 });
                                 s.watch("/user/",{},function(data){
@@ -63,6 +67,9 @@
                       document.querySelector("#flux").innerHTML = "<div>" + data + "</div>";
                 });
              
+             
+             var s=new LongPolling("http://192.168.0.11:8124");
+         
                 
              
                 

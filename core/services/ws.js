@@ -11,8 +11,6 @@
 
 
         var PERISISTENCE = [];
-
-
         function ENTITY() {
             this.rooms = [];
         }

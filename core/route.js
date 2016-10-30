@@ -12,7 +12,7 @@
 
 
     module.exports = Root;
-    function Root($app, $server, $port, $host, $express) {
+    function Root($app, $server, $port, $host, $express,$http) {
 
         $security($app, $express, $fs, $yaml, $path);
         var BUNDLES = [];
@@ -111,6 +111,7 @@
                                 $path:$path,
                                 $yaml:$yaml,
                                 $db:$db,
+                                $http:$http,
                             }, $path);
                         }
                         
