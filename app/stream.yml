@@ -20,12 +20,9 @@ users:
         OneToMany: 
             targetEntity: user
             join:  id
-            referenced: $index.id
-
-    attributes:
-        $index:
-            id: ~
-            name: ~
-            
+            referenced: users.u
+            attributes:
+                name: ~
+ 
     path:     /user/
     defaults: { _controller: "UserBundle:User:getAllStream" }

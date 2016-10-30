@@ -37,7 +37,7 @@
              getAllStreamAction:function() {
                    /// GET FROM BD
       
-                  return this.db.user;
+                  return {users:{u:this.db.user.slice(0)}};
                   
              },
              

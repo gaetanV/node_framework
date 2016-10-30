@@ -9,6 +9,6 @@
     var host = process.env.HOST || '192.168.0.11';
     require('./core/route.js')(app, server, port, host, express);
     
-    
+    console.log( process.memoryUsage());
     server.listen(port, host);
 })();
