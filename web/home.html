@@ -12,11 +12,11 @@
          <script src="/js/jquery.min.js"></script>
     </head>
     <body>
-
         <div>
             Welcome to the hostel
         </div>
         <div id="flux" ></div>
+         <div id="pollflux" ></div>
         <div id="user1"  >
              <h2> Sync User</h2>
             {{ user.name }} {{user.type}}
@@ -36,9 +36,10 @@
                 {{users}}
             </div>
         </div>
- 
+
          <script>
               var s=new Stream("ws://192.168.0.11:8098");
+              var d=new LongPolling("http://192.168.0.11:7200/event/"); 
               new Vue({
                         el: '#user1',
                         data:{
@@ -64,14 +65,13 @@
                         }
                })
                 s.info(function(data){
-                      document.querySelector("#flux").innerHTML = "<div>" + data + "</div>";
-                });
-             
-             
-             var s=new LongPolling("http://192.168.0.11:8124");
-         
+                      document.querySelector("#flux").innerHTML += "<div>" + data + "</div>";
+                }); 
+               
+                d.info(function(data){
+                      document.querySelector("#pollflux").innerHTML += "<div>" + data + "</div>";
+                }); 
                 
-             
                 
         </script>
         

@@ -4,56 +4,16 @@
     function Ws($fs, $yaml, $path, $db, $bundles, $host, port, router, access_control) {
 
         var WebSocketServer = require('ws').Server;
-        var port = port | 8098;
+        var port = port?port:8098;
         var wss = new WebSocketServer({port: port, host: $host});
-
+        var guid = require('./lib/guid.js');
+        var stream = require('./lib/stream.js')();
         var clients = [];
-
-
+       
         var PERISISTENCE = [];
+     
         function ENTITY() {
             this.rooms = [];
-        }
-
-
-        var STREAM = [];
-        var setStream = function (route) {
-            route.param = [];
-            if (route.path.match(/{([^{}]*)}/g)) {
-                var t = route.path.replace(/{([^{}]*)}/g,
-                        function (match) {
-
-                            var c = match.slice(1, -1);
-                            route.param.push(c);
-                            if (route.requirements.hasOwnProperty(c)) {
-                                var r = route.requirements.id;
-                                return "([" + r + "^/])";
-                            }
-                            return "([.^/]{1,})"
-                        }
-                );
-            } else {
-                var t = route.path;
-            }
-            route.regex = new RegExp('^' + t + '$', 'gi');
-            STREAM.push(route);
-        }
-
-
-        var getStream = function (path, option) {
-            for (var i in  STREAM) {
-                if (path.match(STREAM[i].regex)) {
-                    var r = {};
-                    var t = STREAM[i].regex.exec(path);
-
-                    for (var j = 0; j < STREAM[i].param.length; j++) {
-                        r[STREAM[i].param[j]] = t[j + 1];
-                    }
-                    ;
-                    return STREAM[i].getSpace(r, {}, path);
-                }
-            }
-            return false;
         }
 
         function SPACE(index, path, fn, options, persistence) {
@@ -248,12 +208,9 @@
                 return cache [index];
             }
         }
-        console.log($bundles);
+
         if ($bundles) {
             var BUNDLES = $bundles;
-
-
-
             var config = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../../", router.resource), 'utf8'));
             for (var i in config) {
                 var c = config[i].defaults["_controller"];
@@ -268,22 +225,10 @@
                     requirements: config[i].requirements ? config[i].requirements : {},
                     persistence: config[i].persistence ? config[i].persistence : {}
                 }
-                setStream(new ROOM(option.path, option.fn, option.requirements, option.persistence));
+                stream.setStream(new ROOM(option.path, option.fn, option.requirements, option.persistence));
             }
         }
 
-
-
-
-        function guid() {
-            function s4() {
-                return Math.floor((1 + Math.random()) * 0x10000)
-                        .toString(16)
-                        .substring(1);
-            }
-            return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-                    s4() + '-' + s4() + s4() + s4();
-        }
 
         wss.on('connection', function (ws) {
             ws.id = guid();
@@ -305,7 +250,7 @@
                 try {
                     var message = JSON.parse(param);
                     if (message.hasOwnProperty("watch")) {
-                        var mystream = getStream(message.watch, {});
+                        var mystream = stream.getStream(message.watch, {});
                         mystream.register(ws);
                         /// TO DO REMOVE REGISTER PING (10min)
 
@@ -314,7 +259,7 @@
                     }
                     if (message.hasOwnProperty("pull")) {
 
-                        var mystream = getStream(message.pull, {});
+                        var mystream = stream.getStream(message.pull, {});
                         console.log("-************");
                         ws.send(JSON.stringify({type: "pull", watch: message.pull, data: JSON.stringify(mystream.data)}))
 
@@ -388,7 +333,7 @@
         });
 
         return {
-            getStream: getStream
+            getStream: stream.getStream
         };
 
     }

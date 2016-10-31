@@ -14,7 +14,7 @@
     module.exports = Root;
     function Root($app, $server, $port, $host, $express,$http) {
 
-        $security($app, $express, $fs, $yaml, $path);
+       
         var BUNDLES = [];
         var SERVICE = [];
         
@@ -52,9 +52,6 @@
             }
         }
 
-
-
-
         var config = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../app", "./config.yml"), 'utf8'));
 
 
@@ -63,6 +60,16 @@
             throw ('ERROR IN CONFIG FRAMEWORK')
         }
         var doc = config.framework;
+       /*Session*/
+       var cookieParser = require('cookie-parser')
+        $app.use(cookieParser());
+        if (doc.hasOwnProperty("session")) {
+            console.log("SESSION");
+            var sessionStore = new session.MemoryStore;
+            var guid = require('./services/lib/guid.js');
+            $app.set('trust proxy', 1)
+            $app.use(session({secret:  doc.session, name: 'session',id:guid() , store: sessionStore, resave: true, saveUninitialized: true, cookie: {httpOnly: true}}));
+        }
 
         /*Compression*/
         if (doc.hasOwnProperty("compression_gzip")) {
@@ -74,14 +81,9 @@
             ;
         }
 
-        /*Session*/
-        if (doc.hasOwnProperty("session")) {
-            var sessionStore = new session.MemoryStore;
-            $app.set('trust proxy', 1)
-            $app.use(session({secret: doc.session, store: sessionStore, resave: true, saveUninitialized: true, cookie: {httpOnly: true, secure: true}}));
-        }
-
-
+  
+ 
+         $security($app, $express, $fs, $yaml, $path);
         if (doc.hasOwnProperty("bundles")) {
             var all = Object.keys(doc.bundles).length;
             var cmp = 0;
@@ -112,6 +114,9 @@
                                 $yaml:$yaml,
                                 $db:$db,
                                 $http:$http,
+                                $express:$express,
+                                $sessionStore:sessionStore,
+                                $app:$app,
                             }, $path);
                         }
                         
