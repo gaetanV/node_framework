@@ -7,7 +7,9 @@
         
         <script src="/js/Stream.js"></script>
         <script src="/js/LongPolling.js"></script>
-         
+        <script src="/js/Ws.js"></script>
+        
+        
         <script src="/js/vue.js"></script>
          <script src="/js/jquery.min.js"></script>
     </head>
@@ -60,8 +62,9 @@
          
 
          <script>
-              var s=new Stream("ws://192.168.0.11:8098");
-              var d=new LongPolling("http://192.168.0.11:7200/event/"); 
+     
+              var s=new Ws("ws://192.168.0.11:8098",Stream);
+              var d=new LongPolling("http://192.168.0.11:7200/event/",Stream); 
               new Vue({
                         el: '#userStream',
                         data:{

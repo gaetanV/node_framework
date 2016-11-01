@@ -22,7 +22,6 @@
             user:[{id:1,name:Math.random(),type:"sync"}, {id:2,name:Math.random(),type:"sync"}]
         }
 
-        
         function add(path, racine) {
             try {
                 var doc = $yaml.safeLoad($fs.readFileSync(path, 'utf8'));
@@ -87,10 +86,7 @@
             }
             ;
         }
-
-  
- 
-         $security($app, $express, $fs, $yaml, $path);
+        $security($app, $express, $fs, $yaml, $path);
         if (doc.hasOwnProperty("bundles")) {
             var all = Object.keys(doc.bundles).length;
             var cmp = 0;
@@ -101,16 +97,12 @@
 
                     var doc = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../app", "./routing.yml"), 'utf8'));
                     for (var i in doc) {
-                   
                         if (!doc[i].hasOwnProperty("resource") || !doc[i].hasOwnProperty("prefix")) {
                             throw "error";
                         }
-                       
                         add($path.join(__dirname, "../src/", doc[i].resource), doc[i].prefix);
                     }
-
                     if (config.hasOwnProperty("services")) {
-                        
                         for (var i in config.services) {
                             SERVICE[i] = new $service(config.services[i], {
                                 $port: $port,
@@ -124,14 +116,12 @@
                                 $express:$express,
                                 $sessionStore:sessionStore,
                                 $app:$app,
+                                $emit:function(){
+                                }
                             }, $path);
                         }
-                        
                     };
-
-
                 }
-
             }
             for (var i in doc.bundles) {
                 doc.bundles[i].path = i.replace(new RegExp(":", 'g'), "/");

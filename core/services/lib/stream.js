@@ -3,12 +3,8 @@
 function stream($db,clients,guid) {
     var STREAM = [];
     var PERISISTENCE = [];
-    
-    
     ///IF CACHE IS MEMORY
     var MEMORY=[];
-    
-    
     class CACHE {
         constructor() {
             var uniqueID=guid();
@@ -17,56 +13,78 @@ function stream($db,clients,guid) {
             
         }
     }
-    
     function ENTITY() {
         this.rooms = [];
     }
-    
-    function SPACE(index, path, fn, options, persistence) {
-        this.fn = fn;
-        var vm = this;
-        var user = 1; // FROM SESSION
-        this.client = [];
-        this.persistence = [];
-        for (var i in persistence) {
-            if (!this.persistence[persistence[i].targetEntity]) {
-                this.persistence[persistence[i].targetEntity] = []
-            }
-            ;
-            persistence[i].type = i;
-            this.persistence[persistence[i].targetEntity].push(persistence[i]);
-        }
-        this.path = path;
-        this.index = index;
-        this.register = function (socket) {
-            this.client[socket.id] = socket;
-        };
-        this.date = {
-            create: {date: Date.now(), user: user},
-            update: {date: Date.now(), user: user},
-        }
-        this.uploadEntity = function (entity, data) {
-            var buffer = [];
+    class SPACE {
+        constructor(index, path, fn, options, persistence) {
+            this.fn = fn;
+            this.options=options;
             var vm = this;
-            this._data=new CACHE();
-            for (var i in this.persistence[entity]) {
-                var replace = this.persistence[entity][i];
-                var index = data[replace.join];
-                var before = vm.data;
-                var cible = before;
-                if (replace.referenced) {
-                    var path = replace.referenced.split(".");
-                    for (var i in path) {
-                        if (cible[path[i]]) {
-                            cible = cible[path[i]];
+            this.client = [];
+            this.persistence = [];
+            this.path = path;
+            this.index = index; 
+            for (var i in persistence) {
+                if (!this.persistence[persistence[i].targetEntity]) {
+                    this.persistence[persistence[i].targetEntity] = []
+                }
+                ;
+                persistence[i].type = i;
+                this.persistence[persistence[i].targetEntity].push(persistence[i]);
+            }
+            
+            var user = 1; // FROM SESSION TO DO 
+            this.date = {
+                create: {date: Date.now(), user: user},
+                update: {date: Date.now(), user: user},
+            }
+            this.reload();
+        }
+        uploadEntity  (entity, data) {
+                var buffer = [];
+                var vm = this;
+                //this._data=new CACHE();//TODO 
+                for (var i in this.persistence[entity]) {
+                    var replace = this.persistence[entity][i];
+                    var index = data[replace.join];
+                    var before = vm.data;
+                    var cible = before;
+                    if (replace.referenced) {
+                        var path = replace.referenced.split(".");
+                        for (var i in path) {
+                            if (cible[path[i]]) {
+                                cible = cible[path[i]];
+                            }
                         }
                     }
-                }
-                switch (replace.type) {
-                    case "OneToOne":
-                        if (cible.id === index) {
-                            for (var j in cible) {
-                                cible[j] = data[j];
+                    switch (replace.type) {
+                        case "OneToOne":
+                            if (cible.id === index) {
+                                for (var j in cible) {
+                                    cible[j] = data[j];
+                                }
+                                vm.data = before;
+                                var b = vm.buffer();
+                                for (var userid in b) {
+                                    if (!buffer[userid]) {
+                                        buffer[userid] = b[userid];
+                                    } else {
+                                        for (var k in b[userid].data) {
+                                            buffer[userid].data.push(b[userid].data[k]);
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        case "OneToMany":
+                            var indexArray = cible.map(function (d) {
+                                return d.id;
+                            }).indexOf(parseInt(index));
+                            if (indexArray !== -1) {
+                                for (var j in cible) {
+                                    cible[indexArray][j] = data[j];
+                                }
                             }
                             vm.data = before;
                             var b = vm.buffer();
@@ -79,88 +97,55 @@ function stream($db,clients,guid) {
                                     }
                                 }
                             }
-                            //  vm.broadcast();
-                        }
-                        break;
-                    case "OneToMany":
-                        var indexArray = cible.map(function (d) {
-                            return d.id;
-                        }).indexOf(parseInt(index));
-                        if (indexArray !== -1) {
-                            for (var j in cible) {
-                                cible[indexArray][j] = data[j];
-                            }
-                        }
-                        vm.data = before;
-                        //vm.broadcast();
-                        var b = vm.buffer();
-                        for (var userid in b) {
-                            if (!buffer[userid]) {
-                                buffer[userid] = b[userid];
-                            } else {
-                                for (var k in b[userid].data) {
-                                    buffer[userid].data.push(b[userid].data[k]);
-                                }
-                            }
-
-                        }
-                        break;
-                }
-            }
-            return buffer;
-        }
-        this.reload = function () {
-            var buffer = [];
-            var user = 1; // FROM SESSION
-            vm.date.update = {date: Date.now(), user: user};
-            vm.data = (vm.fn.apply(
-                    {
-                        db: $db
-                    }, options
-                    ));
-            var b = vm.buffer();
-            for (var userid in b) {
-                if (!buffer[userid]) {
-                    buffer[userid] = b[userid];
-                } else {
-                    for (var k in b[userid].data) {
-                        buffer[userid].data.push(b[userid].data[k]);
+                            break;
                     }
                 }
-            }
             return buffer;
         }
-        this.buffer = function () {
-            var buffer = [];
-            for (var i in this.client) {
-                try {
-                    var client = clients[i];
-                    if (!client)
-                        throw "client destroy";
-                    buffer[i] = ({
-                        client: client,
-                        data: [JSON.stringify({type: "data", watch: this.path, data: JSON.stringify(this.data)})]
-                    });
+        register (socket) {
+                this.client[socket.id] = socket;
+        };
+        
+        
+        buffer () {
+                var buffer = [];
+                for (var i in this.client) {
+                    try {
+                        var client = clients[i];
+                        if (!client)
+                            throw "client destroy";
+                        buffer[i] = ({
+                            client: client,
+                            data: [JSON.stringify({type: "data", watch: this.path, data: JSON.stringify(this.data)})]
+                        });
 
-                } catch (e) {
-                    delete this.client[i];
+                    } catch (e) {
+                        delete this.client[i];
+                    }
                 }
-            }
-            return buffer;
+                return buffer;
         }
-       /*  this.broadcast = function () {
-            for (var i in this.client) {
-                try {
-                    var client = clients[i];
-                    client.send(JSON.stringify(
-                            {type: "data", watch: this.path, data: JSON.stringify(this.data)}
-                    ));
-                } catch (e) {
-                    delete this.client[i];
+        reload () {
+                var buffer = [];
+                var user = 1; // FROM SESSION
+                this.date.update = {date: Date.now(), user: user};
+                this.data = (this.fn.apply(
+                        {
+                            db: $db
+                        }, this.options
+                        ));
+                var b = this.buffer();
+                for (var userid in b) {
+                    if (!buffer[userid]) {
+                        buffer[userid] = b[userid];
+                    } else {
+                        for (var k in b[userid].data) {
+                            buffer[userid].data.push(b[userid].data[k]);
+                        }
+                    }
                 }
-            }
-        }*/
-        this.reload();
+                return buffer;
+        }
     }
 
    
@@ -201,9 +186,7 @@ function stream($db,clients,guid) {
             return cache [index];
         }
     }
-
     var setStream = function (route) {
-
         route.param = [];
         if (route.path.match(/{([^{}]*)}/g)) {
             var t = route.path.replace(/{([^{}]*)}/g,
@@ -224,63 +207,41 @@ function stream($db,clients,guid) {
         route.regex = new RegExp('^' + t + '$', 'gi');
         STREAM.push(route);
     }
-
-
-
     function updateEntity(entityname,id,object){
-         if (PERISISTENCE.hasOwnProperty(entityname)) {
-                            var buffer=[];
-                            var rooms = PERISISTENCE[entityname].rooms;
-                            for (var i in rooms) {
-                                var room = rooms[i];
-                                var cache = room.getCache();
-                                for (var j in cache) {
-                                    //*************
-                                    //TRY
-                                    //***********************
-                                    //var b=cache [j].reload();                             /// RELOAD REQUEST
-                                    var b = cache [j].uploadEntity(entityname, object);     /// PERISTENCE REQUEST 
-                                    for(var userid in b){
-                                        if(!buffer[userid]){
-                                            buffer[userid]=b[userid];
-                                        }else{
-                                            for (var k in b[userid].data){
-                                                buffer[userid].data.push(b[userid].data[k]);
-                                            }
-                                        }
-                                    }
-                                   
-                                }
-
-
+        if (PERISISTENCE.hasOwnProperty(entityname)) {
+            var buffer=[];
+            var rooms = PERISISTENCE[entityname].rooms;
+            for (var i in rooms) {
+                var room = rooms[i];
+                var cache = room.getCache();
+                for (var j in cache) {
+                    //var b=cache [j].reload();                             /// RELOAD REQUEST
+                    var b = cache [j].uploadEntity(entityname, object);     /// PERISTENCE REQUEST 
+                    for(var userid in b){
+                        if(!buffer[userid]){
+                            buffer[userid]=b[userid];
+                        }else{
+                            for (var k in b[userid].data){
+                                buffer[userid].data.push(b[userid].data[k]);
                             }
-                            
-              
-              
-           
-                for (var userid in buffer) {
-                    
-                    try {
-                        
-                        var client = clients[userid];
-                        var data=buffer[userid].data;
-       
-                        client.send(JSON.stringify(
-                                {type: "buffer", data: JSON.stringify(data)}
-                        ));
-                    } catch (err) {
-                        console.log(err);
-                        console.log("---------CLIENT DESTROY--------------");
-                        //delete this.client[i];
-                    }
+                        }
+                    }                        
                 }
-          
-           }
-           
-           return false;
+            }
+            for (var userid in buffer) {
+                try {
+                    var client = clients[userid];
+                    var data=buffer[userid].data;
+                    client.send(JSON.stringify({type: "buffer", data: JSON.stringify(data)}));
+                } catch (err) {
+                    console.log(err);
+                    console.log("---------CLIENT DESTROY--------------");
+                    delete this.client[i];
+                }
+            }
+        } 
+        return false;
     }
-
-
     return {
         updateEntity: updateEntity,
         setStream: setStream,
@@ -319,8 +280,5 @@ function stream($db,clients,guid) {
         },
         PERISISTENCE: PERISISTENCE,
     }
-}
-;
-
-
+};
 module.exports = stream;
