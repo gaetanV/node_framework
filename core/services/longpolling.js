@@ -14,7 +14,7 @@
         var clientsSession = [];
         var clients=[];
         
-        const stream = require('./lib/stream.js')($db,clients);
+        const stream = require('./lib/stream.js')($db,clients,guid);
         
          if ($bundles) {
             var config = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../../", router.resource), 'utf8'));

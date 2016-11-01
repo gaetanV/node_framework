@@ -1,8 +1,23 @@
 'use strict';
 
-function stream($db,clients) {
+function stream($db,clients,guid) {
     var STREAM = [];
     var PERISISTENCE = [];
+    
+    
+    ///IF CACHE IS MEMORY
+    var MEMORY=[];
+    
+    
+    class CACHE {
+        constructor() {
+            var uniqueID=guid();
+            this.id=uniqueID;
+            this.data=MEMORY[uniqueID];
+            
+        }
+    }
+    
     function ENTITY() {
         this.rooms = [];
     }
@@ -33,6 +48,7 @@ function stream($db,clients) {
         this.uploadEntity = function (entity, data) {
             var buffer = [];
             var vm = this;
+            this._data=new CACHE();
             for (var i in this.persistence[entity]) {
                 var replace = this.persistence[entity][i];
                 var index = data[replace.join];
@@ -179,6 +195,7 @@ function stream($db,clients) {
                             return param[k];
                         }
                 );
+                
                 cache [index] = new SPACE(index, path, this.fn, options, this.persistence);
             }
             return cache [index];

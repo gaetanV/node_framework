@@ -6,7 +6,7 @@
             const guid = require('./lib/guid.js');
             const wss = new WebSocketServer({port: port?port:8098, host: $host});
             var clients = [];
-            const stream = require('./lib/stream.js')($db, clients);
+            const stream = require('./lib/stream.js')($db, clients,guid);
             if ($bundles) {
         var config = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../../", router.resource), 'utf8'));
         stream.addRoute(config, $bundles);
