@@ -21,10 +21,13 @@ services:
 
     longpolling:
         class:  core\services\longpolling 
-        arguments: [ $app , $fs   ]    
+        arguments: [ $app , $fs  ,$bundles ,$db,$yaml,$path ]    
         params: 
             path: /event/
-
+            router: 
+                resource: /app/stream.yml
+                
+                
 
 private_services:       
     apikey_authenticator:

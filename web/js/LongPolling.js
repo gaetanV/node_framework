@@ -14,6 +14,15 @@ var LongPolling
             if (session) {
                 data.sid = session;
             }
+            data.watch=[];
+            data.pull=[];
+            for (var i in WATCH){
+                   data.watch.push(WATCH[i].send) ;
+            }
+            for (var i in PULL){
+                   data.pull.push(PULL[i].send) ;
+            }
+            
 
             function switchResponse(data) {
                 console.log(data);
@@ -44,7 +53,7 @@ var LongPolling
                         }
                         break;
                     case "pull":
-                        console.log("pull");
+                        console.log("pullLong");
                         if (!data.hasOwnProperty("watch") || !data.hasOwnProperty("data")) {
                             throw "error"
                         }
@@ -69,6 +78,7 @@ var LongPolling
             }
 
             $.ajax({
+                type:"POST",
                 cache: false,
                 url: ip,
                 data: data,
@@ -77,32 +87,34 @@ var LongPolling
                 },
                 crossDomain: true,
                 success: function (response, code, xhr) {
+                    if(response!=="reload"){
+                        try {
 
-                    try {
-
-                        var data = JSON.parse(response);
-                        if (!data.hasOwnProperty("type")) {
-                            throw "error"
-                        }
-
-                        if (data.type == "buffer") {
-                               console.log("buffer");
-                            var data = JSON.parse(data.data);
-                            
-                            for (var i in data) {
-                                console.log(data[i]);
-                                switchResponse(JSON.parse(data[i]));
+                            var data = JSON.parse(response);
+                            if (!data.hasOwnProperty("type")) {
+                                throw "error"
                             }
 
-                        } else {
-                            switchResponse(data);
+                            if (data.type == "buffer") {
+                                console.log("buffer");
+                                  
+                                  var data = JSON.parse(data.data);
+                    console.log(data);
+                                for(var i in data){
+
+                                   switchResponse(JSON.parse(data[i]));
+                                }
+
+                            } else {
+                                switchResponse(data);
+                            }
+
+
+
+
+                        } catch (err) {
+                            console.log(err);
                         }
-
-
-
-
-                    } catch (err) {
-                        console.log(err);
                     }
                     callNode();
                 }
@@ -111,7 +123,33 @@ var LongPolling
         ;
         callNode();
 
+        var watch = function (path, param, callback) {
+             var data = JSON.stringify({watch: path, param: param});
+ 
+             WATCH[path] = {
+                    fn: callback,
+                    param: param,
+                    send: data
+              };
+           
+        };
+
+        var pull = function (path, param, callback) {
+            var data = JSON.stringify({pull: path, param: param});
+     
+            PULL[path] = {
+                    fn: callback,
+                    param: param,
+                    send: data
+            };
+            
+        }
+
+
+
         return {
+            watch: watch,
+            pull:pull,
             info: function (callback) {
                 info = callback;
             }

@@ -64,7 +64,7 @@ var Stream
 
         
         function switchResponse(data){
-              console.log(data);
+            //  console.log(data);
                 if (!data.hasOwnProperty("type")) {
                     throw "error"
                 }
@@ -77,7 +77,7 @@ var Stream
 
                         break;
                     case "data":
-                        console.log("data");
+                     
                         if (!data.hasOwnProperty("watch") || !data.hasOwnProperty("data")) {
                             throw "error"
                         }
@@ -86,7 +86,7 @@ var Stream
                         }
                         break;
                     case "pull":
-                        console.log("pull");
+                
                         if (!data.hasOwnProperty("watch") || !data.hasOwnProperty("data")) {
                             throw "error"
                         }
@@ -97,7 +97,7 @@ var Stream
                         break;
                
                     case "push":
-                         console.log("push");
+                       
                         if (!data.hasOwnProperty("watch") || !data.hasOwnProperty("data")) {
                             throw "error"
                         }
