@@ -15,12 +15,19 @@
              setOneAction:function(id) {
                 //UPDATE IN DB
                 var stream=this.get("ws");
-                var event=this.get("longpolling");
-                
+                var longpolling=this.get("longpolling");
+                 var polling=this.get("polling");
+                 
                 var object={name:Math.random(),id:parseInt(id)};
                 
                 stream.updateEntity("user",id,object);
-                event.updateEntity("user",id,object);
+                longpolling.updateEntity("user",id,object);
+                polling.updateEntity("user",id,object);
+                
+                
+                var event=this.get("event");
+                event.emit("update",["ADMIN"],[],object);
+                
                // var space=this.get("ws").getStream("/user/"+id+"/",{});
              
              

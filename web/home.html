@@ -4,11 +4,18 @@
         <title>The Hostel</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
         
+            .box{
+                padding:50px; 
+                border:#ddd solid 1px;
+                margin:20px;
+            }    
+        </style>
         <script src="/js/Stream.js"></script>
         <script src="/js/LongPolling.js"></script>
         <script src="/js/Ws.js"></script>
-        
+        <script src="/js/Polling.js"></script>
         
         <script src="/js/vue.js"></script>
          <script src="/js/jquery.min.js"></script>
@@ -17,9 +24,12 @@
         <div>
             Welcome to the hostel
         </div>
-        <div id="flux" ></div>
-         <div id="pollflux" ></div>
-        <div id="userStream"  >
+        <div id="fluxStream" ></div>
+         <div id="fluxPolling" ></div>
+          <div id="fluxLongPolling" ></div>
+          
+        <div  class="box" id="userStream"  >
+              <h1>Websocket</h1>
              <h2> Sync User</h2>
             {{ user.name }} {{user.type}}
        
@@ -39,7 +49,8 @@
             </div>
         </div>
          
-         <div id="userPool"  >
+         <div class="box" id="userPool"  >
+              <h1>LongPolling</h1>
              <h2> Sync User</h2>
             {{ user.name }} {{user.type}}
        
@@ -59,12 +70,65 @@
             </div>
         </div>
          
+         
+        <div  class="box" id="userPolling"  >
+            <h1>Polling</h1>
+            <a href="javascript:void(0)"  v-on:click="check">-------- CHECK ME -----------</a>
+             <h2> Sync User</h2>
+            {{ user.name }} {{user.type}}
+       
+            <div>
+                 <h2>Now Change me</h2>
+                  {{pull}}
+                
+                  <div>
+                NAME:
+               <input v-model="pull.name" >
+               TYPE:
+               <input v-model="pull.type" >
+                  </div> 
+               <a href="javascript:void(0)"  v-on:click="push">-------- PUSH ME -----------</a>
+                <h1>List Synch</h1>
+                {{users}}
+            </div>
+        </div>
          
 
          <script>
      
               var s=new Ws("ws://192.168.0.11:8098",Stream);
               var d=new LongPolling("http://192.168.0.11:7200/event/",Stream); 
+              var z=new Polling("http://192.168.0.11:7200/polling/",Stream); 
+              
+              
+             new Vue({
+                        el: '#userPolling',
+                        data:{
+                            user:{name:"",type:""},
+                            users:[],
+                            pull:{name:"",type:""},
+                        },methods: {
+                            
+                            push: function (event) {
+                                 s.push("/user/1/",{},this.pull);
+                            },
+                            check: function (event) {
+                                console.log("check");
+                                 z.check();
+                            }
+                        },created: function () {
+                               var vm=this;
+                                z.watch("/user/1/",{},function(data){
+                                    vm.user=JSON.parse(data);
+                                });
+                                z.watch("/user/",{},function(data){
+                                    vm.users=JSON.parse(data);
+                                });
+                                z.pull("/user/1/",{},function(data){
+                                     vm.pull=JSON.parse(data);
+                                });
+                        }
+               })
               new Vue({
                         el: '#userStream',
                         data:{
@@ -117,12 +181,16 @@
                })
                
                
+               z.info(function(data){
+                      document.querySelector("#fluxPolling").innerHTML += "<div>" + data + "</div>";
+                }); 
+               
                 s.info(function(data){
-                      document.querySelector("#flux").innerHTML += "<div>" + data + "</div>";
+                      document.querySelector("#fluxStream").innerHTML += "<div>" + data + "</div>";
                 }); 
                
                 d.info(function(data){
-                      document.querySelector("#pollflux").innerHTML += "<div>" + data + "</div>";
+                      document.querySelector("#fluxLongPolling").innerHTML += "<div>" + data + "</div>";
                 }); 
                 
                 

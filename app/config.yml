@@ -36,10 +36,17 @@ services:
         # ['mongo','files','memory']
         cache : files
         params: 
-            path: /news/
+            path: /polling/
             router: 
                 resource: /app/stream.yml            
-                
+    event:
+        class:  core\services\event 
+        arguments: [ $app , $fs  ,$bundles ,$db,$yaml,$path,$emit ]  
+        # ['mongo','files','memory']
+        cache : files
+        params: 
+            path: /news/
+              
 
 private_services:       
     apikey_authenticator:

@@ -19,7 +19,7 @@
         var SERVICE = [];
         
         var $db={
-            user:[{id:1,name:Math.random(),type:"sync"}, {id:2,name:Math.random(),type:"sync"}]
+            user:[{id:1,name:Math.random(),type:"sync",role:["ADMIN"]}, {id:2,name:Math.random(),type:"sync",role:["USER"]}]
         }
 
         function add(path, racine) {
