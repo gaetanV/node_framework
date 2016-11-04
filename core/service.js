@@ -30,13 +30,14 @@
                  }
                 
              }
-
+             
             if (service.hasOwnProperty("arguments")) {
+                console.log(service.arguments);
                 for(var i in service.arguments){
                   
                     var index=args.indexOf(service.arguments[i]);
                      if(index!==-1){
-                          if(!inject.hasOwnProperty(service.arguments[i])){throw "error we can't inject this argument"}
+                          if(!inject.hasOwnProperty(service.arguments[i])){throw "error we can't inject this argument" + i}
                            
                           injectParam[index]=inject[service.arguments[i]];
                       }

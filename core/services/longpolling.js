@@ -1,10 +1,10 @@
 (function () {
     'use strict';
     module.exports = LongPolling;
-    function LongPolling( $app,$bundles,$yaml,$path, $db,$fs ,router,path) {
+    function LongPolling( $app,$event,$bundles,$yaml,$path,$fs ,router,path) {
         var clients=[];
         const guid = require('./lib/guid.js');
-        const stream = require('./lib/stream.js')($db,clients,guid,$fs,$path);
+        const stream = require('./lib/stream.js')(clients,guid,$fs,$path);
         var reload=true;
         var path= path? path : "/event/";
         
@@ -13,9 +13,10 @@
             stream.addRoute(config,$bundles);
         }
         require('./lib/poll.js')($app,path,reload,stream,clients);
-        return {
-              updateEntity: stream.updateEntity
-        }
+             $event.on("updateEntity",function(d){
+             stream.updateEntity(d.entity,d.id,d.data);
+            
+        });
 
     }
 })();

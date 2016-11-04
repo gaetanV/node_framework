@@ -91,7 +91,9 @@ var Stream;
                 };
 
             }
-             this.push = function (path, param, data,callback) {
+            
+            
+            /* this.push = function (path, param, data,callback) {
                 var data = JSON.stringify({push: path, param: param,data:data});
            
                 vm.PUSH[path] = {
@@ -100,7 +102,7 @@ var Stream;
                         send: data
                 };
 
-            }
+            }*/
 
             this.watch = function (path, param, callback) {
                  var data = JSON.stringify({watch: path, param: param});

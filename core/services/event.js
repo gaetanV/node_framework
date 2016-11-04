@@ -1,20 +1,31 @@
 (function () {
     'use strict';
     module.exports = Event;
-    function Event( $app,$yaml,$path, $db,$fs ,router,path) {
+    function Event( ) {
+        var TASK=[];
         
-        
-          $app.post(path ? path : "/news/", function (req, res, next) {
-              //SEE ROLE IN SESSION //SEE IDUSER IN SESSION //CHECK ROLE & MATCH ID SPACE  //GET DATA
-          });
+        function on(namespace,callback){
+             if(!TASK[namespace]) TASK[namespace]=[];
+             TASK[namespace].push(callback);
+             
+        }
               
-          function emit(name,rolespace,idspace,data){
-                  for(var i in $db.user){
-                      console.log($db.user[i]);
+          function emit(namespace,data){
+              if(TASK[namespace]){
+                  for(var i in TASK[namespace]){
+                      TASK[namespace][i](data);
                   }
+              }
+              console.log(namespace);
+                  /*for(var i in $db.user){
+                      console.log($db.user[i]);
+                  }*/
           };
           
+          
+          
           return {
+             on:on,
              emit:emit,
           };
     }

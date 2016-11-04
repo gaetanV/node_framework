@@ -95,7 +95,24 @@
          
 
          <script>
-     
+             function updateEntity(data){
+                 $.ajax({
+                    type:"GET",
+                    cache: false,
+                    data:data,
+                    url: "http://192.168.0.11:7200/user/1",
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    crossDomain: true,
+                    success: function (response, code, xhr) {
+
+                        
+
+                    }
+                });
+             }
+   
               var s=new Ws("ws://192.168.0.11:8098",Stream);
               var d=new LongPolling("http://192.168.0.11:7200/event/",Stream); 
               var z=new Polling("http://192.168.0.11:7200/polling/",Stream); 
@@ -110,7 +127,8 @@
                         },methods: {
                             
                             push: function (event) {
-                                 s.push("/user/1/",{},this.pull);
+                                  updateEntity(this.pull);
+                               //  s.push("/user/1/",{},this.pull); V0.0.5 > Web service
                             },
                             check: function (event) {
                                 console.log("check");
@@ -138,7 +156,8 @@
                         },methods: {
                             
                             push: function (event) {
-                                 s.push("/user/1/",{},this.pull);
+                                updateEntity(this.pull);
+                                // s.push("/user/1/",{},this.pull);
                             }
                         },created: function () {
                                var vm=this;
@@ -163,7 +182,8 @@
                         },methods: {
                             
                             push: function (event) {
-                                s.push("/user/1/",{},this.pull);
+                                  updateEntity(this.pull);
+                             //   s.push("/user/1/",{},this.pull);
                             }
                         },created: function () {
                                var vm=this;

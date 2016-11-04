@@ -4,7 +4,28 @@
         var $fs = require('fs');
         var $path = require("path");
         var guid = require("./services/lib/guid.js");
-
+        
+        switch(type){
+                        
+                        case "file":
+                            var deleteFolderRecursive = function(path) {
+                                          if( $fs.existsSync(path) ) {
+                                            $fs.readdirSync(path).forEach(function(file,index){
+                                              var curPath = path + "/" + file;
+                                              if($fs.lstatSync(curPath).isDirectory()) { // recurse
+                                                deleteFolderRecursive(curPath);
+                                              } else { // delete file
+                                                $fs.unlinkSync(curPath);
+                                              }
+                                            });
+                                          //  $fs.rmdirSync(path);
+                                          }
+                            }
+                            var path=$path.join(__dirname, "../","app","cache","query");
+                                  deleteFolderRecursive(path);   
+                    }
+ 
+           
        var MEMORY=[];
             class CACHE {
                 constructor() {
@@ -12,8 +33,10 @@
                     this.id=uniqueID;
                     this.write=false;
                     this.path=$path.join(__dirname, "../","app","cache","query", this.id);
+                    
                 }
-                
+            
+
                 getData(callback){
                     var vm=this;
                     switch(type){

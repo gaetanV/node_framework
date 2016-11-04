@@ -9,9 +9,21 @@ framework:
         resource: /app/routing.yml
 
 services:
+    db:
+        class:  core\services\db
+        arguments: []
+        
+    event:
+        class:  core\services\event 
+        arguments: [ $app , $fs  ,$bundles ,$yaml,$path,$emit ]  
+        # ['mongo','files','memory']
+        cache : files
+        params: 
+            path: /news/    
+            
     ws:
         class:  core\services\ws
-        arguments: [ $host ,$bundles, $fs ,$yaml ,$path ,$db ,$emit]   
+        arguments: [ $host ,$bundles, $fs ,$yaml ,$path ,$db ,$event]   
         cache : mongo
         # ['mongo','files','memory'] 
         params: 
@@ -23,7 +35,7 @@ services:
 
     longpolling:
         class:  core\services\longpolling 
-        arguments: [ $app , $fs  ,$bundles ,$db,$yaml,$path,$emit ]  
+        arguments: [ $app , $fs  ,$bundles ,$yaml,$path,$event ]  
         # ['mongo','files','memory']
         cache : memory
         params: 
@@ -32,20 +44,14 @@ services:
                 resource: /app/stream.yml
     polling:
         class:  core\services\polling 
-        arguments: [ $app , $fs  ,$bundles ,$db,$yaml,$path,$emit ]  
+        arguments: [ $app , $fs  ,$bundles ,$yaml,$path,$event ]  
         # ['mongo','files','memory']
         cache : files
         params: 
             path: /polling/
             router: 
                 resource: /app/stream.yml            
-    event:
-        class:  core\services\event 
-        arguments: [ $app , $fs  ,$bundles ,$db,$yaml,$path,$emit ]  
-        # ['mongo','files','memory']
-        cache : files
-        params: 
-            path: /news/
+
               
 
 private_services:       

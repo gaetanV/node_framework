@@ -18,9 +18,7 @@
         var BUNDLES = [];
         var SERVICE = [];
         
-        var $db={
-            user:[{id:1,name:Math.random(),type:"sync",role:["ADMIN"]}, {id:2,name:Math.random(),type:"sync",role:["USER"]}]
-        }
+     
 
         function add(path, racine) {
             try {
@@ -90,6 +88,20 @@
         if (doc.hasOwnProperty("bundles")) {
             var all = Object.keys(doc.bundles).length;
             var cmp = 0;
+            var inject={
+                   $port: $port,
+                   $host: $host,
+                   $bundles: BUNDLES,
+                    $fs:$fs,
+                                $path:$path,
+                                $yaml:$yaml,
+                                $http:$http,
+                                $express:$express,
+                                $sessionStore:sessionStore,
+                                $app:$app,
+                
+                
+            }
             function load(){
                 cmp++;
                 console.log("load " + (all / cmp) * 100 + "%");
@@ -104,21 +116,10 @@
                     }
                     if (config.hasOwnProperty("services")) {
                         for (var i in config.services) {
-                            SERVICE[i] = new $service(config.services[i], {
-                                $port: $port,
-                                $host: $host,
-                                $bundles: BUNDLES,
-                                $fs:$fs,
-                                $path:$path,
-                                $yaml:$yaml,
-                                $db:$db,
-                                $http:$http,
-                                $express:$express,
-                                $sessionStore:sessionStore,
-                                $app:$app,
-                                $emit:function(){
-                                }
-                            }, $path);
+                            
+                            var service = new $service(config.services[i],  inject, $path);
+                            SERVICE[i]=service;
+                            inject["$"+i]=service;
                         }
                     };
                 }

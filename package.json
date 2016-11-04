@@ -1,7 +1,9 @@
 {
   "name": "framework",
-  "version": "0.0.4",
-  "description": "Structure Express with Symfony security",
+  "version": "0.0.5",
+  "author": "(c) Gaetan Vigneron <gaetan@webworkshops.fr>",
+  "date": "04/11/2016",
+  "description": "LIVE & Structure Express with Symfony security + ",
   "main": "server.js",
   "dependencies": {
     "body-parser": "^1.15.2",
@@ -23,11 +25,5 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gaetanV/node_framework.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/gaetanV/node_framework/issues"
-  },
-  "homepage": "https://github.com/gaetanV/node_framework#readme"
+  }
 }

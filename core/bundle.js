@@ -12,7 +12,24 @@
                    if(actionName){
                        actions[actionName[1]]=controller[i];
                    }
-                 
+               }
+          }
+          eval(controller);
+          return actions;  
+    };
+    
+    function evalStream(controller,name){
+          require=false;
+          var actions=[];
+          var Controller=function(controller){
+              
+              for(var i in controller){
+                
+                    var m=new RegExp('^(.*)Stream$', 'gi');
+                    var actionName= m.exec(i);
+                     if(actionName){
+                         actions[actionName[1]]=controller[i];
+                     }
               }
               
           }
@@ -45,6 +62,8 @@
                             var include=require;
                              var controller=$fs.readFileSync($path.join(path,file), 'utf8');
                              var actions= evalController(controller,controllerName[1]);
+                             var streams= evalStream(controller,controllerName[1]);
+                             
                              var view=$path.join(__dirname, "../src/",vm.path,"Ressources","/views/"); 
                              var parser=false;
                              switch (vm.templating){
@@ -74,7 +93,7 @@
                              }
                              
                            
-                             vm.controllers[controllerName[1]]=new $controller(actions,SERVICE,parser, $app);
+                             vm.controllers[controllerName[1]]=new $controller(actions,streams,SERVICE,parser, $app);
                           
                         }
  

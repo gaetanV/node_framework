@@ -1,10 +1,10 @@
 (function () {
     'use strict';
     require=function(){};
-    var ControllerBundle = function ( actions,SERVICE,parser,$app) {
+    var ControllerBundle = function ( actions,streams,SERVICE,parser,$app) {
         var vm = this;
-
-        this.controller=actions;
+        this.stream=streams;
+        this.action=actions;
         var GET = {
             getParam: function (route,res, req) {
                 try{
@@ -29,11 +29,11 @@
                 var fn = options.fn;
                 var params = options.params;
             
-                if (typeof vm.controller[fn] !== "function") {
+                if (typeof vm.action[fn] !== "function") {
                     throw "error function"
                 };
                
-                vm.controller[fn].apply({
+                vm.action[fn].apply({
                     
                     get:  function (service_name) {
                         if(SERVICE[service_name]){
@@ -69,8 +69,21 @@
                     }
                 }, params);
             }
+        };
+        this.execStream=function(fn,params){
+          
+            var data= this.stream[fn].apply({
+                    get:  function (service_name) {
+                      
+                        if(SERVICE[service_name]){
+                            return SERVICE[service_name]
+                        }
+                        
+                    },
+                }, params);
+           
+               return data;
         }
-
         this.addGet = function (route) {
             
             $app.get(route.path, function (req, res, next) {

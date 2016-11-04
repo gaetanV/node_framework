@@ -13,36 +13,49 @@
              
              },
              setOneAction:function(id) {
+                 var event=this.get("event");
+                 
+                 
                 //UPDATE IN DB
-                var stream=this.get("ws");
+              /*  var stream=this.get("ws");
                 var longpolling=this.get("longpolling");
                  var polling=this.get("polling");
-                 
+                 */
                 var object={name:Math.random(),id:parseInt(id)};
                 
+                event.emit("updateEntity",{entity:"user",id:id,data:object});
+                
+                
+                /*
                 stream.updateEntity("user",id,object);
                 longpolling.updateEntity("user",id,object);
                 polling.updateEntity("user",id,object);
+                */
                 
-                
-                var event=this.get("event");
+             /*   var event=this.get("event");
                 event.emit("update",["ADMIN"],[],object);
-                
+                */
                // var space=this.get("ws").getStream("/user/"+id+"/",{});
              
              
                 return this.send("object change");
            
              },
-             getOneStreamAction:function(id){
-                 
+             getOneStream:function(id){
+                
+                 var db=this.get("db");
                 /// GET FROM BD
-                 return this.db.user[0];
+                 var data= db.user[0];
+              
+                 return data;
                  
              },
-             getAllStreamAction:function() {
+             getAllStream:function() {
+                  var db=this.get("db");
                    /// GET FROM BD
-                 return {users:{u:this.db.user.slice(0)}};
+                   var data={users:{u:db.user.slice(0)}};
+           
+                 return data;
                   
              },
              

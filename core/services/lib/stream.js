@@ -2,7 +2,7 @@
  
     'use strict';
 
-    function stream($db,clients,guid,$fs,$path) {
+    function stream(clients,guid,$fs,$path) {
         var STREAM = [];
         var PERISISTENCE = [];
         ///IF CACHE IS MEMORY
@@ -167,27 +167,29 @@
                     }
           
             }
-            reload () {
+            reload (callback) {
                     var buffer = [];
                     var user = 1; // FROM SESSION
                     this.date.update = {date: Date.now(), user: user};
                     
-                    this.cache.data = (this.fn.apply(
-                            {
-                                db: $db
-                            }, this.options
-                            ));
-                    var b = this.buffer();
-                    for (var userid in b) {
-                        if (!buffer[userid]) {
-                            buffer[userid] = b[userid];
-                        } else {
-                            for (var k in b[userid].data) {
-                                buffer[userid].data.push(b[userid].data[k]);
+                  this.cache.data = this.fn(this.options);
+                    
+                    this.buffer(function(b){
+                        
+                         for (var userid in b) {
+                            if (!buffer[userid]) {
+                                buffer[userid] = b[userid];
+                            } else {
+                                for (var k in b[userid].data) {
+                                    buffer[userid].data.push(b[userid].data[k]);
+                                }
                             }
                         }
-                    }
-                    return buffer;
+                        callback(buffer);
+                    });
+                   
+                   
+                   
             }
         }
 
@@ -262,11 +264,11 @@
                     var room = rooms[i];
                     var cache = room.getCache();
                     for (var j in cache) {
-                        //var b=cache [j].reload();                             /// RELOAD REQUEST
+                        //var b=cache [j].reload(load);                             /// RELOAD REQUEST
                         cache [j].uploadEntity(entityname, object,load);     /// PERISTENCE REQUEST 
                       
                         function load(b){
-
+                          
                             function bufferUser(userid){
                              
                                  if(!buffer[userid]){
@@ -279,8 +281,7 @@
                                    }
                                         
                             }
-                            
-                            
+                      
                              for(var userid in b){bufferUser(userid)}   
          
                             processed++;
@@ -296,7 +297,7 @@
                 }
                    
                 function update(){
-            
+                
                     for (var userid in buffer) {
                         try {
                             var client = clients[userid];
@@ -335,19 +336,30 @@
                 return false;
             },
             addRoute: function (config, BUNDLES) {
-                for (var i in config) {
-                    var c = config[i].defaults["_controller"];
+                
+                function parseconfig(c){
+                    
                     var controller = c.split(":");
                     var bundleName = controller[0];
                     var controllerName = controller[1];
                     var fn = controller[2];
+                    
+                    function parse(options){
+                       var data=BUNDLES[bundleName].controllers[controllerName].execStream(fn,options);
+                   
+                       return data;
+                    }
                     var option = {
                         path: config[i].path,
-                        fn: BUNDLES[bundleName].controllers[controllerName].controller[fn],
+                        fn: parse,
                         requirements: config[i].requirements ? config[i].requirements : {},
                         persistence: config[i].persistence ? config[i].persistence : {}
                     }
                     setStream(new ROOM(option.path, option.fn, option.requirements, option.persistence));
+                }
+                for (var i in config) {
+                    var c = config[i].defaults["_controller"];
+                    parseconfig(c);
                 }
             },
             PERISISTENCE: PERISISTENCE,
