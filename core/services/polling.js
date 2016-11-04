@@ -5,10 +5,10 @@
  
         var clients=[];
         const guid = require('./lib/guid.js');
-        const stream = require('./lib/stream.js')($db,clients,guid);
+        const stream = require('./lib/stream.js')($db,clients,guid,$fs,$path);
         
         var reload=false;
-        var path= path? path : "/event/";
+        var path= path? path : "/polling/";
         
         if ($bundles) {
             var config = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../../", router.resource), 'utf8'));

@@ -6,7 +6,7 @@
         const guid = require('./lib/guid.js');
         const wss = new WebSocketServer({port: port?port:8098, host: $host});
         var clients = [];
-        const stream = require('./lib/stream.js')($db, clients,guid);
+        const stream = require('./lib/stream.js')($db, clients,guid,$fs,$path);
         if ($bundles) { stream.addRoute($yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../../", router.resource), 'utf8')), $bundles);}
         
         wss.on('connection', function (ws) {
@@ -22,11 +22,20 @@
                         var mystream = stream.getStream(message.watch, {});
                         mystream.register(ws);
                         /// TO DO REMOVE REGISTER PING (10min)
-                        ws.send(JSON.stringify({type: "data", watch: message.watch, data: JSON.stringify(mystream.data)}))
+                        mystream.cache.getData(function(data){
+                              ws.send(JSON.stringify({type: "data", watch: message.watch, data: JSON.stringify(data)}))
+                            
+                        });
+                        
+                       
                     }
                     if (message.hasOwnProperty("pull")) {
                         var mystream = stream.getStream(message.pull, {});
-                        ws.send(JSON.stringify({type: "pull", watch: message.pull, data: JSON.stringify(mystream.data)}))
+                        mystream.cache.getData(function(data){
+                             ws.send(JSON.stringify({type: "pull", watch: message.pull, data: JSON.stringify(data)}))
+                            
+                        });
+                       
                     }
                     if (message.hasOwnProperty("push")) {
                         var t = message.push.split("/").slice(1, -1);

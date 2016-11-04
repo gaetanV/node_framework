@@ -163,7 +163,7 @@
                         },methods: {
                             
                             push: function (event) {
-                                 s.push("/user/1/",{},this.pull);
+                                s.push("/user/1/",{},this.pull);
                             }
                         },created: function () {
                                var vm=this;
@@ -181,7 +181,7 @@
                })
                
                
-               z.info(function(data){
+              z.info(function(data){
                       document.querySelector("#fluxPolling").innerHTML += "<div>" + data + "</div>";
                 }); 
                

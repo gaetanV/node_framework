@@ -4,7 +4,7 @@
     function LongPolling( $app,$bundles,$yaml,$path, $db,$fs ,router,path) {
         var clients=[];
         const guid = require('./lib/guid.js');
-        const stream = require('./lib/stream.js')($db,clients,guid);
+        const stream = require('./lib/stream.js')($db,clients,guid,$fs,$path);
         var reload=true;
         var path= path? path : "/event/";
         

@@ -11,7 +11,6 @@
         const timeDos = 100;
         const guid = require('./guid.js');
 
-
         class BUFFER{
                constructor() {
                    this.type="buffer";
@@ -55,26 +54,19 @@
                        create: {date: Date.now()},
                        update: {date: Date.now()},
                        send:function(data){
-
+                  
                            if(!TASKS[this.id]){tasks=new BUFFER()}else{
                                var tasks= TASKS[this.id];
                            };
                            tasks.addData(data);
-
-
-
                            TASKS[this.id]=tasks;
-
                        }
-
                    }
                    clients[pollingId]=this.instance[pollingId];
                    this.maxdate = Date.now();
                }
            }
            $app.post(path, function (req, res, next) {
-
-
                try {
                    if (!clientsSession[req.sessionID]) {
                        clientsSession[req.sessionID] = new CLIENT(req.sessionID);
@@ -101,38 +93,66 @@
                            throw "max connection for this session"
                        }
                    } else {
+                       
+                    
                        var clientID=req.body.sid;
                        var buffer=[];
                        var watch= req.body.watch;
+                       var pull= req.body.pull;
+                     
+                       var processed=0;
+                       var nbpull=pull?pull.length:0;//+watch.length;
+                       var nbwatch=watch?watch.length:0;//+watch.length;
+                       var nbTask=nbpull+nbwatch;
+                       
+                       function checkwatch(message,mystream){
+                                     mystream.register(clients[clientID]);
+                                     mystream.cache.getData(function(data){
+                                             buffer.push(JSON.stringify({type: "data", watch: message.watch, data: JSON.stringify(data)}));
+                                             processed++;
+                                             if(processed>=nbTask){
+                                               send( );
+                                              }  
+                                      });
+                               
+                       }
+                        
                        for (var i in watch){
                               var message=JSON.parse(watch[i]);
                               var mystream = stream.getStream(message.watch, {});
-                              if(!mystream.client[clientID]){  
-                                     mystream.register(clients[clientID]);
-                                     buffer.push(JSON.stringify({type: "data", watch: message.watch, data: JSON.stringify(mystream.data)}));
-                              }
-
+                               
+                                 if(!mystream.client[clientID]){  
+                                    checkwatch(message,mystream);
+                                }else{
+                                     nbTask--;
+                                 }
                         }
-                       var pull= req.body.pull;
                         for (var i in pull){
                               var message=JSON.parse(pull[i]);
                               var mystream = stream.getStream(message.pull, {});
-                              buffer.push(JSON.stringify({type: "pull", watch: message.pull, data: JSON.stringify(mystream.data)}));
+                              mystream.cache.getData(function(data){
+                                  buffer.push(JSON.stringify({type: "pull", watch: message.pull, data: JSON.stringify(data)}));
+                                         processed++;
+                                             if(processed>=nbTask){
+                                               send( );
+                                              }
+                              });
+                              
+                              
                          }
-                        if(buffer.length>0){
-                                res.send(JSON.stringify({type: "buffer",  data: JSON.stringify(buffer)}));
-                        }else{
+                         function send(){
+                             res.send(JSON.stringify({type: "buffer",  data: JSON.stringify(buffer)}));
+                         }
 
+                         if(nbTask==0){
                              checkUpdate(req, res);
-                        }
+                         }
+                  
                    }
                } catch (err) {
                    res.status(401).send(err);
                }
            });
-
-
-
           function checkUpdate(req, res)
            {
                try {
