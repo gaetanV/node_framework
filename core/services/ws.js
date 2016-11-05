@@ -41,20 +41,7 @@
                         });
                        
                     }
-                    /*if (message.hasOwnProperty("push")) {
-                        var t = message.push.split("/").slice(1, -1);
-                        //UPDATE FROM DB DEPRECIATED USE WEB SERVICE//
-                        if (t[0]) {
-                            if (t[1]) {
-                                var entity = $db[t[0]];
-                                var object = entity.map(function (d) {
-                                    return d.id;
-                                }).indexOf(parseInt(t[1]));
-                                entity[object] = message.data;
-                            }
-                        }
-                        stream.updateEntity(t[0], t[1], message.data);
-                    }*/
+            
                 } catch (err) {
                     console.log(err);
                 }

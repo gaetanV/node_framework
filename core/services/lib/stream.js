@@ -7,7 +7,7 @@
         var PERISISTENCE = [];
         ///IF CACHE IS MEMORY
      
-        var CACHE=require('../../cache.js')("file");
+        var CACHE=require('../../cache.js')("mongo");
         
         
         function ENTITY() {
@@ -90,14 +90,17 @@
                                     }
                                     break;
                                case "OneToMany":
+                                   console.log("OneToMany");
                                     var indexArray = cible.map(function (d) {
                                         return d.id;
                                     }).indexOf(parseInt(index));
+                                    
                                     if (indexArray !== -1) {
-                                        for (var j in cible) {
+                                        for (var j in cible[indexArray]) {
                                             cible[indexArray][j] = data[j];
                                         }
                                     }
+                                  
                                     vm.cache.data = before;
                                  
                                      var b = vm.buffer(
@@ -281,18 +284,13 @@
                                    }
                                         
                             }
-                      
                              for(var userid in b){bufferUser(userid)}   
-         
                             processed++;
                                if(processed>=nbTask){
                                    update();
                                }
                             
-                        }
-                        
-                        
-                                        
+                        }            
                     }
                 }
                    

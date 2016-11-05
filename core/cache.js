@@ -5,6 +5,17 @@
         var $path = require("path");
         var guid = require("./services/lib/guid.js");
         
+        
+          var monk = require('monk')
+  
+          var db = monk('localhost:27017/hostel');
+          
+          
+         var collection=   db.get("query");
+     
+            
+            
+            
         switch(type){
                         
                         case "file":
@@ -35,24 +46,51 @@
                     this.path=$path.join(__dirname, "../","app","cache","query", this.id);
                     
                 }
-            
-
+           
                 getData(callback){
                     var vm=this;
                     switch(type){
-                        
+                        case "mongo":
+                          try{
+                                return checkUpdate();
+                                function checkUpdate(){
+                                    if(!vm.write){
+                                        
+                                             collection.findOne({id:vm.id},{},function(err,result){
+                                                    if(err){
+                                                           throw  ("Request failed: get cache");
+                                                          console.log(err);
+                                                          return false;
+                                                    }else{
+                                                   
+                                                          var data=(result.data);
+                                               
+                                                        callback(data);
+                                                    };
+                                             });   
+                                     
+                                   }else{
+                                     
+                                       var s=setTimeout(checkUpdate, 100);
+                                
+                                   }
+                                }
+                            }catch(err){
+                                  console.log(err);
+                                  return "";
+                            }
+                       
+                          break;
                         case "file":
                             try{
                                 return checkUpdate();
                                 function checkUpdate(){
-                                   // console.log("checkUpdate");
                                     if(!vm.write){
                                         if ($fs.existsSync(vm.path)){
                                                var t=$fs.readFileSync(vm.path, 'utf8');
-                                               console.log(t);
+                                            
                                                var data=JSON.parse(t);
-                                               //console.log(data);
-                                              //  console.log("endofsync");
+                                         
                                                     callback(data);
                                          
                                         }else{   
@@ -79,6 +117,36 @@
                 set data(data){
                    var vm=this;
                     switch(type){
+                        case "mongo":
+                         vm.write=true;
+                          var data={id:vm.id,data:data};
+                           //findOneAndUpdate
+                           collection.update({id:vm.id},data,function(err,result){
+                             
+                                if(err){
+                                    console.log(err);
+                                    return false;
+                               }
+                               if(result.nModified===0){
+                                   collection.insert(data,function(err,result){
+                                                  vm.write=false;
+                                                 if(err){
+                                                      console.log("err");
+                                                        
+                                                       console.log(err);
+                                                       return false;
+                                                 }
+                                          });
+                               }else{
+                                    vm.write=false;
+                                                   
+                               }
+                                                     
+                         });
+                      
+                           return data;
+                            break;
+                        
                         case "file":
                             vm.write=true;
                              $fs.writeFile(this.path, JSON.stringify(data), function (error) {

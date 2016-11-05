@@ -13,7 +13,7 @@
             stream.addRoute(config,$bundles);
         }
         require('./lib/poll.js')($app,path,reload,stream,clients);
-             $event.on("updateEntity",function(d){
+        $event.on("updateEntity",function(d){
              stream.updateEntity(d.entity,d.id,d.data);
             
         });

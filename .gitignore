@@ -46,7 +46,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-/app/cache/query/
+/app/cache/query
 /test/
 /node_modules/
-
+/db/

@@ -15,15 +15,8 @@
                   for(var i in TASK[namespace]){
                       TASK[namespace][i](data);
                   }
-              }
-              console.log(namespace);
-                  /*for(var i in $db.user){
-                      console.log($db.user[i]);
-                  }*/
+              }  
           };
-          
-          
-          
           return {
              on:on,
              emit:emit,
