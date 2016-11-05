@@ -1,23 +1,17 @@
 (function () {
     'use strict';
-
     module.exports = Security;
     function Security(app, express, $fs, $yaml, $path) {
-
         var ACCESS_CONTROL = [], INDEX , AUTH=[];
-        
-        
         var doc = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../app", "./config.yml"), 'utf8'));
         if (!doc.hasOwnProperty("security")) {
             throw ('ERROR IN CONFIG SECURITY')
         }
         var doc = doc.security;
-
         if (!doc.hasOwnProperty("index")) {
             throw ('ERROR IN CONFIG INDEX')
         }
         INDEX = doc.index;
-
         if (doc.hasOwnProperty("access_control")) {
             for (var i in doc.access_control) {
                 if (!doc.access_control[i].hasOwnProperty("path") || !doc.access_control[i].hasOwnProperty("roles")) {
@@ -28,17 +22,12 @@
         }
         if (doc.hasOwnProperty("auth")) {
             for (var i in doc.auth) {
-            
                 if (!doc.auth[i].hasOwnProperty("stateless") || !doc.auth[i].hasOwnProperty("authenticator") || !doc.auth[i].hasOwnProperty("provider") ) {
                     throw ('ERROR IN CONFIG auth')
                 }
-             
             }
             AUTH= doc.auth;
         }
-        
-        
-
         function getTimeMSFloat() {
             var hrtime = process.hrtime();
             return (hrtime[0] * 1000000 + hrtime[1] / 1000) / 1000;
@@ -47,7 +36,6 @@
         publicArea("/", "./web/");
         function publicArea(redirect, staticpath) {
             function security(req, res, next) {
-
                 function whitelist(access) {
                     if (access.hasOwnProperty("whiteip")) {
                         var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
@@ -62,28 +50,19 @@
                         if (!inlist) {
                             throw "not allow your are not in white list";
                         }
-
                     }
                 }
-
-
-
                 var temp = getTimeMSFloat();
                 try {
                     var access_control = ACCESS_CONTROL.slice(0);
                     for (var i in access_control) {
-
                         var m = new RegExp('^' + access_control[i].path + '$', 'gi');
                         if (req.path.match(m)) {
-
                             if (!access_control[i].hasOwnProperty("roles")) {
                                 throw ('ERROR IN ACCESS_CONTROL')
                             }
-
                             switch (access_control[i].roles) {
                                 default:
-
-
                                     if (access_control[i].hasOwnProperty("auth")) {
                                         if (typeof access_control[i].roles === "object") {
                                             if(!AUTH.hasOwnProperty(access_control[i].auth)){
@@ -112,7 +91,6 @@
                                     break;
 
                             }
-
                         }
                     }
                     throw "not allow";

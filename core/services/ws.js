@@ -1,16 +1,17 @@
 (function () {
     'use strict';
     module.exports = Ws;
-    function Ws($fs, $yaml, $path, $bundles,$event, $host,port, router, access_control) {
-     
-        
-        
-        
+    function Ws($fs, $yaml, $path, $bundles,$event, $host,port, router, access_control,cache) {
+ 
         const WebSocketServer = require('ws').Server;
-        const guid = require('./lib/guid.js');
         const wss = new WebSocketServer({port: port?port:8098, host: $host});
+        const guid= this.getLib("guid");
+        
         var clients = [];
-        const stream = require('./lib/stream.js')( clients,guid,$fs,$path);
+        const stream = this.execLib("stream",
+            [clients,  this.execLib("cache",[cache?cache:"memory"])]
+        );
+   
         if ($bundles) { stream.addRoute($yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../../", router.resource), 'utf8')), $bundles);}
         
         wss.on('connection', function (ws) {

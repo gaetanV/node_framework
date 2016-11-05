@@ -4,7 +4,10 @@
     var ControllerBundle = function ( actions,streams,SERVICE,parser,$app) {
         var vm = this;
         this.stream=streams;
+        
         this.action=actions;
+        
+        
         var GET = {
             getParam: function (route,res, req) {
                 try{
@@ -84,6 +87,25 @@
            
                return data;
         }
+        
+         this.addPost = function (route) {
+            
+            $app.post(route.path, function (req, res, next) {
+                var sess = req.session;
+                
+                try {
+                    var params = GET.getParam(route, res, req);
+                    console.log("POST match " + route.path);
+                    next({fn: route.fn, params: params});
+
+                } catch (err) {
+                    res.status(404).send(err);
+                    return false;
+                }
+                ;
+        }, GET.exec)};
+        
+        
         this.addGet = function (route) {
             
             $app.get(route.path, function (req, res, next) {

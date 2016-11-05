@@ -1,7 +1,7 @@
 (function () {
     'use strict';
      module.exports = service;
-     function service(service,inject,$path){
+     function service(service,inject,$path,$parameters){
             function getArguments(fn){
                 var chaine=fn.toString().replace(/\n|\r|(\n\r)/g,' ').slice(0,200); 
                 var re =/^function[\s]*([^\(]*)\(([^\)]*)\)[\s]*{/g;
@@ -46,7 +46,24 @@
             }
               
             console.log("injectParam");
-            return  fn.apply({},injectParam);
+          
+            
+            return  fn.apply({
+                
+                container:$parameters,
+                execLib:function(name,params){
+                    return require($parameters.getParameter("core.lib_dir")+name+".js").apply(
+                            {
+                                container:$parameters,
+                            },
+                            params    
+                     )
+                },
+                getLib:function(name){
+                    
+                    return require($parameters.getParameter("core.lib_dir")+name+".js");
+                }
+            },injectParam);
      
      }   
 })();

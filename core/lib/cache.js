@@ -3,19 +3,13 @@
     function cache(type){
         var $fs = require('fs');
         var $path = require("path");
-        var guid = require("./services/lib/guid.js");
+        var guid = require("./guid.js");    
+        var monk = require('monk')
         
         
-          var monk = require('monk')
-  
-          var db = monk('localhost:27017/hostel');
-          
-          
-         var collection=   db.get("query");
-     
-            
-            
-            
+        var db = monk('localhost:27017/hostel');
+        var collection=   db.get("query");
+       var cachefile=$path.join(__dirname, "../../","app","cache","query");
         switch(type){
                         
                         case "file":
@@ -32,7 +26,7 @@
                                           //  $fs.rmdirSync(path);
                                           }
                             }
-                            var path=$path.join(__dirname, "../","app","cache","query");
+                            var path=cachefile;
                                   deleteFolderRecursive(path);   
                     }
  
@@ -43,7 +37,7 @@
                     var uniqueID=guid();
                     this.id=uniqueID;
                     this.write=false;
-                    this.path=$path.join(__dirname, "../","app","cache","query", this.id);
+                    this.path=$path.join(cachefile, this.id);
                     
                 }
            

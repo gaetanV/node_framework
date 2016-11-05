@@ -48,5 +48,6 @@ Temporary Items
 
 /app/cache/query
 /test/
+/core/Component/
 /node_modules/
 /db/

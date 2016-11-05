@@ -7,18 +7,28 @@
     var $security = require('./security.js');
     var $service = require('./service.js');
     var $path = require("path");
-    var compression = require('compression');
-    var session = require('express-session');
-
-
+    var $compression = require('compression');
+    var $session = require('express-session');
+    var $parameters = require('./parameters.js')();
     module.exports = Root;
     function Root($app, $server, $port, $host, $express,$http) {
-
-       
+        
         var BUNDLES = [];
         var SERVICE = [];
-        
-     
+        $parameters.setFreezeParameter("kernel",
+            {
+               root_dir: $path.join(__dirname, "../app/"),
+               cache_dir: $path.join(__dirname, "../app/cache"),
+               web_dir: $path.join(__dirname, "../web/"),
+               logs_dir: $path.join(__dirname, "../app/logs"),
+            }
+        );
+       $parameters.setFreezeParameter("core",
+           {
+              lib_dir: $path.join(__dirname, "/lib/"),
+              root_dir: __dirname,
+            }
+        );
 
         function add(path, racine) {
             try {
@@ -48,10 +58,8 @@
                 console.log(e);
             }
         }
-
+        
         var config = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../app", "./config.yml"), 'utf8'));
-
-
 
         if (!config.hasOwnProperty("framework")) {
             throw ('ERROR IN CONFIG FRAMEWORK')
@@ -69,18 +77,16 @@
         $app.use(cookieParser());
         if (doc.hasOwnProperty("session")) {
             console.log("SESSION");
-            var sessionStore = new session.MemoryStore;
-            var guid = require('./services/lib/guid.js');
+            var sessionStore = new $session.MemoryStore;
+            var guid = require($parameters.getParameter("core.lib_dir")+'guid.js');
             $app.set('trust proxy', 1)
-            $app.use(session({secret:  doc.session, name: 'session',id:guid() , store: sessionStore, resave: true, saveUninitialized: true, cookie: {httpOnly: true}}));
+            $app.use($session({secret:  doc.session, name: 'session',id:guid() , store: sessionStore, resave: true, saveUninitialized: true, cookie: {httpOnly: true}}));
         }
 
         /*Compression*/
         if (doc.hasOwnProperty("compression_gzip")) {
             if (doc.compression_gzip === true) {
-                $app.use(compression({threshold: 0, filter: function () {
-                        return true;
-                    }}))
+                $app.use($compression({threshold: 0, filter: function () {return true;}}))
             }
             ;
         }
@@ -92,15 +98,13 @@
                    $port: $port,
                    $host: $host,
                    $bundles: BUNDLES,
-                    $fs:$fs,
-                                $path:$path,
-                                $yaml:$yaml,
-                                $http:$http,
-                                $express:$express,
-                                $sessionStore:sessionStore,
-                                $app:$app,
-                
-                
+                   $fs:$fs,
+                   $path:$path,
+                   $yaml:$yaml,
+                   $http:$http,
+                   $express:$express,
+                   $sessionStore:sessionStore,
+                   $app:$app,
             }
             function load(){
                 cmp++;
@@ -117,7 +121,7 @@
                     if (config.hasOwnProperty("services")) {
                         for (var i in config.services) {
                             
-                            var service = new $service(config.services[i],  inject, $path);
+                            var service = new $service(config.services[i],  inject, $path,$parameters);
                             SERVICE[i]=service;
                             inject["$"+i]=service;
                         }

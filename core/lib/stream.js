@@ -2,13 +2,12 @@
  
     'use strict';
 
-    function stream(clients,guid,$fs,$path) {
+    function stream(clients,CACHE) {
         var STREAM = [];
         var PERISISTENCE = [];
         ///IF CACHE IS MEMORY
      
-        var CACHE=require('../../cache.js')("mongo");
-        
+
         
         function ENTITY() {
             this.rooms = [];

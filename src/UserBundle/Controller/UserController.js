@@ -1,18 +1,20 @@
 (function () {
     'use strict';
     var UserController =   {
-             setAllAction:function() {
+             getAllAction:function() {
                //UPDATE IN DB
-
+                var db=this.get("db");
                 var object=[{name:Math.random(),type:"sync"}, {name:Math.random(),type:"sync"}];
 
-       
+              
                 return this.render('index.pug',{name:"objects change"});
              
              },
              setOneAction:function(id) {
                 var event=this.get("event");
                 var object={name:Math.random(),id:parseInt(id)};
+                
+                
                 event.emit("updateEntity",{entity:"user",id:id,data:object});
                 return this.send("object change");
            
@@ -34,16 +36,6 @@
                  return data;
                   
              },
-             
-     
-             
-             test:function(id) {
-               
-                 console.log(id);
-              
-           
-             }
-     
     };
     Controller(UserController);
 })();

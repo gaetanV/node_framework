@@ -8,25 +8,24 @@ framework:
     router:
         resource: /app/routing.yml
 
+    
+    
+    
 services:
+    #CACHE ['mongo','files','memory']
     db:
         class:  core\services\db
         arguments: []
-        
+   
     event:
         class:  core\services\event 
-        arguments: [ $app , $fs  ,$bundles ,$yaml,$path,$emit ]  
-        # ['mongo','files','memory']
-        cache : files
-        params: 
-            path: /news/    
+        arguments: [ $app , $fs  ,$bundles ,$yaml,$path,$emit ]     
             
     ws:
         class:  core\services\ws
         arguments: [ $host ,$bundles, $fs ,$yaml ,$path ,$db ,$event]   
-        cache : mongo
-        # ['mongo','files','memory'] 
         params: 
+            cache : mongo
             port: 8098  
             router: 
                 resource: /app/stream.yml
@@ -36,23 +35,19 @@ services:
     longpolling:
         class:  core\services\longpolling 
         arguments: [ $app , $fs  ,$bundles ,$yaml,$path,$event ]  
-        # ['mongo','files','memory']
-        cache : memory
         params: 
+            cache : memory
             path: /event/
             router: 
                 resource: /app/stream.yml
     polling:
         class:  core\services\polling 
         arguments: [ $app , $fs  ,$bundles ,$yaml,$path,$event ]  
-        # ['mongo','files','memory']
-        cache : files
         params: 
+            cache : file
             path: /polling/
             router: 
                 resource: /app/stream.yml            
-
-              
 
 private_services:       
     apikey_authenticator:
