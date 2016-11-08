@@ -1,17 +1,18 @@
 (function () {
     'use strict';
     module.exports = Ws;
-    function Ws($fs, $yaml, $path, $bundles,$event,$uuid, $host,port, router, access_control,cache_type,$cache) {
-        
+    function Ws($fs, $yaml, $path, $bundles,$event,$uuid, $host,port, router, access_control,cache_type,$cache,$ws) {
 
-        const WebSocketServer = require('ws').Server;
+        const WebSocketServer = $ws.Server;
         const wss = new WebSocketServer({port: port?port:8098, host: $host});
         const cache= $cache(cache_type?cache_type:"memory");
         var clients = [];
-        const stream = this.use("/Component/stream").inject({clients:clients,CACHE:cache});
+         const stream = this.use("/Component/stream").inject({clients:clients,CACHE:cache});
         
         
-        if ($bundles) { stream.addRoute($yaml.safeLoad($fs.readFileSync($path.join(this.container.getParameter("server.root_dir"), router.resource), 'utf8')), $bundles);}
+        if ($bundles) {
+            stream.addRoute($yaml.safeLoad($fs.readFileSync($path.join(this.container.getParameter("server.root_dir"), router.resource), 'utf8')), $bundles);
+        }
         
         wss.on('connection', function (ws) {
             ws.id = $uuid.v4();

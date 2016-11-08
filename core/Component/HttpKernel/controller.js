@@ -1,6 +1,5 @@
 (function () {
     'use strict';
-    require = function () {};
     var ControllerBundle = function (file,services) {
         var vm = this;
     

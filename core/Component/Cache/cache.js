@@ -1,12 +1,10 @@
 (function () {
     'use strict';
-    function cache(type,$fs,$path,$uuid){
-        var monk = require('monk')
-        var db = monk('localhost:27017/hostel');
+    function cache(type,$fs,$path,$uuid,$monk){
+        
+        var db = $monk('localhost:27017/hostel');
         var collection=   db.get("query");
-        console.log();
-        
-        
+
         var cachefile=$path.join(this.container.getParameter("kernel.cache_dir"),"query");
         function factory(type){
         

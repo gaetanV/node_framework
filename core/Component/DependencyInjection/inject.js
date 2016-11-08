@@ -3,7 +3,7 @@
     module.exports = inject;
     function inject(inject,vm) {
         var vm=vm?vm:{};
-        var inject=inject;
+        var inject=inject?inject:{};
         return  {
             apply: function (fn, params) {
                 var args = this.getArguments(fn);
@@ -35,6 +35,7 @@
             },
             addInject:function(namespace,fn){
                 namespace="$"+namespace;
+             
                 if(!inject[namespace]){
                     inject[namespace]=fn;
                 }

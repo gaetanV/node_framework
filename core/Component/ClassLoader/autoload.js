@@ -1,19 +1,25 @@
 (function () {
     'use strict';
-     const $path = require("path");
-     function autoload(path,injection){
+     var require=false;
+     //!!!! STOP DYNAMIC INJECTION  !!!!//
+     function autoload(path,injection,$fs,$path){
             var injection=injection;
             return function(namespace){
- 
-                           var fn=require($path.join(path,namespace+".js"));
-
+                          function parse(path){
+                                var file=  $fs.readFileSync(path, 'utf8');
+                               
+                                eval(file);
+                              
+                               return module.exports;
+                          }
+                          var fn=parse($path.join(path,namespace+".js"));
+                       
+                         
                            fn.inject=function(args){
-
+                               
                                return  injection.apply(fn,args);
                            }
                            
-                           
-                           // $service($path.join(__dirname, "../",namespace)); 
                            return  fn;
                 
             }

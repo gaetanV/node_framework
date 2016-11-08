@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    var Bundle = function (name, params, services, callback, $path, $fs) {
+    var Bundle = function (name, params, services, callback, $path, $fs,$mustache,$pug) {
 
         const enginer = ['pug', 'mustache', 'html'];
         this.templating = "html";
@@ -47,13 +47,13 @@
                 break;
             case "jade":
             case "pug":
-                var pug = require('pug');
+                var pug = $pug;
                 this.parser = function (path, param) {
                     return pug.render(vm.views[path], param);
                 }
                 break;
             case "mustache":
-                var Mustache = require('Mustache');
+                var Mustache = $mustache;
                 this.parser = function (path, param) {
                     return  Mustache.render(vm.views[path], param);
                 }

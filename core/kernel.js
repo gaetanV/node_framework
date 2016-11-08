@@ -11,6 +11,10 @@
      const $bodyParser = require('body-parser');
      const $cookieParser = require('cookie-parser');
      const $uuid= require('node-uuid');
+     const $monk= require('monk');
+     const $pug = require('pug');
+     const $mustache = require('Mustache');
+     const $ws =   require('ws');
      class kernel{
          constructor(port,host){     
              try{
@@ -32,13 +36,22 @@
                               $express:$express,
                               $app:$app,
                               $uuid:$uuid,
+                              $monk:$monk,
+                              $pug:$pug,
+                              $mustache:$mustache,
+                              $ws:$ws
                        }
                     );
+                    
                      /* AUTOLOAD */
-                    this.use=require($path.join(__dirname,"/Component/ClassLoader/autoload.js"))(this.namespace,injection);
+                    this.use=require($path.join(__dirname,"/Component/ClassLoader/autoload.js"))(this.namespace,injection,$fs,$path);
+                    require=false; 
+                    //!!!! STOP DYNAMIC INJECTION  !!!!//
+                    
                     $parameters=this.use("/Component/DependencyInjection/parameters").inject();       
                     
                     
+                  
                     injection.addThis("use",this.use);
                     injection.addThis("container",$parameters);
                     
@@ -120,7 +133,7 @@
                     var $event=this.use("/Component/EventDispatcher/event").inject();
                     injection.addInject("event",$event);
                     
-                    /* CACHE DISPATCHER */
+                    /* CACHE FACTORY */
                     var $cache=this.use("/Component/Cache/cache").inject();
                     
                     injection.addInject("cache",$cache);
@@ -131,8 +144,7 @@
                         event:$event,
                     }
 
-                    console.log( this.services);
-                    
+                   
                     /* BUNDLES */
                     var BUNDLES=[];
                     
@@ -165,7 +177,7 @@
                             for (var i in config.services) {
                                var service= config.services[i];
                                if (!service.hasOwnProperty("class")){throw ('ERROR IN CONFIG SERVICE') } 
-                               var inject= require($path.join(__dirname,"/Component/DependencyInjection/inject.js"))({});
+                               var inject= vm.use("/Component/DependencyInjection/inject").inject({});
                            
                                if(service.hasOwnProperty("arguments")){                             
                                     var injectPotential=injection.getInjects();
@@ -177,9 +189,12 @@
                                     }
                                }
                                var path=service.class.split("/");
-                               var cl=path.pop();                      
+                               var cl=path.pop();           
+                               
                                var namespace=$path.join(__dirname,"..",path.join("/"));
-                               var autoload=require($path.join(__dirname,"/Component/ClassLoader/autoload.js"))(namespace,inject);    
+                               
+                               var autoload=vm.use("/Component/ClassLoader/autoload").inject({path:namespace,injection:inject});   
+                          
                                inject.addThis("use",autoload);
                                inject.addThis("container",$parameters);
                                var service=autoload(cl).inject(service.params?service.params:{});

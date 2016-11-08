@@ -10,9 +10,8 @@
             CACHE:cache
         });
         var reload=true;
-        if ($bundles) {
-            var config = $yaml.safeLoad($fs.readFileSync($path.join(__dirname, "../../", router.resource), 'utf8'));
-            stream.addRoute(config,$bundles);
+             if ($bundles) {
+            stream.addRoute($yaml.safeLoad($fs.readFileSync($path.join(this.container.getParameter("server.root_dir"), router.resource), 'utf8')), $bundles);
         }
         
         this.use("/Component/poll").inject({
