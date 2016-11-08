@@ -2,14 +2,14 @@
 
     'use strict';
 
-    function Poll($app,path,reload,stream,clients){
+    function Poll($app,$uuid,path,reload,stream,clients){
         var TASKS=[];
         var clientsSession = [];
 
         const maxinstance = 20;
         const timeInstance = 2000;
         const timeDos = 100;
-        const guid = require('./guid.js');
+    
 
         class BUFFER{
                constructor() {
@@ -77,7 +77,7 @@
                    }
                    clientsSession[req.sessionID].garbage();
                    if (!req.body.sid) {
-                       var id = guid();
+                       var id = $uuid.v4();
                        if (Object.keys(clientsSession[req.sessionID].instance).length < maxinstance) {
                            clientsSession[req.sessionID].addInstance(id);
                            setTimeout(function () {

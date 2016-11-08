@@ -6,7 +6,6 @@
         var STREAM = [];
         var PERISISTENCE = [];
         ///IF CACHE IS MEMORY
-     
 
         
         function ENTITY() {
@@ -333,7 +332,7 @@
                 return false;
             },
             addRoute: function (config, BUNDLES) {
-                
+               
                 function parseconfig(c){
                     
                     var controller = c.split(":");
@@ -342,8 +341,9 @@
                     var fn = controller[2];
                     
                     function parse(options){
-                       var data=BUNDLES[bundleName].controllers[controllerName].execStream(fn,options);
-                   
+                       
+                       var data=BUNDLES[bundleName].controllers[controllerName].stream[fn].apply({},options);
+                       
                        return data;
                     }
                     var option = {

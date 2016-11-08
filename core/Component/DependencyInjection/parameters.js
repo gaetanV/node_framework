@@ -10,9 +10,7 @@
                      
                  
                }
-         
                get data(){
-                 
                   return this.value;
                }
                 
@@ -48,21 +46,16 @@
            function hasParameter(namespace){
                return PARAMS[namespace]?true:false;
            }
-           function setParameter(namespace,value){
+           function setParameter(namespace,value,freeze){
+               
                    if(!hasParameter(namespace)){
-                    PARAMS[namespace]=new PARAM(value,false);
+                    PARAMS[namespace]=new PARAM(value,freeze);
                }
                 return false;
            }
-           function setFreezeParameter(namespace,value){
-               if(!hasParameter(namespace)){
-                    PARAMS[namespace]=new PARAM(value,true);
-               }
-                return false;
-              
-           }
+    
            return {
-               setFreezeParameter:setFreezeParameter,
+             
                setParameter:setParameter,
                getParameter:getParameter,
                hasParameter:hasParameter

@@ -1,6 +1,6 @@
 {
   "name": "framework",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "author": "(c) Gaetan Vigneron <gaetan@webworkshops.fr>",
   "date": "04/11/2016",
   "description": "LIVE & Structure Express with Symfony security + ",
@@ -16,6 +16,7 @@
     "mongodb": "^2.2.11",
     "mongoose": "^4.6.6",
     "mustache": "^2.2.1",
+    "node-uuid": "^1.4.7",
     "path": "^0.12.7",
     "pug": "^2.0.0-beta6",
     "ws": "^1.1.1"

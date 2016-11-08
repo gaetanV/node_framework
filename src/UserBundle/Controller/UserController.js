@@ -5,8 +5,6 @@
                //UPDATE IN DB
                 var db=this.get("db");
                 var object=[{name:Math.random(),type:"sync"}, {name:Math.random(),type:"sync"}];
-
-              
                 return this.render('index.pug',{name:"objects change"});
              
              },
@@ -16,7 +14,7 @@
                 
                 
                 event.emit("updateEntity",{entity:"user",id:id,data:object});
-                return this.send("object change");
+                  return this.render('index.pug',{name:"objects change"});
            
              },
              getOneStream:function(id){
