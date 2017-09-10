@@ -34,6 +34,7 @@
                 return inject[namespace] ? true : false;
             },
             addInject: function (namespace, fn) {
+           
                 namespace = "$" + namespace;
 
                 if (!inject[namespace]) {

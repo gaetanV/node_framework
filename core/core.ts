@@ -71,7 +71,7 @@ var _share: _shareInterface = {
             },
             addInject: function (namespace, fn) {
                 namespace = "$" + namespace;
-
+                    
                 if (!inject[namespace]) {
                     inject[namespace] = fn;
                 }

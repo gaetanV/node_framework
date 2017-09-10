@@ -1,6 +1,8 @@
 class kernel {
     
     parameters: any;
+    namespace: string = __dirname;
+    
     private injectable: Array<string>;
     
     startServer(
@@ -170,6 +172,7 @@ class kernel {
     ) {
     
         this.injectable = noInjectable;
+        
         for(var i in injectable){
             this.injectable[i]= injectable[i];
         }
@@ -177,26 +180,25 @@ class kernel {
         try {
             /* SERVER */
             
-            var $app = this.startServer(Port, Host);
-            
-            this.namespace = __dirname;
-            
+           
+   
             var injection = DependencyInjection(
                     {
-                        $fs: this.injectable["fs"],
-                        $path: this.injectable["path"],
                         $yaml: this.injectable["js-yaml"],
-                        $http: this.injectable["http"],
-                        $express: this.injectable["express"],
-                        $app: $app,
-                        $uuid: this.injectable["node-uuid"],
-                        $monk: this.injectable["monk"],
-                        $pug: this.injectable["pug"],
-                        $mustache: this.injectable["Mustache"],
-                        $ws: this.injectable["ws"]
                     }
             );
-
+            
+            for(var i in injectable){       
+                i = i.toLowerCase().replace(/-([a-z])/g, function (m, w) {
+                    return w.toUpperCase();
+                }););
+                
+                injection.addInject(i, injectable[i]);
+            }
+            
+            var $app = this.startServer(Port, Host);
+            injection.addInject("app", $app);
+            
             /* AUTOLOAD */
             this.use = Autoload(this.namespace, injection, this.injectable["fs"], this.injectable["path"]);
             require = false;

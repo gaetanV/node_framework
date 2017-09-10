@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    function cache(type, $fs, $path, $uuid, $monk) {
+    function cache(type, $fs, $path, $nodeUuid, $monk) {
 
         var db = $monk('localhost:27017/hostel');
         var collection = db.get("query");
@@ -33,7 +33,7 @@
             return class CACHE {
                 constructor() {
 
-                    var uniqueID = $uuid.v4();
+                    var uniqueID = $nodeUuid.v4();
                     this.id = uniqueID;
                     this.write = false;
                     this.path = $path.join(cachefile, this.id);
