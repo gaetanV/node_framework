@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "module": "none",
+    "target": "es2017",
+    "watch": true,
+    "outFile": "core/core.js"
+  },
+  "include": ["./core/**/*.ts"]
+}

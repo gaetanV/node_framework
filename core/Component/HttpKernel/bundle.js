@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    var Bundle = function (name, params, services, callback, $path, $fs,$mustache,$pug) {
+    var Bundle = function (name, params, services, callback, $path, $fs, $mustache, $pug) {
 
         const enginer = ['pug', 'mustache', 'html'];
         this.templating = "html";
@@ -13,7 +13,7 @@
             }
         }
         this.name = name;
-       //PARSE SERVICES//
+        //PARSE SERVICES//
 
         var path = name.replace(new RegExp(":", 'g'), "/");
         this.path = {
@@ -21,11 +21,11 @@
             controller_dir: $path.join(this.container.getParameter("kernel.bundle_dir"), path, "Controller"),
             view_dir: $path.join(this.container.getParameter("kernel.bundle_dir"), path, "Ressources", "views"),
         }
-        
-        
+
+
         this.views = [];
         $fs.statSync(this.path.view_dir);
-        var vm=this;
+        var vm = this;
         $fs.readdir(this.path.view_dir, function (err, files) {
             files.forEach(function (file) {
                 var view = $fs.readFileSync($path.join(vm.path.view_dir, file), 'utf8');
@@ -59,7 +59,7 @@
                 }
                 break;
         }
-  
+
 
         try {
             $fs.statSync(this.path.root_dir);
@@ -81,7 +81,7 @@
                     var m = new RegExp('^(.*)Controller.js$', 'gi');
                     var controllerName = m.exec(file);
                     if (controllerName) {
-                        vm.controllers[controllerName[1]] = $controller.inject({ services: vm.services ,file: $fs.readFileSync($path.join(vm.path.controller_dir, file), 'utf8')});
+                        vm.controllers[controllerName[1]] = $controller.inject({services: vm.services, file: $fs.readFileSync($path.join(vm.path.controller_dir, file), 'utf8')});
                     }
                     processed++;
                     if (processed >= nbTask) {
@@ -95,16 +95,11 @@
             throw err;
         }
         return this;
- 
+
 
     }
 
-
-
     module.exports = Bundle;
-
-
-
 
 
 })();

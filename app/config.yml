@@ -23,13 +23,13 @@ services:
             router: 
                 resource: /app/stream.yml
             access_control:    
-                -  { path: /user/.*                        , roles: [ROLE_ADMIN]          , auth: api_area       , whiteip:[192.168.0.11]  }
+                -  { path: /user/.* , roles: [ROLE_ADMIN] , auth: api_area , whiteip:[192.168.0.11]  }
 
     longpolling:
         class:  /core/services/longpolling 
         arguments: [ $app , $fs  ,$bundles ,$yaml,$path,$event,$cache ,$uuid]  
         params: 
-            cache_type : mongo
+            cache_type : memory
             path: /event/
             router: 
                 resource: /app/stream.yml

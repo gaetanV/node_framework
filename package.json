@@ -15,10 +15,12 @@
     "js-yaml": "^3.6.1",
     "mongodb": "^2.2.11",
     "mongoose": "^4.6.6",
+    "monk": "^6.0.3",
     "mustache": "^2.2.1",
     "node-uuid": "^1.4.7",
     "path": "^0.12.7",
     "pug": "^2.0.0-beta6",
+    "typescript": "^2.5.2",
     "ws": "^1.1.1"
   },
   "scripts": {

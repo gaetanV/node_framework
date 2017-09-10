@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    const kernel= require('./core/kernel.js');
-    new kernel(7200, '192.168.0.11');
+    const CORE = require('./core/core.js');
+    CORE.boot(7200, 'localhost');
     console.log( process.memoryUsage());
 })();

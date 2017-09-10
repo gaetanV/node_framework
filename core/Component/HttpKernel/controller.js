@@ -1,14 +1,14 @@
 (function () {
     'use strict';
-    var ControllerBundle = function (file,services) {
+    var ControllerBundle = function (file, services) {
         var vm = this;
-    
+
         return {
             services: services,
             action: evalController(file),
             stream: evalStream(file)
         }
-       
+
 
         function evalController(controller) {
             require = false;
@@ -20,9 +20,9 @@
                     if (actionName) {
                         actions[actionName[1]] = vm.use("/Component/DependencyInjection/http").inject({
                             vm: {
-                                 get: function (namespace) {
+                                get: function (namespace) {
                                     return services[namespace];
-                                 },
+                                },
                             },
                             fn: controller[i],
                         }
@@ -35,7 +35,7 @@
             eval(controller);
             return actions;
         }
-        ;
+        
         function evalStream(controller) {
             require = false;
             var actions = [];
@@ -46,9 +46,9 @@
                     if (actionName) {
                         actions[actionName[1]] = vm.use("/Component/DependencyInjection/http").inject({
                             vm: {
-                                 get: function (namespace) {
+                                get: function (namespace) {
                                     return services[namespace];
-                                 },
+                                },
                             },
                             fn: controller[i],
                         }
@@ -59,9 +59,6 @@
             eval(controller);
             return actions;
         }
-        ;
-
-
 
     };
     module.exports = ControllerBundle;
