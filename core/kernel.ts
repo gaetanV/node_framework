@@ -1,19 +1,33 @@
 class kernel {
     
-    noInjectable: Map<string,any> = [];
-    injectable: Map<string,any> = [];
+    server: any;
+    express: any;
     
-    constructor(Port: number, Host: string, noInjectable: Map<string,any>, injectable:  Map<string,any>) {
+    startServer(Port: number, Host: string, Http: Function , Express: Function ):void{
+        this.express = Express();
+        this.server = Http.createServer(this.express);
+        this.server.listen(Port, Host);
+    }
+    
+    constructor(
+                Port: number, 
+                Host: string, 
+                noInjectable: Map<string,any>, 
+                injectable:  Map<string,any>,
+                DependencyInjection: (any) => void,
+                Autoload: (any) => void,
+    ) {
        
         try {
             /* SERVER */
-            this.server = injectable["http"].createServer($app);
-            this.server.listen(Port, Host);
-
+            
+            this.startServer(Port, Host, injectable["http"], injectable["express"]);
+            
+           
             /* INJECTION */
             var $parameters = false;
             
-            var $app = noInjectable["express"]();
+            var $app = this.express;
             var $yaml = noInjectable["js-yaml"];
             var $compression = noInjectable["compression"];
             var $session = noInjectable["express-session"];
@@ -27,7 +41,7 @@ class kernel {
             this.use = false;
            
             this.namespace = __dirname;
-            var injection = require($path.join(__dirname, "/Component/DependencyInjection/inject.js"))(
+            var injection = DependencyInjection(
                     {
                         $fs: injectable["fs"],
                         $path: injectable["path"],
@@ -44,13 +58,11 @@ class kernel {
             );
 
             /* AUTOLOAD */
-            this.use = require($path.join(__dirname, "/Component/ClassLoader/autoload.js"))(this.namespace, injection, $fs, $path);
+            this.use = Autoload(this.namespace, injection, $fs, $path);
             require = false;
             //!!!! STOP DYNAMIC INJECTION  !!!!//
 
             $parameters = this.use("/Component/DependencyInjection/parameters").inject();
-
-
 
             injection.addThis("use", this.use);
             injection.addThis("container", $parameters);
