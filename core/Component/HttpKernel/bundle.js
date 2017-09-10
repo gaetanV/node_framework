@@ -2,7 +2,7 @@
     'use strict';
 
     var Bundle = function (name, params, services, callback, $path, $fs, $mustache, $pug) {
-
+        
         const enginer = ['pug', 'mustache', 'html'];
         this.templating = "html";
         if (params.hasOwnProperty("templating")) {

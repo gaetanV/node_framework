@@ -37,7 +37,7 @@ services:
         class:  /core/services/polling 
         arguments: [ $app , $fs  ,$bundles ,$yaml,$path,$event,$cache,$uuid ]  
         params: 
-            cache_type : file
+            cache_type : memory
             path: /polling/
             router: 
                 resource: /app/stream.yml            

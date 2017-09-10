@@ -1,13 +1,164 @@
 class kernel {
     
-    server: any;
-    express: any;
+    parameters: any;
+    private injectable: Array<string>;
     
-    startServer(Port: number, Host: string, Http: Function , Express: Function ):void{
-        this.express = Express();
-        this.server = Http.createServer(this.express);
-        this.server.listen(Port, Host);
+    startServer(
+                Port: number, 
+                Host: string, 
+    ):void {
+        var express = this.injectable["express"]();
+        var server = this.injectable["http"].createServer(express);
+        server.listen(Port, Host);
+        return express;
     }
+    
+    getSecurity(
+        access_control: Map<string,any>,
+        auth: Map<string,any>
+    ){
+        
+        var data;
+        
+        for(var i in access_control){
+            data = access_control[i];
+            if (!data.hasOwnProperty("path") || !data.hasOwnProperty("roles"))  throw ('ERROR IN CONFIG SECURITY ACCESS_CONTROL');
+        };
+
+        for(var i in auth){
+            data = auth[i];
+            if (!data.hasOwnProperty("stateless") || !data.hasOwnProperty("authenticator") || !data.hasOwnProperty("provider")) throw ('ERROR IN CONFIG SECURITY AUTH');
+        }
+      
+        return this.use("/Component/Security/security").inject({
+            ACCESS_CONTROL: access_control,
+            AUTH: auth}
+        );
+        
+    }
+    
+    setBundle(
+              bundles,
+              injection,
+              router,
+              config_services,
+              $event
+    ): Array<any> {
+        
+    
+       /* SERVICES */
+        var services = {
+            event: $event,
+        }
+    
+        var vm = this;
+        var BUNDLES = [];
+        
+        var $bundle = this.use("/Component/HttpKernel/bundle");
+
+        var processed = 0;
+        var nbTask = Object.keys(bundles).length;
+        
+        injection.addInject("bundles", BUNDLES);
+
+        for (var i in config_services) {
+            var service = config_services[i];
+            if (!service.hasOwnProperty("class")) {
+                throw ('ERROR IN CONFIG SERVICE')
+            }
+            var inject = vm.use("/Component/DependencyInjection/inject").inject({});
+
+            if (service.hasOwnProperty("arguments")) {
+                var injectPotential = injection.getInjects();
+                for (var j in service.arguments) {
+                    var value = service.arguments[j];
+                    if (injectPotential[value]) {
+                        inject.addInject(value.slice(1), injectPotential[value]);
+                    }
+                }
+            }
+            var path = service.class.split("/");
+            var cl = path.pop();
+
+            var namespace = this.injectable["path"].join(__dirname, "..", path.join("/"));
+
+            var autoload = vm.use("/Component/ClassLoader/autoload").inject({path: namespace, injection: inject});
+
+            inject.addThis("use", autoload);
+            inject.addThis("container", this.parameters);
+            var service = autoload(cl).inject(service.params ? service.params : {});
+            services[i] = service;
+            injection.addInject(i, service);
+
+        }
+          
+        for (var i in bundles) {
+            var bundle = bundles[i];
+            // BUNDLES[i] =  $bundle.inject({name:i,params:bundles[i],services:Object.assign({}, this.services),callback:callback});
+            BUNDLES[i] = $bundle.inject({name: i, params: bundles[i], services: services, callback: callback});
+        }
+        
+        /* ROUTE */
+        function route() {
+
+            var doc = vm.injectable["js-yaml"].safeLoad(vm.injectable["fs"].readFileSync(vm.injectable["path"].join(vm.parameters.getParameter("server.root_dir"), router.resource), 'utf8'));
+            for (var i in doc) {
+                if (!doc[i].hasOwnProperty("resource") || !doc[i].hasOwnProperty("prefix")) {
+                    throw "ERROR IN ROUTE";
+                }
+
+                var routes = vm.injectable["js-yaml"].safeLoad(vm.injectable["fs"].readFileSync(vm.injectable["path"].join(vm.parameters.getParameter("kernel.bundle_dir"), doc[i].resource), 'utf8'));
+                var racine = doc[i].prefix;
+                for (var i in routes) {
+                    var route = routes[i];
+                    if (route.defaults.hasOwnProperty("_controller")) {
+
+                        var c = route.defaults._controller;
+                        var controller = c.split(":");
+                        var bundleName = controller[0];
+                        var controllerName = controller[1];
+                        var functionName = controller[2];
+                        var fn = BUNDLES[bundleName].controllers[controllerName].action[functionName];
+                        var services = BUNDLES[bundleName].services;
+                        var parser = BUNDLES[bundleName].parser;
+
+
+                        if (!fn) {
+                            throw "THE FUNCTION " + functionName + " DON'T EXISTE"
+                        }
+                        vm.use("/Component/Routing/route").inject(
+                                {
+                                    methods: route.methods.map(function (m) {
+                                        return m.toUpperCase()
+                                    }),
+                                    fn: fn,
+                                    path: racine + route.path.replace(/{([^}]*)}/g, ":$1"),
+                                    requirements: route.requirements,
+                                    services: services,
+                                    parser: parser,
+
+                                }
+
+                        );
+
+                    }
+                }
+
+            }
+        }
+        
+
+        function callback() {
+            processed++;
+            console.log("load " + (nbTask / processed) * 100 + "%");
+            if (processed >= nbTask) {
+                route();
+            }
+        }
+
+        return BUNDLES;
+    }
+    
     
     constructor(
                 Port: number, 
@@ -17,85 +168,76 @@ class kernel {
                 DependencyInjection: (any) => void,
                 Autoload: (any) => void,
     ) {
-       
+    
+        this.injectable = noInjectable;
+        for(var i in injectable){
+            this.injectable[i]= injectable[i];
+        }
+
         try {
             /* SERVER */
             
-            this.startServer(Port, Host, injectable["http"], injectable["express"]);
+            var $app = this.startServer(Port, Host);
             
-           
-            /* INJECTION */
-            var $parameters = false;
-            
-            var $app = this.express;
-            var $yaml = noInjectable["js-yaml"];
-            var $compression = noInjectable["compression"];
-            var $session = noInjectable["express-session"];
-            var $bodyParser = noInjectable["body-parser"];      
-            var $cookieParser = noInjectable["cookie-parser"];  
-            var $path = noInjectable["path"];
-            var $fs = noInjectable["fs"];
-            var $uuid = noInjectable["node-uuid"];
-            var $express = noInjectable["express"];
-            
-            this.use = false;
-           
             this.namespace = __dirname;
+            
             var injection = DependencyInjection(
                     {
-                        $fs: injectable["fs"],
-                        $path: injectable["path"],
-                        $yaml: injectable["js-yaml"],
-                        $http: injectable["http"],
-                        $express: injectable["express"],
+                        $fs: this.injectable["fs"],
+                        $path: this.injectable["path"],
+                        $yaml: this.injectable["js-yaml"],
+                        $http: this.injectable["http"],
+                        $express: this.injectable["express"],
                         $app: $app,
-                        $uuid: injectable["node-uuid"],
-                        $monk: injectable["monk"],
-                        $pug: injectable["pug"],
-                        $mustache: injectable["Mustache"],
-                        $ws: injectable["ws"]
+                        $uuid: this.injectable["node-uuid"],
+                        $monk: this.injectable["monk"],
+                        $pug: this.injectable["pug"],
+                        $mustache: this.injectable["Mustache"],
+                        $ws: this.injectable["ws"]
                     }
             );
 
             /* AUTOLOAD */
-            this.use = Autoload(this.namespace, injection, $fs, $path);
+            this.use = Autoload(this.namespace, injection, this.injectable["fs"], this.injectable["path"]);
             require = false;
+            
             //!!!! STOP DYNAMIC INJECTION  !!!!//
 
-            $parameters = this.use("/Component/DependencyInjection/parameters").inject();
-
+            this.parameters = this.use("/Component/DependencyInjection/parameters").inject();
+            
+            
             injection.addThis("use", this.use);
-            injection.addThis("container", $parameters);
+            injection.addThis("container", this.parameters);
 
-            $parameters.setParameter("kernel",
+            this.parameters.setParameter("kernel",
                     {
-                        root_dir: $path.join(__dirname, "../app/"),
-                        cache_dir: $path.join(__dirname, "../app/cache"),
-                        web_dir: $path.join(__dirname, "../web/"),
-                        bundle_dir: $path.join(__dirname, "../src/"),
-                        logs_dir: $path.join(__dirname, "../app/logs"),
+                        root_dir: this.injectable["path"].join(__dirname, "../app/"),
+                        cache_dir: this.injectable["path"].join(__dirname, "../app/cache"),
+                        web_dir: this.injectable["path"].join(__dirname, "../web/"),
+                        bundle_dir: this.injectable["path"].join(__dirname, "../src/"),
+                        logs_dir: this.injectable["path"].join(__dirname, "../app/logs"),
                     }, true
                     );
          
-            $parameters.setParameter("server",
+            this.parameters.setParameter("server",
                     {
-                        root_dir: $path.join(__dirname, ".."),
+                        root_dir: this.injectable["path"].join(__dirname, ".."),
                         host: Host,
                         port: Port,
                     }, true
                     );
 
             /* HTTP */
-            var config = $yaml.safeLoad($fs.readFileSync($parameters.getParameter("kernel.root_dir") + "config.yml", 'utf8'));
+            var config = this.injectable["js-yaml"].safeLoad(this.injectable["fs"].readFileSync(this.parameters.getParameter("kernel.root_dir") + "config.yml", 'utf8'));
             if (!config.hasOwnProperty("framework")) {
                 throw ('ERROR IN CONFIG FRAMEWORK')
             }
             var framework = config.framework;
-            $app.use($bodyParser.json(), $bodyParser.urlencoded({extended: true}), $cookieParser());
+            $app.use(this.injectable["body-parser"].json(), this.injectable["body-parser"].urlencoded({extended: true}), this.injectable["cookie-parser"]());
 
             if (framework.hasOwnProperty("compression_gzip")) {
                 if (framework.compression_gzip === true) {
-                    $app.use($compression({threshold: 0, filter: function () {
+                    $app.use(this.injectable["compression"]({threshold: 0, filter: function () {
                             return true;
                         }}))
                 }
@@ -103,11 +245,11 @@ class kernel {
             }
 
             /* SESSION */
-            var sessionStore = new $session.MemoryStore;
+            var sessionStore = new this.injectable['express-session'].MemoryStore;
 
-            var secret = $uuid.v4();
+            var secret = this.injectable["node-uuid"].v4();
             $app.set('trust proxy', 1)
-            $app.use($session({secret: secret, name: 'session', id: $uuid.v4(), store: sessionStore, resave: true, saveUninitialized: true, cookie: {httpOnly: true}}));
+            $app.use(this.injectable['express-session']({secret: secret, name: 'session', id: this.injectable["node-uuid"].v4(), store: sessionStore, resave: true, saveUninitialized: true, cookie: {httpOnly: true}}));
 
 
             /* SECURITY */
@@ -119,42 +261,19 @@ class kernel {
                 throw ('ERROR IN CONFIG SECURITY INDEX')
             }
 
-
-            var ACCESS_CONTROL = {};
-            if (security.hasOwnProperty("access_control")) {
-                for (var i in security.access_control) {
-                    var data = security.access_control[i];
-                    if (!data.hasOwnProperty("path") || !data.hasOwnProperty("roles")) {
-                        throw ('ERROR IN CONFIG SECURITY ACCESS_CONTROL')
-                    }
-                    ACCESS_CONTROL[i] = data;
-                }
-                ;
-            }
-            var AUTH = {};
-            if (security.hasOwnProperty("auth")) {
-
-                for (var i in security.auth) {
-                    var data = security.auth[i];
-                    if (!data.hasOwnProperty("stateless") || !data.hasOwnProperty("authenticator") || !data.hasOwnProperty("provider")) {
-                        throw ('ERROR IN CONFIG SECURITY AUTH')
-                    }
-                    AUTH[i] = data;
-                }
-                ;
-            }
-            var $security = this.use("/Component/Security/security").inject({
-                ACCESS_CONTROL: ACCESS_CONTROL,
-                AUTH: AUTH}
-            );
-
+            var access_control = security.hasOwnProperty("access_control")?security.access_control:[];
+            var auth = security.hasOwnProperty("auth")?security.auth:[];
+ 
+            var $security = this.getSecurity(access_control,auth);
+                
 
             var maxAge = 1 * 365 * 24 * 60 * 60 * 1000;
             $app.use("/",
                     $security.firewall,
                     $security.auth,
-                    $express.static($parameters.getParameter("kernel.web_dir"), {maxAge: maxAge, index: security.index})
+                    this.injectable["express"].static(this.parameters.getParameter("kernel.web_dir"), {maxAge: maxAge, index: security.index})
                     );
+
 
             /* EVENT DISPATCHER */
             var $event = this.use("/Component/EventDispatcher/event").inject();
@@ -162,133 +281,23 @@ class kernel {
 
             /* CACHE FACTORY */
             var $cache = this.use("/Component/Cache/cache").inject();
-
             injection.addInject("cache", $cache);
 
 
-            /* SERVICES */
-            this.services = {
-                event: $event,
-            }
-
-
-            /* BUNDLES */
-            var BUNDLES = [];
-
+            /* ZONE */
             if (framework.hasOwnProperty("bundles")) {
-                var $bundle = this.use("/Component/HttpKernel/bundle");
-                var bundles = framework.bundles;
-                var processed = 0;
-                var nbTask = Object.keys(bundles).length;
+                
+                if (!framework.hasOwnProperty("router")) throw ('ERROR IN CONFIG ROUTE');
+                if (!framework.router.hasOwnProperty("resource")) throw ('ERROR IN CONFIG ROUTE');
+                
+                this.setBundle(
+                                framework.bundles,
+                                injection,
+                                framework.router,
+                                config.hasOwnProperty("services")?config.services:[],
+                                $event
+                );
 
-                for (var i in bundles) {
-                    var bundle = bundles[i];
-                    // BUNDLES[i] =  $bundle.inject({name:i,params:bundles[i],services:Object.assign({}, this.services),callback:callback});
-                    BUNDLES[i] = $bundle.inject({name: i, params: bundles[i], services: this.services, callback: callback});
-                }
-
-                function callback() {
-                    processed++;
-                    console.log("load " + (nbTask / processed) * 100 + "%");
-                    if (processed >= nbTask) {
-                        route();
-                    }
-                }
-            }
-            var vm = this;
-
-            /* ROUTE */
-            function route() {
-                injection.addInject("bundles", BUNDLES);
-                if (config.hasOwnProperty("services")) {
-                    for (var i in config.services) {
-                        var service = config.services[i];
-                        if (!service.hasOwnProperty("class")) {
-                            throw ('ERROR IN CONFIG SERVICE')
-                        }
-                        var inject = vm.use("/Component/DependencyInjection/inject").inject({});
-
-                        if (service.hasOwnProperty("arguments")) {
-                            var injectPotential = injection.getInjects();
-                            for (var j in service.arguments) {
-                                var value = service.arguments[j];
-                                if (injectPotential[value]) {
-                                    inject.addInject(value.slice(1), injectPotential[value]);
-                                }
-                            }
-                        }
-                        var path = service.class.split("/");
-                        var cl = path.pop();
-
-                        var namespace = $path.join(__dirname, "..", path.join("/"));
-
-                        var autoload = vm.use("/Component/ClassLoader/autoload").inject({path: namespace, injection: inject});
-
-                        inject.addThis("use", autoload);
-                        inject.addThis("container", $parameters);
-                        var service = autoload(cl).inject(service.params ? service.params : {});
-                        vm.services[i] = service;
-                        injection.addInject(i, service);
-
-                    }
-                }
-
-
-                if (!framework.hasOwnProperty("router")) {
-                    throw ('ERROR IN CONFIG ROUTE')
-                }
-                ;
-                if (!framework.router.hasOwnProperty("resource")) {
-                    throw ('ERROR IN CONFIG ROUTE')
-                }
-
-
-                var doc = $yaml.safeLoad($fs.readFileSync($path.join($parameters.getParameter("server.root_dir"), framework.router.resource), 'utf8'));
-
-                for (var i in doc) {
-                    if (!doc[i].hasOwnProperty("resource") || !doc[i].hasOwnProperty("prefix")) {
-                        throw "ERROR IN ROUTE";
-                    }
-
-                    var routes = $yaml.safeLoad($fs.readFileSync($path.join($parameters.getParameter("kernel.bundle_dir"), doc[i].resource), 'utf8'));
-                    var racine = doc[i].prefix;
-                    for (var i in routes) {
-                        var route = routes[i];
-                        if (route.defaults.hasOwnProperty("_controller")) {
-
-                            var c = route.defaults._controller;
-                            var controller = c.split(":");
-                            var bundleName = controller[0];
-                            var controllerName = controller[1];
-                            var functionName = controller[2];
-                            var fn = BUNDLES[bundleName].controllers[controllerName].action[functionName];
-                            var services = BUNDLES[bundleName].services;
-                            var parser = BUNDLES[bundleName].parser;
-
-
-                            if (!fn) {
-                                throw "THE FUNCTION " + functionName + " DON'T EXISTE"
-                            }
-                            var $route = vm.use("/Component/Routing/route").inject(
-                                    {
-                                        methods: route.methods.map(function (m) {
-                                            return m.toUpperCase()
-                                        }),
-                                        fn: fn,
-                                        path: racine + route.path.replace(/{([^}]*)}/g, ":$1"),
-                                        requirements: route.requirements,
-                                        services: services,
-                                        parser: parser,
-
-                                    }
-
-                            );
-
-                        }
-                    }
-
-                }
-                ;
             }
 
         } catch (err) {
