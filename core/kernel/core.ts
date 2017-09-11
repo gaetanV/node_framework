@@ -22,7 +22,9 @@ var _share: _shareInterface = {
 
     var noInjectable:  Map<string,any> = {};
     var injectable:  Map<string,any> = {};
-
+    var component: Map<string,any> = {};
+    var lockComponent = false;
+    
     function autoload(path, injection, $fs, $path) {
         return function (namespace) {
             function parse(path) {
@@ -97,9 +99,29 @@ var _share: _shareInterface = {
         declareModule( Name:string ) :boolean {
             return true;
         }
-
+        
+        lockComponent(){
+           lockComponent = true;
+        }
+        
+        component( Name:string , func , injector ){
+            if(!component[Name] && !lockComponent){
+                component[Name] = {
+                    func:func
+                    injector:injector
+                    inject: function(...args){
+                       func.prototype.get = function(name){
+                          return injectable[name];
+                       }
+                       return new func(...args);
+                    })
+                }
+            }
+  
+        } 
+ 
         module( Name:string ) : namespaceInterface {
-
+            
             return {
 
                 "service":  function (Name:string):void  {
@@ -108,12 +130,20 @@ var _share: _shareInterface = {
                 },
                 "controller": function (Name:string):void {
 
-
-                }
+                
+                },
             };
         }
         
     }
+    
+    
+    var componentInjection = function(name :string){
+        if(component[name]){
+            return component[name].inject;
+        }
+    }
+    
     class core extends moduleStrategy{
 
         bootPath:string;
@@ -138,7 +168,7 @@ var _share: _shareInterface = {
         
         boot (Port: number, Host: string):void {
             
-             new kernel(Port, Host, noInjectable, injectable, inject,autoload);
+             new kernel(Port, Host, noInjectable, injectable, inject,autoload , componentInjection);
         }
     }
     _share.core = core;

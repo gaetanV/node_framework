@@ -188,6 +188,7 @@ class kernel {
                 injectable:  Map<string,any>,
                 DependencyInjection: (any) => void,
                 Autoload: (any) => void,
+                component
     ) {
     
         this.injectable = noInjectable;
@@ -197,7 +198,7 @@ class kernel {
         }
 
         try {
-          
+ 
              //!!!! STOP DYNAMIC INJECTION  !!!!//
             require = false;
            
@@ -216,7 +217,9 @@ class kernel {
             injection.addThis("use", this.use);
             
             /* PARAMETERS */   
-            this.parameters = this.use("/Component/DependencyInjection/parameters").inject();
+            this.parameters = component("DependencyInjection/parameters")();
+            
+   
             this.parameters.setParameter("kernel",
                  {
                      root_dir: this.injectable["path"].join(__dirname, "../app/"),

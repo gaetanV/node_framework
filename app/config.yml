@@ -27,7 +27,7 @@ services:
 
     longpolling:
         class:  /core/services/longpolling 
-        arguments: [ $app , $fs  ,$bundles ,$jsYaml,$path,$event,$cache ,$nodeUuid]  
+        arguments: [ $app , $fs  ,$bundles ,$jsYaml,$path,$event, $cache ,$nodeUuid]  
         params: 
             cache_type : memory
             path: /event/

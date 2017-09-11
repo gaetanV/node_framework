@@ -7,6 +7,7 @@
   },
   "include": [
         "./core/kernel/**/*.ts",
-        "./core/require.ts"
+        "./core/require.ts",
+        "./core/Component/**/*.ts"
   ]
 }
