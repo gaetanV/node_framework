@@ -1,16 +1,14 @@
-(function () {
-    'use strict';
-    var ControllerBundle = function (file, services) {
+@Component({
+    selector: "HttpKernel/controller",
+    provider: []
+})
+class{
+
+    constructor(file, services) {
         var vm = this;
 
-        return {
-            services: services,
-            action: evalController(file),
-            stream: evalStream(file)
-        }
-
-
         function evalController(controller) {
+
             require = false;
             var actions = [];
             var Controller = function (controller) {
@@ -18,25 +16,29 @@
                     var m = new RegExp('^(.*)Action$', 'gi');
                     var actionName = m.exec(i);
                     if (actionName) {
-                        actions[actionName[1]] = vm.use("/Component/DependencyInjection/http").inject({
-                            vm: {
+                        actions[actionName[1]] = vm.component("DependencyInjection/http")(
+
+                            {
                                 get: function (namespace) {
                                     return services[namespace];
-                                },
+                                }
                             },
-                            fn: controller[i],
-                        }
+                            controller[i],
+
                         );
 
 
                     }
                 }
             }
+
+
             eval(controller);
             return actions;
         }
-        
+
         function evalStream(controller) {
+
             require = false;
             var actions = [];
             var Controller = function (controller) {
@@ -44,22 +46,30 @@
                     var m = new RegExp('^(.*)Stream$', 'gi');
                     var actionName = m.exec(i);
                     if (actionName) {
-                        actions[actionName[1]] = vm.use("/Component/DependencyInjection/http").inject({
-                            vm: {
+                        actions[actionName[1]] = vm.component("DependencyInjection/http")(
+                            {
                                 get: function (namespace) {
                                     return services[namespace];
-                                },
+                                }
                             },
-                            fn: controller[i],
-                        }
+                            controller[i],
                         );
                     }
                 }
             }
+
+
             eval(controller);
             return actions;
         }
 
-    };
-    module.exports = ControllerBundle;
-})();
+        return {
+            services: services,
+            action: evalController(file),
+            stream: evalStream(file)
+        }
+
+    }
+
+
+}

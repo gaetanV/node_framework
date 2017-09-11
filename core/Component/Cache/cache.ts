@@ -1,11 +1,22 @@
-(function () {
-    'use strict';
-    function cache(type, $fs, $path, $nodeUuid, $monk) {
+@Component({
+    selector: "Cache/cache",
+    provider: ['fs', 'path', 'nodeUuid', 'monk','parameters']
+})
+class{
+    get:Function;
+    
+    constructor(type) {
+   
+        
+        var $path = this.get('path');
+        var $fs = this.get('fs');
 
-        var db = $monk('localhost:27017/hostel');
+
+        var db = this.get('monk')('localhost:27017/hostel');
         var collection = db.get("query");
 
-        var cachefile = $path.join(this.container.getParameter("kernel.cache_dir"), "query");
+        var cachefile = $path.join(this.get("parameters").getParameter("kernel.cache_dir"), "query");
+
         function factory(type) {
 
             switch (type) {
@@ -33,7 +44,7 @@
             return class CACHE {
                 constructor() {
 
-                    var uniqueID = $nodeUuid.v4();
+                    var uniqueID = this.get('nodeUuid').v4();
                     this.id = uniqueID;
                     this.write = false;
                     this.path = $path.join(cachefile, this.id);
@@ -53,7 +64,7 @@
 
                                         collection.findOne({id: vm.id}, {}, function (err, result) {
                                             if (err) {
-                                                throw  ("Request failed: get cache");
+                                                throw ("Request failed: get cache");
                                                 console.log(err);
                                                 return false;
                                             } else {
@@ -164,9 +175,10 @@
             }
         }
         return factory;
-    }
-    module.exports = cache;
 
-})();
+    }
+
+
+}
 
 

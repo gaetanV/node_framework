@@ -1,25 +1,42 @@
-(function () {
-    'use strict';
+@Component({
+    selector: "HttpKernel/bundle",
+    provider: ["fs", "mustache", "pug", "path","parameters"]
+})
+class {
+    templating: string;
 
-    var Bundle = function (name, params, services, callback, $path, $fs, $mustache, $pug) {
-        
+    constructor(
+        name,
+        parameter,
+        services,
+        callback
+    ) {
+
         const enginer = ['pug', 'mustache', 'html'];
+
+        var $path = this.get("path");
+        var $fs = this.get("fs");
+        var $mustache = this.get("mustache");
+        var $pug = this.get("pug");
+        var $parameters = this.get("parameters");
+        
         this.templating = "html";
-        if (params.hasOwnProperty("templating")) {
-            if (enginer.indexOf(params.templating) !== -1) {
-                this.templating = params.templating;
+
+        if (parameter.hasOwnProperty("templating")) {
+            if (enginer.indexOf(parameter.templating) !== -1) {
+                this.templating = parameter.templating;
             } else {
                 throw "THIS TEMPLATE ENGINER IS OUT OF DATE"
             }
         }
         this.name = name;
         //PARSE SERVICES//
-
+     
         var path = name.replace(new RegExp(":", 'g'), "/");
         this.path = {
-            root_dir: $path.join(this.container.getParameter("kernel.bundle_dir"), path),
-            controller_dir: $path.join(this.container.getParameter("kernel.bundle_dir"), path, "Controller"),
-            view_dir: $path.join(this.container.getParameter("kernel.bundle_dir"), path, "Ressources", "views"),
+            root_dir: $path.join($parameters.getParameter("kernel.bundle_dir"), path),
+            controller_dir: $path.join($parameters.getParameter("kernel.bundle_dir"), path, "Controller"),
+            view_dir: $path.join($parameters.getParameter("kernel.bundle_dir"), path, "Ressources", "views"),
         }
 
 
@@ -55,7 +72,7 @@
             case "mustache":
                 var Mustache = $mustache;
                 this.parser = function (path, param) {
-                    return  Mustache.render(vm.views[path], param);
+                    return Mustache.render(vm.views[path], param);
                 }
                 break;
         }
@@ -70,19 +87,29 @@
         }
         try {
             var vm = this;
-            var $controller = this.use("/Component/HttpKernel/controller");
 
 
             $fs.readdir(this.path.controller_dir, function (err, files) {
                 var processed = 0;
                 var nbTask = files.length;
+
                 files.forEach(function (file) {
 
                     var m = new RegExp('^(.*)Controller.js$', 'gi');
+
                     var controllerName = m.exec(file);
+
                     if (controllerName) {
-                        vm.controllers[controllerName[1]] = $controller.inject({services: vm.services, file: $fs.readFileSync($path.join(vm.path.controller_dir, file), 'utf8')});
+
+                        var data = $fs.readFileSync($path.join(vm.path.controller_dir, file), 'utf8');
+
+                        vm.controllers[controllerName[1]] = vm.component("HttpKernel/controller")(
+                            data,
+                            vm.services
+                        );
+
                     }
+
                     processed++;
                     if (processed >= nbTask) {
                         callback();
@@ -94,12 +121,10 @@
         } catch (err) {
             throw err;
         }
-        return this;
 
 
     }
 
-    module.exports = Bundle;
 
 
-})();
+}

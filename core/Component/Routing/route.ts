@@ -1,8 +1,17 @@
-(function () {
-    'use strict';
+@Component({
+    selector: "Routing/route",
+    provider: ["app"]
+})
+class{
+    constructor(
+        methods,
+        requirements,
+        fn,
+        path,
+        services,
+        parser
 
-    function Route($app, methods, requirements, fn, path, parser, services) {
-
+    ) {
         function parseParams(reqParams) {
             var params = [];
             for (var key in requirements) {
@@ -23,7 +32,7 @@
             var method = methods[i];
             switch (method) {
                 case "GET":
-                    $app.get(path, function (req, res, next) {
+                    this.get("app").get(path, function (req, res, next) {
                         try {
                             var params = parseParams(req.params);
                             fn.apply({
@@ -52,7 +61,7 @@
                     });
                     break;
                 case "POST":
-                    $app.post(path, function (req, res, next) {
+                    this.get("app").post(path, function (req, res, next) {
                         try {
                             var params = parseParams(req.params);
                             fn.apply({
@@ -87,5 +96,4 @@
         }
     }
 
-    module.exports = Route;
-})();
+}

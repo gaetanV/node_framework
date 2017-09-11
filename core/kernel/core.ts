@@ -2,29 +2,30 @@ declare var require: any;
 
 
 interface namespaceInterface {
-     service: (Name: string) => void;
-     controller: (Name: string) => void;
+    service: (Name: string) => void;
+    controller: (Name: string) => void;
 }
 
 interface _shareInterface {
-    core:any;
+    core: any;
 }
 
 
 var _share: _shareInterface = {
-    "core" : () => {}
+    "core": () => {}
 };
 
 
 
-(function (_share:_shareInterface) :void {
+(function (_share: _shareInterface): void {
     'use strict';
 
-    var noInjectable:  Map<string,any> = {};
-    var injectable:  Map<string,any> = {};
-    var component: Map<string,any> = {};
+    var noInjectable: Map<string, any> = {};
+    var injectable: Map<string, any> = {};
+    var component: Map<string, any> = {};
+
     var lockComponent = false;
-    
+
     function autoload(path, injection, $fs, $path) {
         return function (namespace) {
             function parse(path) {
@@ -33,16 +34,16 @@ var _share: _shareInterface = {
             }
             var fn = parse($path.join(path, namespace + ".js"));
             fn.inject = function (args) {
-                return  injection.apply(fn, args);
+                return injection.apply(fn, args);
             }
-            return  fn;
+            return fn;
         }
     }
 
     function inject(inject, vm) {
         var vm = vm ? vm : {};
         var inject = inject ? inject : {};
-        return  {
+        return {
             apply: function (fn, params) {
                 var args = this.getArguments(fn);
                 var injectParam = [];
@@ -63,7 +64,7 @@ var _share: _shareInterface = {
 
                 }
 
-                return  fn.apply(vm, injectParam);
+                return fn.apply(vm, injectParam);
             },
             getInjects: function () {
                 return Object.assign({}, inject);
@@ -73,7 +74,7 @@ var _share: _shareInterface = {
             },
             addInject: function (namespace, fn) {
                 namespace = "$" + namespace;
-                    
+
                 if (!inject[namespace]) {
                     inject[namespace] = fn;
                 }
@@ -92,85 +93,97 @@ var _share: _shareInterface = {
 
         }
     }
-    
-   class moduleStrategy {
-        constructor(){};
-        
-        declareModule( Name:string ) :boolean {
+
+    class moduleStrategy {
+        constructor() {};
+
+        declareModule(Name: string): boolean {
             return true;
         }
-        
-        lockComponent(){
-           lockComponent = true;
+
+        lockComponent() {
+            lockComponent = true;
         }
-        
-        component( Name:string , func , injector ){
-            if(!component[Name] && !lockComponent){
+
+        component(
+            Name: string, 
+            injector,
+            func
+         ) {
+            if (!component[Name] && !lockComponent) {
+
                 component[Name] = {
-                    func:func
-                    injector:injector
-                    inject: function(...args){
-                       func.prototype.get = function(name){
-                          return injectable[name];
-                       }
-                       return new func(...args);
+                    func: func
+                    injector: injector
+                    inject: function (...args) {
+                        
+                        func.prototype.get = function (name) {
+                            return injector.includes(name)? injectable[name]:false;
+                        }
+
+                        func.prototype.component = function (id) {
+                            return component[id].inject;
+                        }
+
+                        return new func(...args);
+
                     })
                 }
             }
-  
-        } 
- 
-        module( Name:string ) : namespaceInterface {
-            
+
+        }
+
+        module(Name: string): namespaceInterface {
+
             return {
 
-                "service":  function (Name:string):void  {
+                "service": function (Name: string): void {
 
 
                 },
-                "controller": function (Name:string):void {
+                "controller": function (Name: string): void {
 
-                
+
                 },
             };
         }
-        
+
     }
-    
-    
-    var componentInjection = function(name :string){
-        if(component[name]){
+
+
+    var componentInjection = function (name: string) {
+        if (component[name]) {
             return component[name].inject;
         }
     }
-    
-    class core extends moduleStrategy{
 
-        bootPath:string;
+    class core extends moduleStrategy {
 
-        constructor( Param:{
-                noInjectable: Array<string>;
-                injectable: Array<string>;
-                bootPath: string
-        }){
+        bootPath: string;
+
+        constructor(Param: {
+            noInjectable: Array<string>;
+            injectable: Array<string>;
+            bootPath: string
+        }) {
             super();
-            Param.injectable.forEach((v)=>{
-               injectable[v] = require(v);
+            Param.injectable.forEach((v) => {
+                injectable[v] = require(v);
             });
-            
-            Param.noInjectable.forEach((v)=>{
-               noInjectable[v] = require(v);
+
+            Param.noInjectable.forEach((v) => {
+                noInjectable[v] = require(v);
             });
-            
+
             this.bootPath = Param.bootPath;
-         
+
         }
-        
-        boot (Port: number, Host: string):void {
-            
-             new kernel(Port, Host, noInjectable, injectable, inject,autoload , componentInjection);
+
+        boot(Port: number, Host: string): void {
+
+            new kernel(Port, Host, noInjectable, injectable, inject, autoload, componentInjection);
         }
     }
     _share.core = core;
-    
+
 })(_share);

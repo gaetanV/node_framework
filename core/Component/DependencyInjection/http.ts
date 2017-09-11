@@ -1,12 +1,16 @@
-(function () {
-    'use strict';
-    module.exports = http;
-    function http(vm, fn , $inject) {
-        var args = $inject().getArguments(fn);
+@Component({
+    selector: "DependencyInjection/http",
+    provider: ['inject']  
+})
+class {
+    constructor(vm, fn){
+       
+        var args = this.get('inject')().getArguments(fn);
         var vm = vm ? vm : {};
         return  {
             apply: function (vmInject, params) {
-
+                console.log(params);
+                    console.log(vmInject);
                 for (var i in vmInject) {
                     vm[i] = vmInject[i];
                 }
@@ -26,5 +30,8 @@
                 return  fn.apply(vm, injectParam);
             }
         }
+        
+        
     }
-})();
+
+}
