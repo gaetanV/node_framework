@@ -1,4 +1,8 @@
-CORE.component("DependencyInjection/parameters", class{
+@Component({
+    selector: "DependencyInjection/parameters",
+    provider: []  
+})
+class {
     
     PARAMS = [];
     PARAM = class PARAM {
@@ -56,4 +60,4 @@ CORE.component("DependencyInjection/parameters", class{
         return false;
     }
 
-},[]);
+}
