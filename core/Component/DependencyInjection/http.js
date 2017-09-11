@@ -1,9 +1,8 @@
 (function () {
     'use strict';
     module.exports = http;
-    function http(vm, fn) {
-        console.log(vm);
-        var args = this.use("/Component/DependencyInjection/inject")().getArguments(fn);
+    function http(vm, fn , $inject) {
+        var args = $inject().getArguments(fn);
         var vm = vm ? vm : {};
         return  {
             apply: function (vmInject, params) {

@@ -2,7 +2,7 @@
     'use strict';
     module.exports = LongPolling;
     
-    function LongPolling($app, $event, $bundles, $yaml, $cache, $path, $fs, $uuid, router, path, cache_type) {
+    function LongPolling($app, $event, $bundles, $jsYaml, $cache, $path, $fs, $nodeUuid, router, path, cache_type) {
 
         var clients = [];
         const cache = $cache(cache_type ? cache_type : "memory");
@@ -12,7 +12,7 @@
         });
         var reload = true;
         if ($bundles) {
-            stream.addRoute($yaml.safeLoad($fs.readFileSync($path.join(this.container.getParameter("server.root_dir"), router.resource), 'utf8')), $bundles);
+            stream.addRoute($jsYaml.safeLoad($fs.readFileSync($path.join(this.container.getParameter("server.root_dir"), router.resource), 'utf8')), $bundles);
         }
 
         this.use("/Component/poll").inject({

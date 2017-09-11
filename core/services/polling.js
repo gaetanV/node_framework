@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     module.exports = Polling;
-    function Polling($app, $bundles, $event, $yaml, $cache, $uuid, $path, $fs, router, path, cache_type) {
+    function Polling($app, $bundles, $event, $jsYaml, $cache, $nodeUuid, $path, $fs, router, path, cache_type) {
 
         var clients = [];
         const cache = $cache(cache_type ? cache_type : "memory");
@@ -11,7 +11,7 @@
 
 
         if ($bundles) {
-            stream.addRoute($yaml.safeLoad($fs.readFileSync($path.join(this.container.getParameter("server.root_dir"), router.resource), 'utf8')), $bundles);
+            stream.addRoute($jsYaml.safeLoad($fs.readFileSync($path.join(this.container.getParameter("server.root_dir"), router.resource), 'utf8')), $bundles);
         }
 
         this.use("/Component/poll").inject({

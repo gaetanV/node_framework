@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     module.exports = Ws;
-    function Ws($fs, $yaml, $path, $bundles, $event, $uuid, $host, port, router, access_control, cache_type, $cache, $ws) {
+    function Ws($fs, $jsYaml, $path, $bundles, $event, $nodeUuid, $host, port, router, access_control, cache_type, $cache, $ws) {
 
         const WebSocketServer = $ws.Server;
         const wss = new WebSocketServer({port: port ? port : 8098, host: $host});
@@ -11,11 +11,11 @@
 
 
         if ($bundles) {
-            stream.addRoute($yaml.safeLoad($fs.readFileSync($path.join(this.container.getParameter("server.root_dir"), router.resource), 'utf8')), $bundles);
+            stream.addRoute($jsYaml.safeLoad($fs.readFileSync($path.join(this.container.getParameter("server.root_dir"), router.resource), 'utf8')), $bundles);
         }
 
         wss.on('connection', function (ws) {
-            ws.id = $uuid.v4();
+            ws.id = $nodeUuid.v4();
             clients[ws.id] = ws;
             ws.send(JSON.stringify({type: "MESSAGE", data: "now you can register @stream"}));
             ws.on('close', function () {

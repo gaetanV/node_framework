@@ -16,7 +16,7 @@ services:
    
     ws:
         class:  /core/services/ws
-        arguments: [ $host ,$bundles, $fs ,$yaml ,$path ,$db ,$event,$cache,$uuid,$ws]   
+        arguments: [ $host ,$bundles, $fs ,$jsYaml ,$path ,$db ,$event,$cache,$nodeUuid,$ws]   
         params: 
             cache_type : memory
             port: 8098  
@@ -27,7 +27,7 @@ services:
 
     longpolling:
         class:  /core/services/longpolling 
-        arguments: [ $app , $fs  ,$bundles ,$yaml,$path,$event,$cache ,$uuid]  
+        arguments: [ $app , $fs  ,$bundles ,$jsYaml,$path,$event,$cache ,$nodeUuid]  
         params: 
             cache_type : memory
             path: /event/
@@ -35,7 +35,7 @@ services:
                 resource: /app/stream.yml
     polling:
         class:  /core/services/polling 
-        arguments: [ $app , $fs  ,$bundles ,$yaml,$path,$event,$cache,$uuid ]  
+        arguments: [ $app , $fs  ,$bundles ,$jsYaml,$path,$event,$cache,$nodeUuid ]  
         params: 
             cache_type : memory
             path: /polling/

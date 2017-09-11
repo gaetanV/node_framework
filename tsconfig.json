@@ -5,5 +5,8 @@
     "watch": true,
     "outFile": "core/core.js"
   },
-  "include": ["./core/**/*.ts"]
+  "include": [
+        "./core/kernel/**/*.ts",
+        "./core/require.ts"
+  ]
 }
