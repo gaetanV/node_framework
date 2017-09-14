@@ -3,10 +3,10 @@
     provider: ['fs', 'path', 'nodeUuid', 'monk','parameters']
 })
 class{
-    get:Function;
-    
+    get:(name:string)=> any;
+
     constructor(type) {
-   
+        
         
         var $path = this.get('path');
         var $fs = this.get('fs');

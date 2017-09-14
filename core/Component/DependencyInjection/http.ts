@@ -3,6 +3,8 @@
     provider: ['inject']  
 })
 class {
+    get:(name:string)=> any;
+    
     constructor(vm, fn){
        
         var args = this.get('inject')().getArguments(fn);
