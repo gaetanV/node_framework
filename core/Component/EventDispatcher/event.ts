@@ -1,17 +1,24 @@
 (() => {
-
-    var PRIVATE: Array<Map<string, any>> = {}
+    interface privateInterface {
+        TASK: any
+    }
+    
+    var PRIVATE: Array<privateInterface> = [];
     var instance: number = 0;
-
+    
     @Component({
         selector: "EventDispatcher/event",
         provider: []
     })
     class {
-
+    
+        instance:number;
+        
         constructor() {
             Object.defineProperty(this, 'instance', {value: instance++, writable: false, enumerable: false, configurable: false});
-            PRIVATE[this.instance] = {TASK: {}};
+            PRIVATE[this.instance] = {
+                TASK: {}
+            };
 
         }
 

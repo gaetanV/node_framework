@@ -3,15 +3,17 @@ class kernel {
     parameters: any;
     namespace: string = __dirname;
     maxAge: number = 1 * 365 * 24 * 60 * 60 * 1000;
-    injectable: Array<string>;
+    injectable: InjectableInterface;
     services: Map<string, any>
+    component: (string) => Function;
 
     startServer(
         Port: number,
         Host: string,
-    ): void {
-        var express = this.injectable["express"]();
-        var server = this.injectable["http"].createServer(express);
+    ): EpxressInterface {
+
+        var express: EpxressInterface = this.injectable["express"]();
+        var server: HttpServeurInterface = this.injectable["http"].createServer(express);
         server.listen(Port, Host);
 
         this.parameters.setParameter("server",
@@ -119,14 +121,16 @@ class kernel {
 
         /* ROUTE */
         function route() {
-
-            var doc = vm.injectable["js-yaml"].safeLoad(vm.injectable["fs"].readFileSync(vm.injectable["path"].join(vm.parameters.getParameter("server.root_dir"), router.resource), 'utf8'));
+            
+            var fs : FsInterface = vm.injectable["fs"];
+            
+            var doc = vm.injectable["js-yaml"].safeLoad(fs.readFileSync(vm.injectable["path"].join(vm.parameters.getParameter("server.root_dir"), router.resource), 'utf8'));
             for (var i in doc) {
                 if (!doc[i].hasOwnProperty("resource") || !doc[i].hasOwnProperty("prefix")) {
                     throw "ERROR IN ROUTE";
                 }
 
-                var routes = vm.injectable["js-yaml"].safeLoad(vm.injectable["fs"].readFileSync(vm.injectable["path"].join(vm.parameters.getParameter("kernel.bundle_dir"), doc[i].resource), 'utf8'));
+                var routes = vm.injectable["js-yaml"].safeLoad(fs.readFileSync(vm.injectable["path"].join(vm.parameters.getParameter("kernel.bundle_dir"), doc[i].resource), 'utf8'));
                 var racine = doc[i].prefix;
                 for (var i in routes) {
                     var route = routes[i];
@@ -232,7 +236,7 @@ class kernel {
 
             var $app = this.startServer(Port, Host);
             injectable["app"] = $app;
-            
+
             injection.addInject("app", $app);
 
             /* HTTP */
@@ -296,7 +300,7 @@ class kernel {
             injection.addInject("event", $event);
 
             /* CACHE FACTORY */
-            injection.addInject("cache",  this.component("Cache/cache")());
+            injection.addInject("cache", this.component("Cache/cache")());
 
 
             /* ZONE */

@@ -1,46 +1,48 @@
 (() => {
+    interface privateInterface {
+        PARAMS: any
+    }
 
-    var PRIVATE:Array<Map<string,any>> = {}
-    var instance:number = 0;
+    var PRIVATE: Array<privateInterface> = [];
+    var instance: number = 0;
     
+    class PARAM {
+
+        freeze: boolean = false;
+        value: string | Map<string, any> = "";
+
+        constructor(data, freeze) {
+            this.data = data;
+            this.freeze = freeze;
+        }
+
+        get data(): string | Map<string, any> {
+            return this.value;
+        }
+
+        set data(data: string | Map<string, any>){
+            if (this.freeze) {
+                console.log("FREEZE");
+            }
+            this.value = data;
+        }
+
+    }
+
     @Component({
         selector: "DependencyInjection/parameters",
         provider: []
     })
-    class {
+    class parameters{
 
-        PARAMS: Map<string, any>;
-        instance: number;
-        PARAM = class PARAM {
-
-            freeze: boolean = false;
-            value: string | Map<string, any> = "";
-
-            constructor(data, freeze) {
-                this.data = data;
-                this.freeze = freeze;
-
-            }
-            get data(): string | Map<string, any> {
-                return this.value;
-            }
-
-            set data(data: string | Map<string, any>): void {
-                if (this.freeze) {
-                    console.log("FREEZE");
-                    return false;
-                }
-                this.value = data;
-            }
-
-        }
+        instance:number;
 
         constructor() {
             Object.defineProperty(this, 'instance', {value: instance++, writable: false, enumerable: false, configurable: false});
             PRIVATE[this.instance] = { PARAMS : {} };
         }
 
-        getParameter(namespace: string): string | Map<string, any> {
+        getParameter(namespace: string): string | Map<string, any> | boolean {
 
             var t = namespace.split(".");
             namespace = t[0];
@@ -69,9 +71,8 @@
             value: string | Map<string, any>,
             freeze: boolean
         ): boolean {
-
             if (!this.hasParameter(namespace)) {
-                PRIVATE[this.instance].PARAMS[namespace] = new this.PARAM(value, freeze);
+                PRIVATE[this.instance].PARAMS[namespace] = new PARAM(value, freeze);
                 return true;
             }
             return false;

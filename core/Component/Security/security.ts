@@ -3,17 +3,18 @@
     provider: []
 })
 class{
-
+    ACCESS_CONTROL:any;
+    AUTH:any;
+    
     constructor(
         AUTH,
         ACCESS_CONTROL
     ) {
-
         this.ACCESS_CONTROL = ACCESS_CONTROL;
         this.AUTH = AUTH;
     }
 
-    firewall(req, res, next) {
+    firewall(req, res, next:Function) {
 
         try {
             var path = req.path;

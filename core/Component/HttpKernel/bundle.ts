@@ -1,9 +1,11 @@
 @Component({
     selector: "HttpKernel/bundle",
-    provider: ["fs", "mustache", "pug", "path","parameters"]
+    provider: ["fs", "mustache", "pug", "path", "parameters"]
 })
 class {
-    templating: string;
+
+    templating: string = "html";
+    get: (name: string) => any;
 
     constructor(
         name,
@@ -11,16 +13,14 @@ class {
         services,
         callback
     ) {
-
         const enginer = ['pug', 'mustache', 'html'];
 
         var $path = this.get("path");
-        var $fs = this.get("fs");
+        var $fs: FsInterface = this.get("fs");
         var $mustache = this.get("mustache");
         var $pug = this.get("pug");
         var $parameters = this.get("parameters");
-        
-        this.templating = "html";
+
 
         if (parameter.hasOwnProperty("templating")) {
             if (enginer.indexOf(parameter.templating) !== -1) {
@@ -31,7 +31,7 @@ class {
         }
         this.name = name;
         //PARSE SERVICES//
-     
+
         var path = name.replace(new RegExp(":", 'g'), "/");
         this.path = {
             root_dir: $path.join($parameters.getParameter("kernel.bundle_dir"), path),

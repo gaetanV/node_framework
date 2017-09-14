@@ -1,20 +1,10 @@
-declare var require: any;
-
-
-interface namespaceInterface {
-    service: (Name: string) => void;
-    controller: (Name: string) => void;
-}
-
 interface _shareInterface {
     core: any;
 }
 
-
 var _share: _shareInterface = {
     "core": () => {}
 };
-
 
 
 (function (_share: _shareInterface): void {
@@ -26,7 +16,7 @@ var _share: _shareInterface = {
 
     var lockComponent = false;
 
-    function autoload(path, injection, $fs, $path) {
+    function autoload(path, injection, $fs:FsInterface, $path) {
         return function (namespace) {
             function parse(path) {
                 eval($fs.readFileSync(path, 'utf8'));
@@ -133,7 +123,10 @@ var _share: _shareInterface = {
 
         }
 
-        module(Name: string): namespaceInterface {
+        module(Name: string): {
+            service: (Name: string) => void;
+            controller: (Name: string) => void;
+        } {
 
             return {
 
