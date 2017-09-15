@@ -11,8 +11,7 @@ class {
         var vm = vm ? vm : {};
         return  {
             apply: function (vmInject, params) {
-                console.log(params);
-                    console.log(vmInject);
+
                 for (var i in vmInject) {
                     vm[i] = vmInject[i];
                 }

@@ -6,6 +6,7 @@
     "outFile": "core/core.js"
   },
   "include": [
+        "./core/kernel/injectable.ts",
         "./core/kernel/**/*.ts",
         "./core/require.ts",
         "./core/Component/**/*.ts"

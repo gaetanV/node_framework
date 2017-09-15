@@ -7,12 +7,10 @@ class{
 
     constructor(type) {
         
-        
         var $path = this.get('path');
         var $fs = this.get('fs');
-
-
         var db = this.get('monk')('localhost:27017/hostel');
+        
         var collection = db.get("query");
 
         var cachefile = $path.join(this.get("parameters").getParameter("kernel.cache_dir"), "query");

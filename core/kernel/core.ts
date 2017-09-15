@@ -3,12 +3,13 @@ interface _shareInterface {
 }
 
 var _share: _shareInterface = {
-    "core": () => {}
+    "core": () => {},
 };
 
-
-(function (_share: _shareInterface): void {
+(function (_share: _shareInterface, Injectable): void {
     'use strict';
+
+    var Injectable = new Injectable();
 
     var noInjectable: Map<string, any> = {};
     var injectable: Map<string, any> = {};
@@ -16,7 +17,7 @@ var _share: _shareInterface = {
 
     var lockComponent = false;
 
-    function autoload(path, injection, $fs:FsInterface, $path) {
+    function autoload(path, injection, $fs: FsInterface, $path) {
         return function (namespace) {
             function parse(path) {
                 eval($fs.readFileSync(path, 'utf8'));
@@ -96,19 +97,20 @@ var _share: _shareInterface = {
         }
 
         component(
-            Name: string, 
+            Name: string,
             injector,
             func
-         ) {
+        ) {
             if (!component[Name] && !lockComponent) {
+
 
                 component[Name] = {
                     func: func
                     injector: injector
                     inject: function (...args) {
-                        
+
                         func.prototype.get = function (name) {
-                            return injector.includes(name)? injectable[name]:false;
+                            return injector.includes(name) ? Injectable.get(name) : false;
                         }
 
                         func.prototype.component = function (id) {
@@ -152,16 +154,19 @@ var _share: _shareInterface = {
 
     class core extends moduleStrategy {
 
-        bootPath: string;
+        bootPath: Map<string, string>;
 
         constructor(Param: {
             noInjectable: Array<string>;
             injectable: Array<string>;
-            bootPath: string
+            bootPath: Map<string, string>
         }) {
             super();
+
+
             Param.injectable.forEach((v) => {
-                injectable[v] = require(v);
+                noInjectable[v] = require(v);
+                Injectable.add(v, require(v));
             });
 
             Param.noInjectable.forEach((v) => {
@@ -172,11 +177,39 @@ var _share: _shareInterface = {
 
         }
 
-        boot(Port: number, Host: string): void {
+        boot(Port: number, Host: string, Root: string): void {
 
-            new kernel(Port, Host, noInjectable, injectable, inject, autoload, componentInjection);
+            for (var i in this.bootPath) {
+                this.bootPath[i] = Injectable.get("path").join(Root, this.bootPath[i]);
+            }
+
+            var parameters = componentInjection("DependencyInjection/parameters")();
+            parameters.setParameter("kernel", this.bootPath, true);
+            Injectable.add("parameters", parameters);
+            Injectable.add("inject", inject);
+            var _kernel = new kernel(noInjectable, componentInjection, Injectable);
+            var $app = _kernel.startServer(Port, Host);
+            Injectable.add('app', $app);
+            
+
+            var injection = inject();
+            var $event = componentInjection("EventDispatcher/event")();
+            injection.addInject("event", $event);
+            injection.addInject("cache", componentInjection("Cache/cache")());
+            injection.addThis("use", autoload(parameters.getParameter("kernel.root_dir"), injection, Injectable.get("fs"), Injectable.get("path")));
+            injection.addThis("container", parameters)
+            injection.addInject("app", $app);
+
+            for (var i in Injectable.collection) {
+                injection.addInject(i, Injectable.collection[i]);
+            }
+            
+            var services = _kernel.startService(injection, inject, autoload, $event);
+
+            _kernel.startBundle(injection, services);
+
         }
     }
     _share.core = core;
 
-})(_share);
+})(_share, Injectable);
