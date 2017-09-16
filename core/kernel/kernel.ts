@@ -85,125 +85,120 @@ class kernel {
     }
 
 
-    startBundle(injection, services) {
-
+    startBundle(services,ServiceInjectable) {
+        
         var vm = this;
+        
+        return new Promise((resolve) => {
 
-        var config = this.Injectable.get("jsYaml").safeLoad(this.Injectable.get("fs").readFileSync(this.parameters.getParameter("kernel.root_dir") + "config.yml", 'utf8'));
-        if (!config.hasOwnProperty("framework")) throw ('ERROR IN CONFIG FRAMEWORK');
+            var config = this.Injectable.get("jsYaml").safeLoad(this.Injectable.get("fs").readFileSync(this.parameters.getParameter("kernel.root_dir") + "config.yml", 'utf8'));
+            if (!config.hasOwnProperty("framework")) throw ('ERROR IN CONFIG FRAMEWORK');
 
-        if (config.framework.hasOwnProperty("bundles")) {
+            if (config.framework.hasOwnProperty("bundles")) {
 
-            if (!config.framework.hasOwnProperty("router")) throw ('ERROR IN CONFIG ROUTE');
-            if (!config.framework.router.hasOwnProperty("resource")) throw ('ERROR IN CONFIG ROUTE');
+                if (!config.framework.hasOwnProperty("router")) throw ('ERROR IN CONFIG ROUTE');
+                if (!config.framework.router.hasOwnProperty("resource")) throw ('ERROR IN CONFIG ROUTE');
 
-            var bundles = config.framework.bundles;
-            var router = config.framework.router;
+                var bundles = config.framework.bundles;
+                var router = config.framework.router;
 
-            var BUNDLES = [];
-            injection.addInject("bundles", BUNDLES);
+                var BUNDLES = [];
 
-            var processed = 0;
-            var nbTask = Object.keys(bundles).length;
-            
-            for (var i in bundles) {
-                BUNDLES[i] = this.component("bundle")(
-                    i,
-                    bundles[i],
-                    services
+                var processed = 0;
+                var nbTask = Object.keys(bundles).length;
+
+                for (var i in bundles) {
+                    BUNDLES[i] = this.component("bundle")(
+                        i,
+                        bundles[i],
+                        services
                     callback
-                );
-            }
+                    );
+                }
 
-            /* ROUTE */
-            function route() {
-                
-                var fs: FsInterface = vm.Injectable.get("fs");
+                /* ROUTE */
+                function route() {
 
-                var doc = vm.Injectable.get("jsYaml").safeLoad(fs.readFileSync(vm.Injectable.get("path").join(vm.parameters.getParameter("server.root_dir"), router.resource), 'utf8'));
-                for (var i in doc) {
-                    if (!doc[i].hasOwnProperty("resource") || !doc[i].hasOwnProperty("prefix")) {
-                        throw "ERROR IN ROUTE";
-                    }
+                    var fs: FsInterface = vm.Injectable.get("fs");
 
-                    var routes = vm.Injectable.get("jsYaml").safeLoad(fs.readFileSync(vm.Injectable.get("path").join(vm.parameters.getParameter("kernel.bundle_dir"), doc[i].resource), 'utf8'));
-                    var racine = doc[i].prefix;
-                    for (var i in routes) {
-                        var route = routes[i];
-                        if (route.defaults.hasOwnProperty("_controller")) {
-
-                            var c = route.defaults._controller;
-                            var controller = c.split(":");
-                            var bundleName = controller[0];
-                            var controllerName = controller[1];
-                            var functionName = controller[2];
-                            var fn = BUNDLES[bundleName].controllers[controllerName].action[functionName];
-                            var services = BUNDLES[bundleName].services;
-                            var parser = BUNDLES[bundleName].parser;
-
-
-                            if (!fn) {
-                                throw "THE FUNCTION " + functionName + " DON'T EXISTE"
-                            }
-                            vm.component("route")(
-                                route.methods.map(function (m) {
-                                    return m.toUpperCase()
-                                }),
-                                route.requirements,
-                                fn,
-                                racine + route.path.replace(/{([^}]*)}/g, ":$1"),
-                                services,
-                                parser
-                            );
-
+                    var doc = vm.Injectable.get("jsYaml").safeLoad(fs.readFileSync(vm.Injectable.get("path").join(vm.parameters.getParameter("server.root_dir"), router.resource), 'utf8'));
+                    for (var i in doc) {
+                        if (!doc[i].hasOwnProperty("resource") || !doc[i].hasOwnProperty("prefix")) {
+                            throw "ERROR IN ROUTE";
                         }
+
+                        var routes = vm.Injectable.get("jsYaml").safeLoad(fs.readFileSync(vm.Injectable.get("path").join(vm.parameters.getParameter("kernel.bundle_dir"), doc[i].resource), 'utf8'));
+                        var racine = doc[i].prefix;
+                        for (var i in routes) {
+                            var route = routes[i];
+                            if (route.defaults.hasOwnProperty("_controller")) {
+
+                                var c = route.defaults._controller;
+                                var controller = c.split(":");
+                                var bundleName = controller[0];
+                                var controllerName = controller[1];
+                                var functionName = controller[2];
+                                var fn = BUNDLES[bundleName].controllers[controllerName].action[functionName];
+                                var services = BUNDLES[bundleName].services;
+                                var parser = BUNDLES[bundleName].parser;
+
+
+                                if (!fn) {
+                                    throw "THE FUNCTION " + functionName + " DON'T EXISTE"
+                                }
+                                vm.component("route")(
+                                    route.methods.map(function (m) {
+                                        return m.toUpperCase()
+                                    }),
+                                    route.requirements,
+                                    fn,
+                                    racine + route.path.replace(/{([^}]*)}/g, ":$1"),
+                                    services,
+                                    parser
+                                );
+
+                            }
+                        }
+
                     }
+                    resolve(BUNDLES);
+                }
 
+
+                function callback() {
+                    processed++;
+                    console.log("load " + (nbTask / processed) * 100 + "%");
+                    if (processed >= nbTask) {
+                        route();
+                    }
                 }
             }
 
+        });
 
-            function callback() {
-                processed++;
-                console.log("load " + (nbTask / processed) * 100 + "%");
-                if (processed >= nbTask) {
-                    route();
-                }
-            }
-        }
     }
 
-    startService(Injectable, services , serviceInjection,_Injectable) {
+    startService(Injectable, serviceInjection, _Injectable) {
 
-        
+
         var config = this.Injectable.get("jsYaml").safeLoad(this.Injectable.get("fs").readFileSync(this.parameters.getParameter("kernel.root_dir") + "config.yml", 'utf8'));
         var config_services = config.hasOwnProperty("services") ? config.services : [];
-        
+
         var InjectorService = new _Injectable();
         for (var i in config_services) {
             var service = config_services[i];
-            
-            if (service.hasOwnProperty("arguments")) {
-                 for (var j in service.arguments) {
-                     var value = service.arguments[j];
-                     if(!Injectable.get(value)){
-                        throw "erreur injectable " + value + " n'existe pas";
-                     }else{
-                        InjectorService.add(value,Injectable.get(value));
-                     }
-                 }
-             }
-             if (service.hasOwnProperty("params")) {
-                 serviceInjection[i].params(service.params);
-             }
-             
-             serviceInjection[i].inject(InjectorService);
-             InjectorService.add(i,serviceInjection[i].class());
-             
-             services[i] = InjectorService.get(i);
+
+
+            if (service.hasOwnProperty("params")) {
+                serviceInjection[i].params(service.params);
+            }
+
+            serviceInjection[i].inject();
+            InjectorService.add(i, serviceInjection[i].class());
+
         }
 
-        return services;
+        return InjectorService;
 
     }
 

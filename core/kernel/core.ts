@@ -21,84 +21,16 @@ var _share: _shareInterface = {
 
     var lockComponent = false;
     var lockService = false;
-    
-    function autoload(path, injection, $fs: FsInterface, $path) {
-        return function (namespace) {
-            function parse(path) {
-                eval($fs.readFileSync(path, 'utf8'));
-                return module.exports;
-            }
-            var fn = parse($path.join(path, namespace + ".js"));
-            fn.inject = function (args) {
-                return injection.apply(fn, args);
-            }
-            return fn;
-        }
-    }
-
-    function inject(inject, vm) {
-        var vm = vm ? vm : {};
-        var inject = inject ? inject : {};
-        return {
-            apply: function (fn, params) {
-                var args = this.getArguments(fn);
-                var injectParam = [];
-
-                for (var i in args) {
-
-                    if (params) {
-                        if (params[args[i]]) {
-
-                            injectParam[i] = params[args[i]];
-
-                        }
-                    }
-
-                    if (inject[args[i]]) {
-                        injectParam[i] = inject[args[i]];
-                    }
-
-                }
-
-                return fn.apply(vm, injectParam);
-            },
-            getInjects: function () {
-                return Object.assign({}, inject);
-            },
-            hasInject: function (namespace) {
-                return inject[namespace] ? true : false;
-            },
-            addInject: function (namespace, fn) {
-                namespace = "$" + namespace;
-
-                if (!inject[namespace]) {
-                    inject[namespace] = fn;
-                }
-            },
-            addThis: function (namespace, fn) {
-                if (!vm[namespace]) {
-                    vm[namespace] = fn;
-                }
-            },
-            getArguments: function (fn) {
-                var chaine = fn.toString().replace(/\n|\r|(\n\r)/g, ' ').slice(0, 200);
-                var re = /^function[\s]*([^\(]*)\(([^\)]*)\)[\s]*{/g;
-                var match = re.exec(chaine);
-                return match[2].replace(/ /g, '').split(",");
-            }
-
-        }
-    }
 
     class moduleStrategy {
         constructor() {};
 
-        declareModule(Name: string): boolean {
-            return true;
-        }
-
         lockComponent() {
             lockComponent = true;
+        }
+        
+        lockService(){
+            lockService = true;
         }
 
         component(
@@ -147,8 +79,14 @@ var _share: _shareInterface = {
                         }
                         ParamsService = Params;
                     },
-                    inject: function(Injector){
-                        InjectorServiceClass = Injector;
+                    inject: function(){
+                        var tmpInjectorService = new _Injectable();
+                        for (var i in injector) {
+                            if(ServiceInjectable.get(injector[i])){
+                                tmpInjectorService.add(injector[i],ServiceInjectable.get(injector[i]));
+                            }
+                        }
+                        InjectorServiceClass = tmpInjectorService;
                     },          
                     class: function (...args) {
                         
@@ -217,13 +155,11 @@ var _share: _shareInterface = {
             var parameters = componentInjection("parameters")();
             parameters.setParameter("kernel", this.bootPath, true);
             Injectable.add("parameters", parameters);
-            Injectable.add("inject", inject);
+         
             var _kernel = new kernel(noInjectable, componentInjection, Injectable);
             var $app = _kernel.startServer(Port, Host);
             Injectable.add('app', $app);
 
-
-            var injection = inject();
             var $event = componentInjection("event")();
             
             ServiceInjectable.add("event", $event);
@@ -235,16 +171,14 @@ var _share: _shareInterface = {
                 ServiceInjectable.add(i,Injectable.collection[i]);
             }
             
-            var services = {
-                event: $event,
-            }
-            _kernel.startService( ServiceInjectable, services , service,_Injectable);
             
-           // var bundles = _kernel.startBundle(injection, services);
+            _kernel.startBundle([],ServiceInjectable).then((BUNDLE)=>{
+                console.log(BUNDLE);
+                var services = _kernel.startService( ServiceInjectable , service ,_Injectable);
+                console.log(services);
+            });
             
-            
-
-            
+   
 
         }
     }

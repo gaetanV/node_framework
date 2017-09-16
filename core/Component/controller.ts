@@ -16,22 +16,17 @@ class{
                     var m = new RegExp('^(.*)Action$', 'gi');
                     var actionName = m.exec(i);
                     if (actionName) {
-                        actions[actionName[1]] = vm.component("http")(
-
-                            {
-                                get: function (namespace) {
-                                    return services[namespace];
-                                }
-                            },
-                            controller[i],
-
-                        );
-
-
+                        var fn = controller[i];
+                        
+                        fn.get = function (namespace) {
+                           return services[namespace];
+                        }
+                        
+                        actions[actionName[1]] = fn;
+           
                     }
                 }
             }
-
 
             eval(controller);
             return actions;
@@ -46,14 +41,13 @@ class{
                     var m = new RegExp('^(.*)Stream$', 'gi');
                     var actionName = m.exec(i);
                     if (actionName) {
-                        actions[actionName[1]] = vm.component("http")(
-                            {
-                                get: function (namespace) {
-                                    return services[namespace];
-                                }
-                            },
-                            controller[i],
-                        );
+                        var fn = controller[i];
+                        
+                        fn.get = function (namespace) {
+                           return services[namespace];
+                        }
+                        
+                        actions[actionName[1]] = fn;
                     }
                 }
             }

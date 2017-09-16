@@ -11,9 +11,8 @@ services:
     
     #CACHE ['mongo','files','memory','redis']
     db:
-        arguments: []
+        params:
     ws:
-        arguments: [ws, parameters, cache , $event , nodeUuid]   
         params: 
             cache_type : memory
             port: 8098  
