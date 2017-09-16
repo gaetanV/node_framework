@@ -6,7 +6,7 @@ interface InjectableInterface {
 };
 
 var CORE = new _share.core({
-    noInjectable : ['compression', 'express-session', 'body-parser', 'cookie-parser'],   
+    noInjectable : ['compression', 'express-session', 'body-parser', 'cookie-parser', 'ws'],   
     injectable: ['fs',
                  'path',
                  'http',
@@ -15,7 +15,6 @@ var CORE = new _share.core({
                  'node-uuid', 
                  'monk', 
                  'Mustache', 
-                 'ws',
                  'js-yaml'],
     bootPath: {
         root_dir: "./app/",

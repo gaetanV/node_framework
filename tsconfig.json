@@ -3,12 +3,14 @@
     "module": "none",
     "target": "es2017",
     "watch": true,
-    "outFile": "core/core.js"
+    "outFile": "core/core.js",
+    "experimentalDecorators": true
   },
   "include": [
         "./core/kernel/injectable.ts",
         "./core/kernel/**/*.ts",
         "./core/require.ts",
-        "./core/Component/**/*.ts"
+        "./core/Component/**/*.ts",
+        "./core/services/**/*.ts"
   ]
 }

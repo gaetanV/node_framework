@@ -9,14 +9,11 @@ framework:
 
 services:
     
-    #CACHE ['mongo','files','memory']
+    #CACHE ['mongo','files','memory','redis']
     db:
-        class:  /core/services/db
         arguments: []
-   
     ws:
-        class:  /core/services/ws
-        arguments: [ $host ,$bundles, $fs ,$jsYaml ,$path ,$db ,$event,$cache,$nodeUuid,$ws]   
+        arguments: [ws, parameters, cache , $event , nodeUuid]   
         params: 
             cache_type : memory
             port: 8098  
@@ -24,23 +21,6 @@ services:
                 resource: /app/stream.yml
             access_control:    
                 -  { path: /user/.* , roles: [ROLE_ADMIN] , auth: api_area , whiteip:[192.168.0.11]  }
-
-    longpolling:
-        class:  /core/services/longpolling 
-        arguments: [ $app , $fs  ,$bundles ,$jsYaml,$path,$event, $cache ,$nodeUuid]  
-        params: 
-            cache_type : memory
-            path: /event/
-            router: 
-                resource: /app/stream.yml
-    polling:
-        class:  /core/services/polling 
-        arguments: [ $app , $fs  ,$bundles ,$jsYaml,$path,$event,$cache,$nodeUuid ]  
-        params: 
-            cache_type : memory
-            path: /polling/
-            router: 
-                resource: /app/stream.yml            
 
 private_services:       
     apikey_authenticator:

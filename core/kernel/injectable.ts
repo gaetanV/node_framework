@@ -12,10 +12,11 @@ class Injectable {
         name:string,
         func :Function
     ){
-        name = name.toLowerCase().replace(/-([a-z])/g, function (m, w) {
+ 
+        name = name.replace(/-([a-z])/g, function (m, w) {
             return w.toUpperCase();
         });
-    
+
         this.collection[name] = func;
     }
     

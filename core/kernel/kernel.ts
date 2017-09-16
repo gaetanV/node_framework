@@ -105,7 +105,7 @@ class kernel {
 
             var processed = 0;
             var nbTask = Object.keys(bundles).length;
-
+            
             for (var i in bundles) {
                 BUNDLES[i] = this.component("HttpKernel/bundle")(
                     i,
@@ -173,53 +173,36 @@ class kernel {
         }
     }
 
-    startService(injection, DependencyInjection, Autoload, $event) {
+    startService(Injectable, services , serviceInjection,_Injectable) {
 
+        
         var config = this.Injectable.get("jsYaml").safeLoad(this.Injectable.get("fs").readFileSync(this.parameters.getParameter("kernel.root_dir") + "config.yml", 'utf8'));
-
-        var services = {
-            event: $event,
-        }
-
-
         var config_services = config.hasOwnProperty("services") ? config.services : [];
+        
+        var InjectorService = new _Injectable();
         for (var i in config_services) {
             var service = config_services[i];
-
-            if (!service.hasOwnProperty("class")) throw ('ERROR IN CONFIG SERVICE');
-
-            var inject = DependencyInjection();
-
+            
             if (service.hasOwnProperty("arguments")) {
-                var injectPotential = injection.getInjects();
-
-
-                for (var j in service.arguments) {
-                    var value = service.arguments[j];
-                    if (injectPotential[value]) {
-                        inject.addInject(value.slice(1), injectPotential[value]);
-                    }
-                }
-            }
-            var path = service.class.split("/");
-            var cl = path.pop();
-
-            var autoload = Autoload(
-                this.Injectable.get("path").join(__dirname, "..", path.join("/")),
-                inject,
-                this.Injectable.get("fs"),
-                this.Injectable.get("path")
-            );
-
-            inject.addThis("use", autoload);
-            inject.addThis("container", this.parameters);
-
-            var service = autoload(cl).inject(service.params ? service.params : {});
-
-            services[i] = service;
-            injection.addInject(i, service);
-
+                 for (var j in service.arguments) {
+                     var value = service.arguments[j];
+                     if(!Injectable.get(value)){
+                        throw "erreur injectable " + value + " n'existe pas";
+                     }else{
+                        InjectorService.add(value,Injectable.get(value));
+                     }
+                 }
+             }
+             if (service.hasOwnProperty("params")) {
+                 serviceInjection[i].params(service.params);
+             }
+             
+             serviceInjection[i].inject(InjectorService);
+             InjectorService.add(i,serviceInjection[i].class());
+             
+             services[i] = InjectorService.get(i);
         }
+
         return services;
 
     }

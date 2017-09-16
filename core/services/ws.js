@@ -2,7 +2,7 @@
     'use strict';
     module.exports = Ws;
     function Ws($fs, $jsYaml, $path, $bundles, $event, $nodeUuid, $host, port, router, access_control, cache_type, $cache, $ws) {
-
+       
         const WebSocketServer = $ws.Server;
         const wss = new WebSocketServer({port: port ? port : 8098, host: $host});
         const cache = $cache(cache_type ? cache_type : "memory");

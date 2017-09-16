@@ -4,7 +4,7 @@ function Component(param: {selector: string, provider: Array<string>}) {
         throw "you need a selector";
     }
     return function (a: Function) {
-        CORE.component(param.selector, param.provider ? param.provider : [], a);
+        CORE.component(param.selector, param.provider || [], a);
     };
 
 };

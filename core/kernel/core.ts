@@ -6,17 +6,22 @@ var _share: _shareInterface = {
     "core": () => {},
 };
 
-(function (_share: _shareInterface, Injectable): void {
+(function (_share: _shareInterface, _Injectable): void {
     'use strict';
 
-    var Injectable = new Injectable();
+    var Injectable = new _Injectable();
+    var component: Map<string, any> = {};
+    
+    var ServiceInjectable = new _Injectable();
+    var service: Map<string, any> = {};
+
 
     var noInjectable: Map<string, any> = {};
     var injectable: Map<string, any> = {};
-    var component: Map<string, any> = {};
 
     var lockComponent = false;
-
+    var lockService = false;
+    
     function autoload(path, injection, $fs: FsInterface, $path) {
         return function (namespace) {
             function parse(path) {
@@ -102,11 +107,7 @@ var _share: _shareInterface = {
             func
         ) {
             if (!component[Name] && !lockComponent) {
-
-
                 component[Name] = {
-                    func: func
-                    injector: injector
                     inject: function (...args) {
 
                         func.prototype.get = function (name) {
@@ -121,26 +122,56 @@ var _share: _shareInterface = {
 
                     })
                 }
+            }else{
+                throw "Don't try to HACK";
+            }
+        }
+        
+        service(
+            Name: string,
+            injector,
+            params,
+            func
+        ) {
+        
+            var ParamsService = [];
+            var InjectorServiceClass =  new _Injectable();
+            
+            if (!service[Name] && !lockService) {
+                service[Name] = {
+                    params: function(Params){
+                        for(var i in Params){
+                            if(!params.includes(i)){
+                                throw "params " + i + " not match service " + Name;
+                            }
+                        }
+                        ParamsService = Params;
+                    },
+                    inject: function(Injector){
+                        InjectorServiceClass = Injector;
+                    },          
+                    class: function (...args) {
+                        
+                        func.prototype.get = function (name) {
+                            return InjectorServiceClass.get(name);
+                        }
+
+                        func.prototype.component = function (id) {
+                            return component[id].inject;
+                        }
+                        
+                        func.prototype.params = function (id) {
+                            return ParamsService[id];
+                        }
+
+                        return new func(...args);
+
+                    })
+                }
+            }else{
+                throw "Don't try to HACK";
             }
 
-        }
-
-        module(Name: string): {
-            service: (Name: string) => void;
-            controller: (Name: string) => void;
-        } {
-
-            return {
-
-                "service": function (Name: string): void {
-
-
-                },
-                "controller": function (Name: string): void {
-
-
-                },
-            };
         }
 
     }
@@ -190,23 +221,30 @@ var _share: _shareInterface = {
             var _kernel = new kernel(noInjectable, componentInjection, Injectable);
             var $app = _kernel.startServer(Port, Host);
             Injectable.add('app', $app);
-            
+
 
             var injection = inject();
             var $event = componentInjection("EventDispatcher/event")();
-            injection.addInject("event", $event);
-            injection.addInject("cache", componentInjection("Cache/cache")());
-            injection.addThis("use", autoload(parameters.getParameter("kernel.root_dir"), injection, Injectable.get("fs"), Injectable.get("path")));
-            injection.addThis("container", parameters)
-            injection.addInject("app", $app);
-
+            
+            ServiceInjectable.add("event", $event);
+            ServiceInjectable.add("cache", componentInjection("Cache/cache")());
+            ServiceInjectable.add("$event", $event);
+            ServiceInjectable.add("ws", noInjectable["ws"]);
+            
             for (var i in Injectable.collection) {
-                injection.addInject(i, Injectable.collection[i]);
+                ServiceInjectable.add(i,Injectable.collection[i]);
             }
             
-            var services = _kernel.startService(injection, inject, autoload, $event);
+            var services = {
+                event: $event,
+            }
+            _kernel.startService( ServiceInjectable, services , service,_Injectable);
+            
+           // var bundles = _kernel.startBundle(injection, services);
+            
+            
 
-            _kernel.startBundle(injection, services);
+            
 
         }
     }
