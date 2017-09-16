@@ -26,7 +26,10 @@
   "scripts": {
     "start": "node server.js"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-typescript": "^3.2.2"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gaetanV/node_framework.git"

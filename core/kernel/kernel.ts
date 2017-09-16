@@ -85,11 +85,10 @@ class kernel {
     }
 
 
-    startBundle(services,ServiceInjectable) {
+    startBundle(Bundle,InjectorService) {
         
         var vm = this;
         
-        return new Promise((resolve) => {
 
             var config = this.Injectable.get("jsYaml").safeLoad(this.Injectable.get("fs").readFileSync(this.parameters.getParameter("kernel.root_dir") + "config.yml", 'utf8'));
             if (!config.hasOwnProperty("framework")) throw ('ERROR IN CONFIG FRAMEWORK');
@@ -104,19 +103,18 @@ class kernel {
 
                 var BUNDLES = [];
 
+
                 var processed = 0;
                 var nbTask = Object.keys(bundles).length;
 
-                for (var i in bundles) {
-                    BUNDLES[i] = this.component("bundle")(
-                        i,
-                        bundles[i],
-                        services
-                    callback
-                    );
+                for (var i in Bundle) {
+                    BUNDLES[i] = this.component("bundle")( i,bundles[i], Bundle, InjectorService);
+                    console.log(BUNDLES[i]);
                 }
-
-                /* ROUTE */
+            }
+                
+                /*
+             
                 function route() {
 
                     var fs: FsInterface = vm.Injectable.get("fs");
@@ -162,20 +160,8 @@ class kernel {
 
                     }
                     resolve(BUNDLES);
-                }
-
-
-                function callback() {
-                    processed++;
-                    console.log("load " + (nbTask / processed) * 100 + "%");
-                    if (processed >= nbTask) {
-                        route();
-                    }
-                }
-            }
-
-        });
-
+                    */
+ 
     }
 
     startService(Injectable, serviceInjection, _Injectable) {

@@ -8,6 +8,9 @@ var _share: _shareInterface = {
 
 (function (_share: _shareInterface, _Injectable): void {
     'use strict';
+    
+    var Bundles = [];
+
 
     var Injectable = new _Injectable();
     var component: Map<string, any> = {};
@@ -141,7 +144,12 @@ var _share: _shareInterface = {
             Param.noInjectable.forEach((v) => {
                 noInjectable[v] = require(v);
             });
-
+            
+            var config = Injectable.get("jsYaml").safeLoad(Injectable.get("fs").readFileSync("./app/config.yml", 'utf8'));
+            for(var i in config.framework.bundles){
+                Bundles[i] = require("./"+i+".js");
+            }
+            
             this.bootPath = Param.bootPath;
 
         }
@@ -166,19 +174,21 @@ var _share: _shareInterface = {
             ServiceInjectable.add("cache", componentInjection("cache")());
             ServiceInjectable.add("$event", $event);
             ServiceInjectable.add("ws", noInjectable["ws"]);
+            ServiceInjectable.add("$bundles", Bundles);
             
             for (var i in Injectable.collection) {
                 ServiceInjectable.add(i,Injectable.collection[i]);
             }
             
-            
-            _kernel.startBundle([],ServiceInjectable).then((BUNDLE)=>{
-                console.log(BUNDLE);
-                var services = _kernel.startService( ServiceInjectable , service ,_Injectable);
-                console.log(services);
-            });
-            
-   
+        
+               
+            var InjectorService = _kernel.startService( ServiceInjectable , service ,_Injectable);
+                
+            for(var i in Bundles){
+                    console.log(Bundles[i].debug());
+               //  _kernel.startBundle( Bundles[i] , InjectorService );
+            }
+            //  _kernel.startBundle([],ServiceInjectable).then((bundles)=>{ console.log(bundles); });
 
         }
     }

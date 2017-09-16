@@ -10,8 +10,8 @@ class {
     constructor(
         name,
         parameter,
+        bundle,
         services,
-        callback
     ) {
         const enginer = ['pug', 'mustache', 'html'];
 
@@ -33,6 +33,7 @@ class {
         //PARSE SERVICES//
 
         var path = name.replace(new RegExp(":", 'g'), "/");
+        
         this.path = {
             root_dir: $path.join($parameters.getParameter("kernel.bundle_dir"), path),
             controller_dir: $path.join($parameters.getParameter("kernel.bundle_dir"), path, "Controller"),
@@ -85,10 +86,14 @@ class {
         } catch (err) {
             throw "ERROR BUNDLE PATH IS FALSE"
         }
+        
+    
+        
+          /*
         try {
             var vm = this;
 
-
+          
             $fs.readdir(this.path.controller_dir, function (err, files) {
                 var processed = 0;
                 var nbTask = files.length;
@@ -102,8 +107,8 @@ class {
                     if (controllerName) {
 
                         var data = $fs.readFileSync($path.join(vm.path.controller_dir, file), 'utf8');
-
-                        vm.controllers[controllerName[1]] = vm.component("controller")(
+                        
+                        // vm.controllers[controllerName[1]] = vm.component("controller")(
                             data,
                             vm.services
                         );
@@ -118,11 +123,12 @@ class {
 
                 });
             });
+            
         } catch (err) {
             throw err;
         }
 
-
+        */
     }
 
 
