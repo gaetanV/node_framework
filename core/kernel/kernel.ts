@@ -19,8 +19,8 @@ class kernel {
         if (!config.hasOwnProperty("security")) throw ('ERROR IN CONFIG SECURITY');
         if (!config.security.hasOwnProperty("index")) throw ('ERROR IN CONFIG SECURITY INDEX');
 
-        var express: EpxressInterface = this.Injectable.get("express")();
-        var server: HttpServeurInterface = this.Injectable.get("http").createServer(express);
+        var express: EpxressInterface = this.noInjectable["express"]();
+        var server: HttpServeurInterface = this.noInjectable["http"].createServer(express);
         server.listen(Port, Host);
 
         this.parameters.setParameter("server",

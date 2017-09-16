@@ -6,11 +6,9 @@ interface InjectableInterface {
 };
 
 var CORE = new _share.core({
-    noInjectable : ['compression', 'express-session', 'body-parser', 'cookie-parser', 'ws'],   
+    noInjectable : ['compression', 'express-session', 'body-parser', 'cookie-parser', 'ws', 'express' , 'http'],   
     injectable: ['fs',
                  'path',
-                 'http',
-                 'express', 
                  'pug', 
                  'node-uuid', 
                  'monk', 
