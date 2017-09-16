@@ -1,5 +1,5 @@
 @Component({
-    selector: "Security/security",
+    selector: "security",
     provider: []
 })
 class{

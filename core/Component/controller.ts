@@ -1,5 +1,5 @@
 @Component({
-    selector: "HttpKernel/controller",
+    selector: "controller",
     provider: []
 })
 class{
@@ -16,7 +16,7 @@ class{
                     var m = new RegExp('^(.*)Action$', 'gi');
                     var actionName = m.exec(i);
                     if (actionName) {
-                        actions[actionName[1]] = vm.component("DependencyInjection/http")(
+                        actions[actionName[1]] = vm.component("http")(
 
                             {
                                 get: function (namespace) {
@@ -46,7 +46,7 @@ class{
                     var m = new RegExp('^(.*)Stream$', 'gi');
                     var actionName = m.exec(i);
                     if (actionName) {
-                        actions[actionName[1]] = vm.component("DependencyInjection/http")(
+                        actions[actionName[1]] = vm.component("http")(
                             {
                                 get: function (namespace) {
                                     return services[namespace];

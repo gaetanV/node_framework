@@ -7,7 +7,7 @@
     var instance: number = 0;
     
     @Component({
-        selector: "EventDispatcher/event",
+        selector: "event",
         provider: []
     })
     class {

@@ -1,5 +1,5 @@
 @Component({
-    selector: "DependencyInjection/http",
+    selector: "http",
     provider: ['inject']  
 })
 class {

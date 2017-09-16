@@ -1,5 +1,5 @@
 @Component({
-    selector: "HttpKernel/bundle",
+    selector: "bundle",
     provider: ["fs", "mustache", "pug", "path", "parameters"]
 })
 class {
@@ -103,7 +103,7 @@ class {
 
                         var data = $fs.readFileSync($path.join(vm.path.controller_dir, file), 'utf8');
 
-                        vm.controllers[controllerName[1]] = vm.component("HttpKernel/controller")(
+                        vm.controllers[controllerName[1]] = vm.component("controller")(
                             data,
                             vm.services
                         );

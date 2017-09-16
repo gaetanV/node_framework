@@ -1,5 +1,5 @@
 @Component({
-    selector: "Cache/cache",
+    selector: "cache",
     provider: ['fs', 'path', 'nodeUuid', 'monk','parameters']
 })
 class{

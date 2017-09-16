@@ -1,5 +1,5 @@
 @Component({
-    selector: "Routing/route",
+    selector: "route",
     provider: ["app"]
 })
 class{

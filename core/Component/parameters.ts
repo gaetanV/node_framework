@@ -30,7 +30,7 @@
     }
 
     @Component({
-        selector: "DependencyInjection/parameters",
+        selector: "parameters",
         provider: []
     })
     class parameters{

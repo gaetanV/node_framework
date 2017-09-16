@@ -107,7 +107,7 @@ class kernel {
             var nbTask = Object.keys(bundles).length;
             
             for (var i in bundles) {
-                BUNDLES[i] = this.component("HttpKernel/bundle")(
+                BUNDLES[i] = this.component("bundle")(
                     i,
                     bundles[i],
                     services
@@ -145,7 +145,7 @@ class kernel {
                             if (!fn) {
                                 throw "THE FUNCTION " + functionName + " DON'T EXISTE"
                             }
-                            vm.component("Routing/route")(
+                            vm.component("route")(
                                 route.methods.map(function (m) {
                                     return m.toUpperCase()
                                 }),
@@ -225,7 +225,7 @@ class kernel {
             if (!data.hasOwnProperty("stateless") || !data.hasOwnProperty("authenticator") || !data.hasOwnProperty("provider")) throw ('ERROR IN CONFIG SECURITY AUTH');
         }
 
-        return this.component("Security/security")(auth, access_control);
+        return this.component("security")(auth, access_control);
 
     }
 

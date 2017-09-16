@@ -214,7 +214,7 @@ var _share: _shareInterface = {
                 this.bootPath[i] = Injectable.get("path").join(Root, this.bootPath[i]);
             }
 
-            var parameters = componentInjection("DependencyInjection/parameters")();
+            var parameters = componentInjection("parameters")();
             parameters.setParameter("kernel", this.bootPath, true);
             Injectable.add("parameters", parameters);
             Injectable.add("inject", inject);
@@ -224,10 +224,10 @@ var _share: _shareInterface = {
 
 
             var injection = inject();
-            var $event = componentInjection("EventDispatcher/event")();
+            var $event = componentInjection("event")();
             
             ServiceInjectable.add("event", $event);
-            ServiceInjectable.add("cache", componentInjection("Cache/cache")());
+            ServiceInjectable.add("cache", componentInjection("cache")());
             ServiceInjectable.add("$event", $event);
             ServiceInjectable.add("ws", noInjectable["ws"]);
             
