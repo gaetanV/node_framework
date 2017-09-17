@@ -175,9 +175,9 @@ var _share: _shareInterface = {
             ServiceInjectable.add("$event", $event);
             ServiceInjectable.add("ws", noInjectable["ws"]);
             ServiceInjectable.add("$bundles", Bundles);
-            
-            for (var i in Injectable.collection) {
-                ServiceInjectable.add(i,Injectable.collection[i]);
+            var tmp = Injectable.getInjects()
+            for (var i in tmp) {
+                ServiceInjectable.add(i,tmp[i]);
             }
             
         

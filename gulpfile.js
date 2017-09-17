@@ -33,9 +33,9 @@ for(var i in config.framework.bundles){
         
         "./core/bundle/decoration/**/*.ts",
         "./core/bundle/Bundle.ts",
-        "./src/"+i+"/"+i+".ts",
         "./src/"+i+"/Controller/*.ts",
         "./core/bundle/lockController.ts",
+        "./core/bundle/exportBundle.ts",
     ])
     .pipe(ts({
              target: "es2017",
