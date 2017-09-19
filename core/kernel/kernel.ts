@@ -85,8 +85,18 @@ class kernel {
     }
 
 
-    startBundle(Bundle,InjectorService) {
+    startBundle(
+        name:string,
+        controller,
+        engine:string,
+        InjectorService) {
         
+        this.component("bundle")( name, controller, engine, InjectorService);
+        
+        
+        
+        
+        /*
         var vm = this;
         
 
@@ -113,8 +123,7 @@ class kernel {
                 }
             }
                 
-                /*
-                 * 
+              
              
                 function route() {
 

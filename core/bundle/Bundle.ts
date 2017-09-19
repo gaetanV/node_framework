@@ -23,6 +23,10 @@ const BUNDLE = (function (): void {
         
         constructor() {}
 
+        getController(){
+            return Object.assign({}, PRIVATE.controller);
+        }
+
         controller(
             Name: string,
             func

@@ -147,7 +147,13 @@ var _share: _shareInterface = {
             
             var config = Injectable.get("jsYaml").safeLoad(Injectable.get("fs").readFileSync("./app/config.yml", 'utf8'));
             for(var i in config.framework.bundles){
-                Bundles[i] = require("./"+i+".js");
+                
+                Bundles[i] = {
+                    name: i,
+                    injector: require("./"+i+".js"),
+                    templating: config.framework.bundles[i].templating || "html";
+                }
+               
             }
             
             this.bootPath = Param.bootPath;
@@ -185,8 +191,10 @@ var _share: _shareInterface = {
             var InjectorService = _kernel.startService( ServiceInjectable , service ,_Injectable);
                 
             for(var i in Bundles){
-                    console.log(Bundles[i].debug());
-               //  _kernel.startBundle( Bundles[i] , InjectorService );
+                _kernel.startBundle(Bundles[i].name,
+                                    Bundles[i].injector.getController(), 
+                                    Bundles[i].templating,
+                                    InjectorService);
             }
             //  _kernel.startBundle([],ServiceInjectable).then((bundles)=>{ console.log(bundles); });
 

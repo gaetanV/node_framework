@@ -7,57 +7,33 @@ class {
     templating: string = "html";
     get: (name: string) => any;
 
-    constructor(
-        name,
-        parameter,
-        bundle,
-        services,
+
+  
+
+    constructor(name:string,
+                controller,
+                engine:string,
+                InjectorService
     ) {
-        const enginer = ['pug', 'mustache', 'html'];
-
-        var $path = this.get("path");
-        var $fs: FsInterface = this.get("fs");
-        var $mustache = this.get("mustache");
-        var $pug = this.get("pug");
+    
+        var fs: FsInterface = this.get("fs");
+        var Mustache = this.get("mustache");
+        var pug = this.get("pug");
         var $parameters = this.get("parameters");
-
-
-        if (parameter.hasOwnProperty("templating")) {
-            if (enginer.indexOf(parameter.templating) !== -1) {
-                this.templating = parameter.templating;
-            } else {
-                throw "THIS TEMPLATE ENGINER IS OUT OF DATE"
-            }
-        }
-        this.name = name;
-        //PARSE SERVICES//
-
-        var path = name.replace(new RegExp(":", 'g'), "/");
+        var $path = this.get("path");
         
-        this.path = {
-            root_dir: $path.join($parameters.getParameter("kernel.bundle_dir"), path),
-            controller_dir: $path.join($parameters.getParameter("kernel.bundle_dir"), path, "Controller"),
-            view_dir: $path.join($parameters.getParameter("kernel.bundle_dir"), path, "Ressources", "views"),
+        const enginer = ['pug', 'mustache', 'html'];
+        
+        // ENGINE
+        
+        if (enginer.includes(engine)) {
+            this.templating = engine;
+        } else {
+            throw "THIS TEMPLATE ENGINER IS OUT OF DATE"
         }
-
-
-        this.views = [];
-        $fs.statSync(this.path.view_dir);
-        var vm = this;
-        $fs.readdir(this.path.view_dir, function (err, files) {
-            files.forEach(function (file) {
-                var view = $fs.readFileSync($path.join(vm.path.view_dir, file), 'utf8');
-                vm.views[file] = view;
-            });
-        });
-
-        this.controllers = [];
-        this.services = services;
-        this.parser = false;
-
+        
+        
         switch (this.templating) {
-            default:
-                throw vm.templating + " templating is not in charge"
             case "html":
                 this.parser = function (path, param) {
                     return vm.views[path];
@@ -65,18 +41,63 @@ class {
                 break;
             case "jade":
             case "pug":
-                var pug = $pug;
                 this.parser = function (path, param) {
                     return pug.render(vm.views[path], param);
                 }
                 break;
             case "mustache":
-                var Mustache = $mustache;
                 this.parser = function (path, param) {
                     return Mustache.render(vm.views[path], param);
                 }
                 break;
         }
+        
+        // VIEWS
+        
+        var path = name.replace(new RegExp(":", 'g'), "/");
+        
+        this.path = {
+            root_dir: $path.join($parameters.getParameter("kernel.bundle_dir"), path),
+            controller_dir: $path.join($parameters.getParameter("kernel.bundle_dir"), path, "Controller"),
+            view_dir: $path.join($parameters.getParameter("kernel.bundle_dir"), path, "Ressources", "views"),
+        }
+        
+        this.views = [];
+        
+
+        async function getRepView(path){
+            return new Promise((resolve)=>{
+                fs.readdir(path, function (err, files) {
+                   resolve(files);
+                }
+            })
+        }
+        
+        async function getRepertory(path){
+            var result = [];
+            var files = await getRepView(path);
+            files.forEach(function (file) {
+                result.push(fs.readFileSync($path.join(path, file), 'utf8'));
+            });
+            return result;
+        }
+        
+
+        getRepertory(this.path.view_dir).then((a)=>{
+            console.log(a);
+        })
+       
+        
+        /*
+  
+        this.name = name;
+        //PARSE SERVICES//
+
+
+        this.controllers = [];
+        this.services = services;
+        this.parser = false;
+
 
 
         try {
@@ -87,9 +108,6 @@ class {
             throw "ERROR BUNDLE PATH IS FALSE"
         }
         
-    
-        
-          /*
         try {
             var vm = this;
 
@@ -127,10 +145,9 @@ class {
         } catch (err) {
             throw err;
         }
-
+        
         */
     }
-
-
+ 
 
 }
