@@ -29,14 +29,15 @@ const BUNDLE = (function (): void {
 
         controller(
             Name: string,
-            func
+            func,
+            path
         ) {
             if(! PRIVATE.controller[Name]) PRIVATE.controller[Name] = {};
             
             if(PRIVATE.controller[Name].func || isControllerLock) throw "DON'T TRY TO HACK";
             
             PRIVATE.controller[Name].func = func;
-
+            PRIVATE.controller[Name].path = path;
         }
       
         lockController (){
@@ -47,22 +48,23 @@ const BUNDLE = (function (): void {
         controllerMapping(
             controllerName: string,
             methode,
-            func
+            func,
+            path,
+            requirements
         ) {
             if(! PRIVATE.controller[controllerName]) PRIVATE.controller[controllerName] = {};
-            if(! PRIVATE.controller[controllerName][methode]) PRIVATE.controller[controllerName][methode] = {};
-            
-            if(PRIVATE.controller[controllerName][methode][func.name] || isControllerLock) throw "DON'T TRY TO HACK";
-            
-            PRIVATE.controller[controllerName][methode][func.name]= func;
-                    
-     
+            if(! PRIVATE.controller[controllerName][methode]) PRIVATE.controller[controllerName][methode] = [];
 
-            
+            PRIVATE.controller[controllerName][methode].push({
+                func: func,
+                name: func.name,
+                path: path,
+                requirements:requirements,
+            });
+                    
+
         }
-        
-    
-        
+ 
 
     }
     return new Bundle();

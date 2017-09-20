@@ -1,15 +1,17 @@
 @Controller({
-    path : "/test/"
+    path : "/"
 })
 class UserController {
     
   
     @GetMapping({
-        path: "/super",
+        path: "/super/:id",
+        requirements: {
+            id: "\\d+"
+        }
     })
-    get() : string {
-        console.log("PING");
-        return "hello";
+    get() {
+        return this.render('index.pug', {name: "objects change" + this.request.get("id")});
     }
     
     

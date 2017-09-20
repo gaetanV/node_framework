@@ -22,8 +22,8 @@ var Injectable = (() => {
             name:string,
             func :Function
         ){
-
-            name = name.replace(/-([a-z])/g, function (m, w) {
+            
+            name = name.toLowerCase().replace(/-([a-z])/g, function (m, w) {
                 return w.toUpperCase();
             });
 

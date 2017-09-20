@@ -3,10 +3,12 @@ framework:
         engines: ['pug','mustache','html']
     compression_gzip: true
     bundles:
-        UserBundle: { templating: mustache}  
-    router:
-        resource: /app/routing.yml
-
+        UserBundle: { 
+            templating: mustache,
+            prefix: /user
+        }  
+   
+    
 services:
     
     #CACHE ['mongo','files','memory','redis']

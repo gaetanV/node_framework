@@ -1,24 +1,23 @@
+
 @Component({
     selector: "security",
     provider: []
 })
-class{
-    ACCESS_CONTROL:any;
-    AUTH:any;
-    
+class {
+
     constructor(
         AUTH,
         ACCESS_CONTROL
     ) {
-        this.ACCESS_CONTROL = ACCESS_CONTROL;
-        this.AUTH = AUTH;
+        this.firewall = this.firewall.bind({ACCESS_CONTROL: ACCESS_CONTROL})
+        this.auth = this.auth.bind({AUTH: AUTH})
     }
 
-    firewall(req, res, next:Function) {
-
+    firewall(req, res, next: Function) {
         try {
             var path = req.path;
             for (var i in this.ACCESS_CONTROL) {
+
                 var access = this.ACCESS_CONTROL[i];
                 var m = new RegExp('^' + access.path + '$', 'gi');
                 /*match*/
@@ -60,17 +59,18 @@ class{
             return false;
         }
 
-    },
+    }
+
     auth(options, req, res, next) {
         try {
             switch (options.roles) {
                 default:
                     var authName = options.auth;
                     if (authName) {
-                        if (!this._().AUTH.hasOwnProperty(authName)) {
+                        if (this.AUTH.hasOwnProperty(authName)) {
                             throw "auth name " + authName + " don't exist no luck";
                         } else {
-                            var auth = AUTH[authName];
+                            var auth = this.AUTH.authName];
                             if (auth.stateless) {
                                 throw "you can try to login in session  ";
                             } else {

@@ -3,26 +3,28 @@
     provider: ["fs", "mustache", "pug", "path", "parameters"]
 })
 class {
-
+    
+    name: string;
     templating: string = "html";
     get: (name: string) => any;
-
-
-  
-
-    constructor(name:string,
+    GET: Array<any> = [];
+    
+    async constructor(name:string,
                 controller,
+                prefix:string,
                 engine:string,
                 InjectorService
     ) {
-    
-        var fs: FsInterface = this.get("fs");
-        var Mustache = this.get("mustache");
-        var pug = this.get("pug");
-        var $parameters = this.get("parameters");
-        var $path = this.get("path");
         
         const enginer = ['pug', 'mustache', 'html'];
+        const fs: FsInterface = this.get("fs");
+        const Mustache = this.get("mustache");
+        const pug = this.get("pug");
+        const $parameters = this.get("parameters");
+        const $path = this.get("path");
+        
+        
+        this.name = name;
         
         // ENGINE
         
@@ -36,23 +38,24 @@ class {
         switch (this.templating) {
             case "html":
                 this.parser = function (path, param) {
-                    return vm.views[path];
+                    return this.views[path];
                 }
                 break;
             case "jade":
             case "pug":
                 this.parser = function (path, param) {
-                    return pug.render(vm.views[path], param);
+                    return pug.render(this.views[path], param);
                 }
                 break;
             case "mustache":
                 this.parser = function (path, param) {
-                    return Mustache.render(vm.views[path], param);
+                    if(!this.views[path]) throw "view" + this.views[path] +"not found";
+                    return Mustache.render(this.views[path], param);
                 }
                 break;
         }
         
-        // VIEWS
+        // PATH
         
         var path = name.replace(new RegExp(":", 'g'), "/");
         
@@ -61,6 +64,35 @@ class {
             controller_dir: $path.join($parameters.getParameter("kernel.bundle_dir"), path, "Controller"),
             view_dir: $path.join($parameters.getParameter("kernel.bundle_dir"), path, "Ressources", "views"),
         }
+        
+        // CONTROLLER 
+ 
+        for(var i in controller){
+            
+         
+            var m = new RegExp('^(.*)Controller$', 'gi');
+            if ! m.exec(i) throw "error in controller name";
+            if ! controller[i].path throw "error in controller path";
+            var rootPath = controller[i].path; 
+            
+            controller[i].GET.forEach((a)=>{
+                if(!a.path) throw "Path is undefined";
+                if(!a.func) throw "function is undefined";
+                a.func.get = (name:string) => {
+                    return InjectorService.get(name);
+                }
+                a.path = $path.join(prefix,rootPath,a.path).replace(/\\/g, '/')
+                this.GET.push(a);
+                
+            })
+            
+            
+            
+        }
+    
+
+        // VIEWS
+        
         
         this.views = [];
         
@@ -77,16 +109,17 @@ class {
             var result = [];
             var files = await getRepView(path);
             files.forEach(function (file) {
-                result.push(fs.readFileSync($path.join(path, file), 'utf8'));
+                result[file] = (fs.readFileSync($path.join(path, file), 'utf8'));
             });
             return result;
         }
         
-
-        getRepertory(this.path.view_dir).then((a)=>{
-            console.log(a);
-        })
-       
+        return new Promise((resolve) => {
+           getRepertory(this.path.view_dir).then((a)=>{
+               this.views = a;
+               resolve(this);
+           })
+        }):
         
         /*
   

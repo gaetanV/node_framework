@@ -151,7 +151,8 @@ var _share: _shareInterface = {
                 Bundles[i] = {
                     name: i,
                     injector: require("./"+i+".js"),
-                    templating: config.framework.bundles[i].templating || "html";
+                    prefix: config.framework.bundles[i].prefix || "/"
+                    templating: config.framework.bundles[i].templating || "html"
                 }
                
             }
@@ -172,7 +173,6 @@ var _share: _shareInterface = {
          
             var _kernel = new kernel(noInjectable, componentInjection, Injectable);
             var $app = _kernel.startServer(Port, Host);
-            Injectable.add('app', $app);
 
             var $event = componentInjection("event")();
             
@@ -182,21 +182,21 @@ var _share: _shareInterface = {
             ServiceInjectable.add("ws", noInjectable["ws"]);
             ServiceInjectable.add("$bundles", Bundles);
             var tmp = Injectable.getInjects()
+            
             for (var i in tmp) {
                 ServiceInjectable.add(i,tmp[i]);
             }
             
-        
-               
             var InjectorService = _kernel.startService( ServiceInjectable , service ,_Injectable);
                 
             for(var i in Bundles){
                 _kernel.startBundle(Bundles[i].name,
                                     Bundles[i].injector.getController(), 
+                                    Bundles[i].prefix,
                                     Bundles[i].templating,
-                                    InjectorService);
+                                    InjectorService,
+                                    $app);
             }
-            //  _kernel.startBundle([],ServiceInjectable).then((bundles)=>{ console.log(bundles); });
 
         }
     }
