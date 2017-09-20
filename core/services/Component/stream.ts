@@ -1,8 +1,11 @@
-(function () {
+@Component({
+    selector: "stream",
+    provider: []
+})
+class {
 
-    'use strict';
-
-    function stream(clients, CACHE) {
+    constructor(clients, CACHE) {
+        
         var STREAM = [];
         var PERISISTENCE = [];
         ///IF CACHE IS MEMORY
@@ -12,7 +15,7 @@
             this.rooms = [];
         }
         class SPACE {
-            
+
             constructor(index, path, fn, options, persistence) {
                 this.fn = fn;
                 this.options = options;
@@ -38,7 +41,7 @@
                 }
                 this.reload();
             }
-            
+
             uploadEntity(entity, data, callback) {
 
                 var buffer = [];
@@ -68,24 +71,24 @@
                                     }
                                     vm.cache.data = before;
                                     var b = vm.buffer(
-                                            function (b) {
+                                        function (b) {
 
-                                                for (var userid in b) {
-                                                    if (!buffer[userid]) {
-                                                        buffer[userid] = b[userid];
-                                                    } else {
-                                                        for (var k in b[userid].data) {
-                                                            buffer[userid].data.push(b[userid].data[k]);
-                                                        }
+                                            for (var userid in b) {
+                                                if (!buffer[userid]) {
+                                                    buffer[userid] = b[userid];
+                                                } else {
+                                                    for (var k in b[userid].data) {
+                                                        buffer[userid].data.push(b[userid].data[k]);
                                                     }
                                                 }
-                                                nbTask++;
-                                                if (nbTask >= processed) {
+                                            }
+                                            nbTask++;
+                                            if (nbTask >= processed) {
 
-                                                    callback(buffer);
-                                                }
+                                                callback(buffer);
+                                            }
 
-                                            });
+                                        });
 
                                 }
                                 break;
@@ -104,23 +107,23 @@
                                 vm.cache.data = before;
 
                                 var b = vm.buffer(
-                                        function (b) {
+                                    function (b) {
 
-                                            for (var userid in b) {
-                                                if (!buffer[userid]) {
-                                                    buffer[userid] = b[userid];
-                                                } else {
-                                                    for (var k in b[userid].data) {
-                                                        buffer[userid].data.push(b[userid].data[k]);
-                                                    }
-                                                }
-                                                nbTask++;
-                                                if (nbTask >= processed) {
-
-                                                    callback(buffer);
+                                        for (var userid in b) {
+                                            if (!buffer[userid]) {
+                                                buffer[userid] = b[userid];
+                                            } else {
+                                                for (var k in b[userid].data) {
+                                                    buffer[userid].data.push(b[userid].data[k]);
                                                 }
                                             }
+                                            nbTask++;
+                                            if (nbTask >= processed) {
+
+                                                callback(buffer);
+                                            }
                                         }
+                                    }
 
                                 );
                                 break;
@@ -130,7 +133,7 @@
                 }
                 return buffer;
             }
-            
+
             register(socket) {
                 this.client[socket.id] = socket;
             }
@@ -224,30 +227,30 @@
                 var index = (p != undefined ? p : "{}") + "-" + (o != undefined ? o : "{}");
                 if (!cache.hasOwnProperty(index)) {
                     var options = Object.keys(param).map(
-                            function (k) {
-                                return param[k];
-                            }
+                        function (k) {
+                            return param[k];
+                        }
                     );
 
-                    cache [index] = new SPACE(index, path, this.fn, options, this.persistence);
+                    cache[index] = new SPACE(index, path, this.fn, options, this.persistence);
                 }
-                return cache [index];
+                return cache[index];
             }
         }
         var setStream = function (route) {
             route.param = [];
             if (route.path.match(/{([^{}]*)}/g)) {
                 var t = route.path.replace(/{([^{}]*)}/g,
-                        function (match) {
+                    function (match) {
 
-                            var c = match.slice(1, -1);
-                            route.param.push(c);
-                            if (route.requirements.hasOwnProperty(c)) {
-                                var r = route.requirements.id;
-                                return "([" + r + "^/])";
-                            }
-                            return "([.^/]{1,})"
+                        var c = match.slice(1, -1);
+                        route.param.push(c);
+                        if (route.requirements.hasOwnProperty(c)) {
+                            var r = route.requirements.id;
+                            return "([" + r + "^/])";
                         }
+                        return "([.^/]{1,})"
+                    }
                 );
             } else {
                 var t = route.path;
@@ -268,7 +271,7 @@
                     var cache = room.getCache();
                     for (var j in cache) {
                         //var b=cache [j].reload(load);                             /// RELOAD REQUEST
-                        cache [j].uploadEntity(entityname, object, load);     /// PERISTENCE REQUEST 
+                        cache[j].uploadEntity(entityname, object, load);     /// PERISTENCE REQUEST 
 
                         function load(b) {
 
@@ -320,7 +323,7 @@
             setStream: setStream,
             getStream: function (path, option) {
 
-                for (var i in  STREAM) {
+                for (var i in STREAM) {
                     if (path.match(STREAM[i].regex)) {
                         var r = {};
                         var t = STREAM[i].regex.exec(path);
@@ -365,9 +368,9 @@
             },
             PERISISTENCE: PERISISTENCE,
         }
+
     }
 
-    module.exports = stream;
 
 
-})();
+}

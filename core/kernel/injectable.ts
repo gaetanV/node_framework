@@ -17,7 +17,21 @@ var Injectable = (() => {
         get(name:string) {
             return PRIVATE[this.instance][name];
         }
-
+        
+        concat(Injectable:Injectable){
+            var tmp =Injectable.getInjects();
+            for(var i in tmp){
+                if(PRIVATE[this.instance][i]) throw "don't try to hack";
+                PRIVATE[this.instance][i] = tmp[i];
+            } 
+        }
+        
+        transclude(Injectable:Injectable,name){
+            if(!Injectable.get(name)) throw "don't try to hack"
+            PRIVATE[this.instance][name] = Injectable.get(name);
+            
+        }
+        
         add(
             name:string,
             func :Function

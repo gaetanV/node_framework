@@ -120,66 +120,7 @@ class {
                resolve(this);
            })
         }):
-        
-        /*
-  
-        this.name = name;
-        //PARSE SERVICES//
-
-
-        this.controllers = [];
-        this.services = services;
-        this.parser = false;
-
-
-
-        try {
-            $fs.statSync(this.path.root_dir);
-            $fs.statSync(this.path.controller_dir);
-            $fs.statSync(this.path.view_dir);
-        } catch (err) {
-            throw "ERROR BUNDLE PATH IS FALSE"
-        }
-        
-        try {
-            var vm = this;
-
-          
-            $fs.readdir(this.path.controller_dir, function (err, files) {
-                var processed = 0;
-                var nbTask = files.length;
-
-                files.forEach(function (file) {
-
-                    var m = new RegExp('^(.*)Controller.js$', 'gi');
-
-                    var controllerName = m.exec(file);
-
-                    if (controllerName) {
-
-                        var data = $fs.readFileSync($path.join(vm.path.controller_dir, file), 'utf8');
-                        
-                        // vm.controllers[controllerName[1]] = vm.component("controller")(
-                            data,
-                            vm.services
-                        );
-
-                    }
-
-                    processed++;
-                    if (processed >= nbTask) {
-                        callback();
-                    }
-
-
-                });
-            });
-            
-        } catch (err) {
-            throw err;
-        }
-        
-        */
+   
     }
  
 

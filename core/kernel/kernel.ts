@@ -151,7 +151,7 @@ class kernel {
 
         var config = this.Injectable.get("jsYaml").safeLoad(this.Injectable.get("fs").readFileSync(this.parameters.getParameter("kernel.root_dir") + "config.yml", 'utf8'));
         var config_services = config.hasOwnProperty("services") ? config.services : [];
-
+        
         var InjectorService = new _Injectable();
         for (var i in config_services) {
             var service = config_services[i];

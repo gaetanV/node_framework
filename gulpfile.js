@@ -14,6 +14,7 @@ gulp.task('core', function () {
         "./core/require.ts",
         "./core/Component/**/*.ts",
         "./core/lockComponent.ts", 
+        "./core/services/Component/*.ts",
         "./core/services/**/*.ts",
         "./core/lockService.ts"
     ])
@@ -25,6 +26,8 @@ gulp.task('core', function () {
      }))
      .pipe(gulp.dest('dist/'));
 });
+
+
 
 
 for(var i in config.framework.bundles){

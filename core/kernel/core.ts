@@ -15,6 +15,7 @@ var _share: _shareInterface = {
     var Injectable = new _Injectable();
     var component: Map<string, any> = {};
     
+    var ServiceComponent: Map<string, any> = {};
     var ServiceInjectable = new _Injectable();
     var service: Map<string, any> = {};
 
@@ -22,14 +23,14 @@ var _share: _shareInterface = {
     var noInjectable: Map<string, any> = {};
     var injectable: Map<string, any> = {};
 
-    var lockComponent = false;
+    var lockComponent = 0;
     var lockService = false;
 
     class moduleStrategy {
         constructor() {};
 
         lockComponent() {
-            lockComponent = true;
+            lockComponent++; 
         }
         
         lockService(){
@@ -41,25 +42,53 @@ var _share: _shareInterface = {
             injector,
             func
         ) {
-            if (!component[Name] && !lockComponent) {
-                component[Name] = {
-                    inject: function (...args) {
+       
+            switch(lockComponent){
+                case 0:
+                    if (component[Name]) throw "don't try to hack"
+                    component[Name] = {
+                       inject: function (...args) {
 
-                        func.prototype.get = function (name) {
-                            return injector.includes(name) ? Injectable.get(name) : false;
-                        }
+                           func.prototype.get = function (name) {
+                               return injector.includes(name) ? Injectable.get(name) : false;
+                           }
 
-                        func.prototype.component = function (id) {
-                            return component[id].inject;
-                        }
+                           func.prototype.component = function (id) {
+                               return component[id].inject;
+                           }
 
-                        return new func(...args);
+                           return new func(...args);
 
-                    })
-                }
-            }else{
-                throw "Don't try to HACK";
+                       })
+                   }
+                   break;
+                case 1:
+             
+                    if (ServiceComponent[Name]) throw "don't try to hack"
+                    
+                    ServiceComponent[Name] = {
+                         inject: function (...args) {
+                            func.prototype.get = function (name) {
+                                return injector.includes(name) ? Injectable.get(name) : false;
+                            }
+
+                            func.prototype.component = function (id) {
+                                return ServiceComponent[id].inject;
+                                
+                            }
+
+                            return new func(...args);
+                         }
+                    }
+                    
+                        
+                    break;
+                   
+                default:
+                    throw "don't try to hack"
+   
             }
+
         }
         
         service(
@@ -82,12 +111,10 @@ var _share: _shareInterface = {
                         }
                         ParamsService = Params;
                     },
-                    inject: function(){
+                    inject: function(tmpInjectorService:_Injectable){
                         var tmpInjectorService = new _Injectable();
                         for (var i in injector) {
-                            if(ServiceInjectable.get(injector[i])){
-                                tmpInjectorService.add(injector[i],ServiceInjectable.get(injector[i]));
-                            }
+                            tmpInjectorService.transclude(ServiceInjectable,injector[i]);
                         }
                         InjectorServiceClass = tmpInjectorService;
                     },          
@@ -98,7 +125,7 @@ var _share: _shareInterface = {
                         }
 
                         func.prototype.component = function (id) {
-                            return component[id].inject;
+                           return ServiceComponent[id].inject;
                         }
                         
                         func.prototype.params = function (id) {
@@ -179,14 +206,11 @@ var _share: _shareInterface = {
             ServiceInjectable.add("event", $event);
             ServiceInjectable.add("cache", componentInjection("cache")());
             ServiceInjectable.add("$event", $event);
-            ServiceInjectable.add("ws", noInjectable["ws"]);
             ServiceInjectable.add("$bundles", Bundles);
-            var tmp = Injectable.getInjects()
+            ServiceInjectable.add("ws", noInjectable["ws"]);
             
-            for (var i in tmp) {
-                ServiceInjectable.add(i,tmp[i]);
-            }
-            
+            ServiceInjectable.concat(Injectable);
+           
             var InjectorService = _kernel.startService( ServiceInjectable , service ,_Injectable);
                 
             for(var i in Bundles){

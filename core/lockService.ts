@@ -1,1 +1,2 @@
+CORE.lockComponent();
 CORE.lockService();

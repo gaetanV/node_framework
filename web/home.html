@@ -113,9 +113,9 @@
                 });
              }
    
-              var s=new Ws("ws://192.168.0.11:8098",Stream);
-              var d=new LongPolling("http://192.168.0.11:7200/event/",Stream); 
-              var z=new Polling("http://192.168.0.11:7200/polling/",Stream); 
+              var s=new Ws("ws://localhost:8098",Stream);
+              var d=new LongPolling("http://localhost:7200/event/",Stream); 
+              var z=new Polling("http://localhost:7200/polling/",Stream); 
               
               
              new Vue({
