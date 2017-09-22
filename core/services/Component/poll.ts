@@ -1,16 +1,28 @@
-(function () {
+@Component({
+    selector: "poll",
+    provider: [
+        "nodeUuid",
+        "$app"
+    ]
+})
+class {
 
-    'use strict';
+    constructor(
+        path,
+        reload,
+        stream,
+        clients
+    ) {
 
-    function Poll($app, $nodeUuid, path, reload, stream, clients) {
-        
+        const nodeUuid = this.get("nodeUuid");
+        const $app = this.get("$app");
+
         var TASKS = [];
         var clientsSession = [];
 
         const maxinstance = 20;
         const timeInstance = 2000;
         const timeDos = 100;
-
 
         class BUFFER {
             constructor() {
@@ -33,7 +45,7 @@
                 }
             }
         }
-        
+
         class CLIENT {
             constructor(sessionID) {
                 this.sessionID = sessionID;
@@ -73,7 +85,7 @@
                 this.maxdate = Date.now();
             }
         }
-        
+
         $app.post(path, function (req, res, next) {
             try {
                 if (!clientsSession[req.sessionID]) {
@@ -119,7 +131,7 @@
                             buffer.push(JSON.stringify({type: "data", watch: message.watch, data: JSON.stringify(data)}));
                             processed++;
                             if (processed >= nbTask) {
-                                send( );
+                                send();
                             }
                         });
 
@@ -142,7 +154,7 @@
                             buffer.push(JSON.stringify({type: "pull", watch: message.pull, data: JSON.stringify(data)}));
                             processed++;
                             if (processed >= nbTask) {
-                                send( );
+                                send();
                             }
                         });
 
@@ -161,14 +173,13 @@
                 res.status(401).send(err);
             }
         });
-        
-        function checkUpdate(req, res)
-        {
+
+        function checkUpdate(req, res) {
             try {
                 var sid = req.body.sid;
                 if (TASKS[sid]) {
                     res.send(JSON.stringify(
-                            {type: "buffer", data: JSON.stringify(TASKS[sid].data)}
+                        {type: "buffer", data: JSON.stringify(TASKS[sid].data)}
                     ));
                     TASKS[sid] = false;
                 } else {
@@ -191,7 +202,4 @@
             }
         }
     }
-
-    module.exports = Poll;
-
-})();
+}

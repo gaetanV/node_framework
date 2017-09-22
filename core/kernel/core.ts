@@ -69,7 +69,7 @@ var _share: _shareInterface = {
                     ServiceComponent[Name] = {
                          inject: function (...args) {
                             func.prototype.get = function (name) {
-                                return injector.includes(name) ? Injectable.get(name) : false;
+                                return injector.includes(name) ? ServiceInjectable.get(name) : false;
                             }
 
                             func.prototype.component = function (id) {
@@ -111,7 +111,7 @@ var _share: _shareInterface = {
                         }
                         ParamsService = Params;
                     },
-                    inject: function(tmpInjectorService:_Injectable){
+                    inject: function(){
                         var tmpInjectorService = new _Injectable();
                         for (var i in injector) {
                             tmpInjectorService.transclude(ServiceInjectable,injector[i]);
@@ -208,7 +208,7 @@ var _share: _shareInterface = {
             ServiceInjectable.add("$event", $event);
             ServiceInjectable.add("$bundles", Bundles);
             ServiceInjectable.add("ws", noInjectable["ws"]);
-            
+            ServiceInjectable.add("$app", $app);
             ServiceInjectable.concat(Injectable);
            
             var InjectorService = _kernel.startService( ServiceInjectable , service ,_Injectable);

@@ -27,7 +27,10 @@ var Injectable = (() => {
         }
         
         transclude(Injectable:Injectable,name){
-            if(!Injectable.get(name)) throw "don't try to hack"
+            if(!Injectable.get(name)) {
+                console.log(name);
+                throw "don't try to hack";
+            }
             PRIVATE[this.instance][name] = Injectable.get(name);
             
         }

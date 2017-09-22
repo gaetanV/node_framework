@@ -22,7 +22,20 @@ services:
                 resource: /app/stream.yml
             access_control:    
                 -  { path: /user/.* , roles: [ROLE_ADMIN] , auth: api_area , whiteip:[192.168.0.11]  }
-
+    longpolling:
+        params: 
+            cache_type : memory
+            path: /event/
+            router: 
+                resource: /app/stream.yml
+                
+    polling:
+        params: 
+            cache_type : memory
+            path: /polling/
+            router: 
+                resource: /app/stream.yml  
+                
 private_services:       
     apikey_authenticator:
         class:  UserBundle/Security/ApiKeyAuthenticator
