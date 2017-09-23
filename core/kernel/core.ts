@@ -211,10 +211,7 @@ var _share: _shareInterface = {
             ServiceInjectable.add("$app", $app);
             ServiceInjectable.concat(Injectable);
            
-            async function getBundles(Bundles,InjectorService){
-        
-            }
-            
+
             var InjectorService = new _Injectable();
         
             var bundles = [];
@@ -227,17 +224,18 @@ var _share: _shareInterface = {
                                     InjectorService,));
             }
      
-           
+            
             ServiceInjectable.add("$bundles", bundles);
             
             var _InjectorService = _kernel.startService( ServiceInjectable , service ,_Injectable);
-            
+            InjectorService.add("$event", $event);
             InjectorService.concat(_InjectorService);
+            console.log(InjectorService.getInjects());
             
             for(var i in bundles){
                 _kernel.startBundle(bundles[i],$app);
             }
-           
+  
 
         }
     }

@@ -12,7 +12,7 @@ class{
         var db = this.get('monk')('localhost:27017/hostel');
         
         var collection = db.get("query");
-
+        var $nodeUuid = this.get('nodeUuid');
         var cachefile = $path.join(this.get("parameters").getParameter("kernel.cache_dir"), "query");
 
         function factory(type) {
@@ -42,7 +42,7 @@ class{
             return class CACHE {
                 constructor() {
 
-                    var uniqueID = this.get('nodeUuid').v4();
+                    var uniqueID = $nodeUuid.v4();
                     this.id = uniqueID;
                     this.write = false;
                     this.path = $path.join(cachefile, this.id);

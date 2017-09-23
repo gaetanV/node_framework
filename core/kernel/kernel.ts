@@ -95,7 +95,20 @@ class kernel {
         ) {
 
        
-      
+     
+        return new Promise((resolve){
+            this.component("bundle")(name, controller, prefix, engine, InjectorService).then((bundle) => {
+                resolve(bundle);
+            });
+            
+        }
+       
+
+
+    }
+
+    startBundle(bundle, app) {
+        
         function parseParams(reqParams, requirements) {
             var params = [];
             for (var key in requirements) {
@@ -112,39 +125,30 @@ class kernel {
 
             return params;
         }
-        return new Promise((resolve){
-            this.component("bundle")(name, controller, prefix, engine, InjectorService).then((bundle) => {
-                resolve(bundle);
-            });
-            
-        }
-       
-
-
-    }
-
-    startBundle(bundle, app) {
+        
         if(bundle.hasOwnProperty("GET")){
             bundle.GET.forEach((action) => {
                 console.log("[GET] " + action.path);
                 try {
                     app.get(action.path, function (req, res, next) {
                         var params = parseParams(req.params, action.requirements);
-                        action.func.apply({
-                            render: function (path, param) {
+                        
+                        action.func.render = function (path, param){
                                 try {
                                     res.end(bundle.parser(path, param));
                                 } catch (err) {
                                     console.log(err);
                                     return false;
-                                }
-                            },
-                            request: {
+                                } 
+                        }
+                        
+                        action.func.request = {
                                 get: function (key) {
                                     return req.params[key];
                                 }
-                            },
-                        }, params);
+                        };
+                        
+                        action.func.apply(action.func, params);
                     });
                 } catch (err) {
                     console.log(err);

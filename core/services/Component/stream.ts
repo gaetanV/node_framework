@@ -340,7 +340,7 @@ class {
 
      
                     function parse(options) {
-                        return BUNDLE.func.apply({}, options);
+                        return BUNDLE.func.apply(BUNDLE.func, options);
                     }
                     var option = {
                         path: BUNDLE.path,

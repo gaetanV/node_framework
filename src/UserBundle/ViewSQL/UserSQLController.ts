@@ -10,8 +10,8 @@ class UserSQLController {
             id: "\\d+"
         }
     })
-    getOne() : string {
-        
+    getOne(id) : string {
+    
         var db = this.get("db");
         /// GET FROM BD
         var data = db.user[0];
@@ -25,6 +25,7 @@ class UserSQLController {
     })
     
     getAll() : string {
+       
         
         var db = this.get("db");
         /// GET FROM BD
