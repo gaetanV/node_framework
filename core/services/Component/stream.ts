@@ -26,10 +26,8 @@ class {
                 this.index = index;
                 this.cache = new CACHE();
                 for (var i in persistence) {
-                    if (!this.persistence[persistence[i].targetEntity]) {
-                        this.persistence[persistence[i].targetEntity] = []
-                    }
-                    ;
+                    if (!this.persistence[persistence[i].targetEntity])  this.persistence[persistence[i].targetEntity] = []
+          
                     persistence[i].type = i;
                     this.persistence[persistence[i].targetEntity].push(persistence[i]);
                 }
@@ -338,33 +336,21 @@ class {
                 }
                 return false;
             },
-            addRoute: function (config, BUNDLES) {
+            addRoute: function (BUNDLE) {
 
-                function parseconfig(c) {
-
-                    var controller = c.split(":");
-                    var bundleName = controller[0];
-                    var controllerName = controller[1];
-                    var fn = controller[2];
-
+     
                     function parse(options) {
-
-                        var data = BUNDLES[bundleName].controllers[controllerName].stream[fn].apply({}, options);
-
-                        return data;
+                        return BUNDLE.func.apply({}, options);
                     }
                     var option = {
-                        path: config[i].path,
+                        path: BUNDLE.path,
                         fn: parse,
-                        requirements: config[i].requirements ? config[i].requirements : {},
-                        persistence: config[i].persistence ? config[i].persistence : {}
+                        requirements: BUNDLE.requirements || {},
+                        persistence: BUNDLE.persistence || {}
                     }
                     setStream(new ROOM(option.path, option.fn, option.requirements, option.persistence));
-                }
-                for (var i in config) {
-                    var c = config[i].defaults["_controller"];
-                    parseconfig(c);
-                }
+              
+           
             },
             PERISISTENCE: PERISISTENCE,
         }

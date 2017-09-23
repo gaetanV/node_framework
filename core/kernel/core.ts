@@ -188,7 +188,7 @@ var _share: _shareInterface = {
 
         }
 
-        boot(Port: number, Host: string, Root: string): void {
+        async boot(Port: number, Host: string, Root: string): void {
 
             for (var i in this.bootPath) {
                 this.bootPath[i] = Injectable.get("path").join(Root, this.bootPath[i]);
@@ -206,21 +206,38 @@ var _share: _shareInterface = {
             ServiceInjectable.add("event", $event);
             ServiceInjectable.add("cache", componentInjection("cache")());
             ServiceInjectable.add("$event", $event);
-            ServiceInjectable.add("$bundles", Bundles);
+           
             ServiceInjectable.add("ws", noInjectable["ws"]);
             ServiceInjectable.add("$app", $app);
             ServiceInjectable.concat(Injectable);
            
-            var InjectorService = _kernel.startService( ServiceInjectable , service ,_Injectable);
-                
+            async function getBundles(Bundles,InjectorService){
+        
+            }
+            
+            var InjectorService = new _Injectable();
+        
+            var bundles = [];
+
             for(var i in Bundles){
-                _kernel.startBundle(Bundles[i].name,
+                bundles.push (await _kernel.getBundle(Bundles[i].name,
                                     Bundles[i].injector.getController(), 
                                     Bundles[i].prefix,
                                     Bundles[i].templating,
-                                    InjectorService,
-                                    $app);
+                                    InjectorService,));
             }
+     
+           
+            ServiceInjectable.add("$bundles", bundles);
+            
+            var _InjectorService = _kernel.startService( ServiceInjectable , service ,_Injectable);
+            
+            InjectorService.concat(_InjectorService);
+            
+            for(var i in bundles){
+                _kernel.startBundle(bundles[i],$app);
+            }
+           
 
         }
     }

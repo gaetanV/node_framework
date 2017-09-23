@@ -8,6 +8,7 @@ class {
     templating: string = "html";
     get: (name: string) => any;
     GET: Array<any> = [];
+    STREAM: Array<any> = [];  
     
     async constructor(name:string,
                 controller,
@@ -15,14 +16,14 @@ class {
                 engine:string,
                 InjectorService
     ) {
-        
+      
         const enginer = ['pug', 'mustache', 'html'];
         const fs: FsInterface = this.get("fs");
         const Mustache = this.get("mustache");
         const pug = this.get("pug");
         const $parameters = this.get("parameters");
         const $path = this.get("path");
-        
+       
         
         this.name = name;
         
@@ -74,19 +75,30 @@ class {
             if ! m.exec(i) throw "error in controller name";
             if ! controller[i].path throw "error in controller path";
             var rootPath = controller[i].path; 
-            
-            controller[i].GET.forEach((a)=>{
-                if(!a.path) throw "Path is undefined";
-                if(!a.func) throw "function is undefined";
-                a.func.get = (name:string) => {
-                    return InjectorService.get(name);
-                }
-                a.path = $path.join(prefix,rootPath,a.path).replace(/\\/g, '/')
-                this.GET.push(a);
-                
-            })
-            
-            
+            if(controller[i].hasOwnProperty("GET")){
+                controller[i].GET.forEach((a)=>{
+                    if(!a.path) throw "Path is undefined";
+                    if(!a.func) throw "function is undefined";
+                    a.func.get = (name:string) => {
+                        return InjectorService.get(name);
+                    }
+                    a.path = $path.join(prefix,rootPath,a.path).replace(/\\/g, '/')
+                    this.GET.push(a);
+
+                })
+            }
+            if(controller[i].hasOwnProperty("STREAM")){
+                controller[i].STREAM.forEach((a)=>{
+                    if(!a.path) throw "Path is undefined";
+                    if(!a.func) throw "function is undefined";
+                    a.func.get = (name:string) => {
+                        return InjectorService.get(name);
+                    }
+                    a.path = $path.join(prefix,rootPath,a.path).replace(/\\/g, '/')
+                    this.STREAM.push(a);
+
+                })
+            }
             
         }
     
@@ -115,6 +127,7 @@ class {
         }
         
         return new Promise((resolve) => {
+
            getRepertory(this.path.view_dir).then((a)=>{
                this.views = a;
                resolve(this);

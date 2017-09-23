@@ -5,7 +5,8 @@
         "parameters",
         "cache",
         "$event",
-        "nodeUuid"
+        "nodeUuid",
+        "$bundles"
     ],
     params: [
         "cache_type",
@@ -28,15 +29,16 @@ class{
         const $cache = this.get("cache");
         const cache = $cache( this.params("cache_type") || "memory");
         const stream = this.component("stream")(clients, cache);
+        const $bundles = this.get("$bundles");
         
         wss.on('connection', connection);
         this.get("$event").on("updateEntity", updateEntity);
         
-        /*
-        if ($bundles) {
-            stream.addRoute($jsYaml.safeLoad($fs.readFileSync($path.join(this.container.getParameter("server.root_dir"), router.resource), 'utf8')), $bundles);
-        }
-        */
+        $bundles.forEach((a)=>{
+            for(var i in  a.STREAM){
+                //stream.addRoute(a.STREAM[i]);
+            }
+        })
         
         ///////////////////
         var vm = this;

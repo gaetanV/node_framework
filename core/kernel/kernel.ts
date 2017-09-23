@@ -86,16 +86,17 @@ class kernel {
 
 
 
-    startBundle(
-        name:string,
+    async getBundle(
+        name: string,
         controller,
         prefix: string,
-        engine:string,
+        engine: string,
         InjectorService,
-        app) {
-        
-        
-        function parseParams(reqParams,requirements) {
+        ) {
+
+       
+      
+        function parseParams(reqParams, requirements) {
             var params = [];
             for (var key in requirements) {
                 if (!reqParams.hasOwnProperty(key)) {
@@ -111,39 +112,46 @@ class kernel {
 
             return params;
         }
-        
-        
-        this.component("bundle")( name, controller, prefix , engine, InjectorService).then((bundle)=>{
+        return new Promise((resolve){
+            this.component("bundle")(name, controller, prefix, engine, InjectorService).then((bundle) => {
+                resolve(bundle);
+            });
             
-            bundle.GET.forEach((action)=>{
-                console.log("[GET] "+action.path);
-                try{
+        }
+       
+
+
+    }
+
+    startBundle(bundle, app) {
+        if(bundle.hasOwnProperty("GET")){
+            bundle.GET.forEach((action) => {
+                console.log("[GET] " + action.path);
+                try {
                     app.get(action.path, function (req, res, next) {
-                          var params = parseParams(req.params,action.requirements);
-                          action.func.apply({
-                                render: function (path, param) {
-                                    try {
-                                        res.end(bundle.parser(path, param));
-                                    } catch (err) {
-                                        console.log(err);
-                                        return false;
-                                    }
-                                },
-                                request: {
-                                    get: function (key) {
-                                        return req.params[key];
-                                    }
-                                },
-                          }, params);
-                     });
+                        var params = parseParams(req.params, action.requirements);
+                        action.func.apply({
+                            render: function (path, param) {
+                                try {
+                                    res.end(bundle.parser(path, param));
+                                } catch (err) {
+                                    console.log(err);
+                                    return false;
+                                }
+                            },
+                            request: {
+                                get: function (key) {
+                                    return req.params[key];
+                                }
+                            },
+                        }, params);
+                    });
                 } catch (err) {
                     console.log(err);
                     res.status(401).send("ERROR");
                 }
-             })
-             
-        });
- 
+            }); 
+        }
     }
 
     startService(Injectable, serviceInjection, _Injectable) {
@@ -151,7 +159,7 @@ class kernel {
 
         var config = this.Injectable.get("jsYaml").safeLoad(this.Injectable.get("fs").readFileSync(this.parameters.getParameter("kernel.root_dir") + "config.yml", 'utf8'));
         var config_services = config.hasOwnProperty("services") ? config.services : [];
-        
+
         var InjectorService = new _Injectable();
         for (var i in config_services) {
             var service = config_services[i];

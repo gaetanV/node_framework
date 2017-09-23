@@ -1,5 +1,5 @@
 @Controller({
-    path : "/"
+    path : "/user"
 })
 class UserController {
     
@@ -14,14 +14,6 @@ class UserController {
         return this.render('index.pug', {name: "objects change" + this.request.get("id")});
     }
     
-    
-    @StreamMapping({
-        path : "/super",
-        persitence: [];
-    })
-    getOneStream() : string {
-      
-    }
-    
- 
+
 }
+

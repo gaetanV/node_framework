@@ -7,6 +7,7 @@
         "cache",
         "path",
         "fs",
+        "$bundles",
     ],
     params: [
         "cache_type",
@@ -24,7 +25,7 @@ class{
         const $path = this.get("path");
         const $event = this.get("event");
         const $fs = this.get("fs");
-            
+        const $bundles = this.get("$bundles");
         var clients = [];
         const cache = $cache(this.params("cache_type") || "memory");
         
@@ -32,12 +33,13 @@ class{
         
         var reload = true;
         
-        
-        /*
-        if ($bundles) {
-            stream.addRoute($jsYaml.safeLoad($fs.readFileSync($path.join(this.container.getParameter("server.root_dir"), router.resource), 'utf8')), $bundles);
-        }
-        */
+        $bundles.forEach((a)=>{
+            for(var i in  a.STREAM){
+                stream.addRoute(a.STREAM[i]);
+            }
+        })
+     
+   
         
         this.component("poll")(
             this.params("path") || "/event/",

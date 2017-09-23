@@ -13,10 +13,10 @@ class {
         stream,
         clients
     ) {
-
-        const nodeUuid = this.get("nodeUuid");
+    
+        const $nodeUuid = this.get("nodeUuid");
         const $app = this.get("$app");
-
+        
         var TASKS = [];
         var clientsSession = [];
 
@@ -85,8 +85,9 @@ class {
                 this.maxdate = Date.now();
             }
         }
-
+        
         $app.post(path, function (req, res, next) {
+            console.log("POST");
             try {
                 if (!clientsSession[req.sessionID]) {
                     clientsSession[req.sessionID] = new CLIENT(req.sessionID);
@@ -96,6 +97,7 @@ class {
                     }
                 }
                 clientsSession[req.sessionID].garbage();
+                      
                 if (!req.body.sid) {
                     var id = $nodeUuid.v4();
                     if (Object.keys(clientsSession[req.sessionID].instance).length < maxinstance) {
@@ -170,6 +172,7 @@ class {
 
                 }
             } catch (err) {
+                console.log(err);
                 res.status(401).send(err);
             }
         });
