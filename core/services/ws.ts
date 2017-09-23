@@ -25,16 +25,15 @@ class{
             port: this.params("port")|| 8098,
             host: this.get("parameters").getParameter("server.host")}
         );
-        
-        const $cache = this.get("cache");
-        const cache = $cache( this.params("cache_type") || "memory");
+  
+        const cache = this.get("cache")( this.params("cache_type") || "memory");
         const stream = this.component("stream")(clients, cache);
-        const $bundles = this.get("$bundles");
+     
         
         wss.on('connection', connection);
         this.get("$event").on("updateEntity", updateEntity);
         
-        $bundles.forEach((a)=>{
+        this.get("$bundles").forEach((a)=>{
             for(var i in  a.STREAM){
                 stream.addRoute(a.STREAM[i]);
             }
@@ -77,7 +76,6 @@ class{
                         if(mystream){
                             mystream.cache.getData(function (data) {
                                 ws.send(JSON.stringify({type: "pull", watch: message.pull, data: JSON.stringify(data)}))
-
                             });
                         }
 

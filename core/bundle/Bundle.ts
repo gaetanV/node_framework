@@ -50,16 +50,18 @@ const BUNDLE = (function (): void {
             methode,
             func,
             path,
-            requirements
+            requirements,
+            persitence
         ) {
             if(! PRIVATE.controller[controllerName]) PRIVATE.controller[controllerName] = {};
             if(! PRIVATE.controller[controllerName][methode]) PRIVATE.controller[controllerName][methode] = [];
-
+         
             PRIVATE.controller[controllerName][methode].push({
                 func: func,
                 name: func.name,
                 path: path,
                 requirements:requirements,
+                persitence:persitence||[],
             });
                     
 

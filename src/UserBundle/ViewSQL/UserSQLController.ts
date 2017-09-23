@@ -5,7 +5,12 @@ class UserSQLController {
     
     @StreamMapping({
         path : "/{id}/",
-        persitence: [],
+        persitence: {
+            OneToOne:{
+                targetEntity: "user"
+                join: "id"
+            }
+        },
         requirements: {
             id: "\\d+"
         }
@@ -21,7 +26,16 @@ class UserSQLController {
     
     @StreamMapping({
         path : "/",
-        persitence: [];
+        persitence: {
+            OneToMany:{
+                targetEntity: "user"
+                join:  "id"
+                referenced: "users.u"
+                attributes:{
+                     name: "~"
+                }   
+            }
+        };
     })
     
     getAll() : string {

@@ -5,358 +5,128 @@
 class {
 
     constructor(clients, CACHE) {
-        
-        var STREAM = [];
-        var PERISISTENCE = [];
-        ///IF CACHE IS MEMORY
+        this.clients = clients;
+        this.CACHE = CACHE;
+        this.STREAM = [];
+        this.PERISISTENCE = [];
+    }
 
+    updateEntity(entityname, id, object) {
 
-        function ENTITY() {
-            this.rooms = [];
-        }
-        class SPACE {
+        var vm = this;
+        if (this.PERISISTENCE.hasOwnProperty(entityname)) {
+            var buffer = [];
+            var rooms = this.PERISISTENCE[entityname].rooms;
 
-            constructor(index, path, fn, options, persistence) {
-                this.fn = fn;
-                this.options = options;
-                var vm = this;
-                this.client = [];
-                this.persistence = [];
-                this.path = path;
-                this.index = index;
-                this.cache = new CACHE();
-                for (var i in persistence) {
-                    if (!this.persistence[persistence[i].targetEntity])  this.persistence[persistence[i].targetEntity] = []
-          
-                    persistence[i].type = i;
-                    this.persistence[persistence[i].targetEntity].push(persistence[i]);
-                }
+            var processed = 0;
+            var nbTask = rooms.length;
+            for (var i in rooms) {
 
-                var user = 1; // FROM SESSION TO DO 
-                this.date = {
-                    create: {date: Date.now(), user: user},
-                    update: {date: Date.now(), user: user},
-                }
-                this.reload();
-            }
+                var room = rooms[i];
+                var cache = room.getCache();
 
-            uploadEntity(entity, data, callback) {
+                for (var j in cache) {
+                    //var b=cache [j].reload(load);                             /// RELOAD REQUEST
+                    cache[j].uploadEntity(entityname, object, load);     /// PERISTENCE REQUEST 
+                    function load(b) {
+                        function bufferUser(userid) {
+                            if (!buffer[userid]) {
+                                buffer[userid] = b[userid];
 
-                var buffer = [];
-                var vm = this;
-                var processed = 0;
-                var nbTask = this.persistence[entity].length;
-
-                for (var i in this.persistence[entity]) {
-                    var replace = this.persistence[entity][i];
-                    var index = data[replace.join];
-
-                    function load(before) {
-                        var cible = before;
-                        if (replace.referenced) {
-                            var path = replace.referenced.split(".");
-                            for (var i in path) {
-                                if (cible[path[i]]) {
-                                    cible = cible[path[i]];
+                            } else {
+                                for (var k in b[userid].data) {
+                                    buffer[userid].data.push(b[userid].data[k]);
                                 }
                             }
                         }
-                        switch (replace.type) {
-                            case "OneToOne":
-                                if (cible.id === index) {
-                                    for (var j in cible) {
-                                        cible[j] = data[j];
-                                    }
-                                    vm.cache.data = before;
-                                    var b = vm.buffer(
-                                        function (b) {
-
-                                            for (var userid in b) {
-                                                if (!buffer[userid]) {
-                                                    buffer[userid] = b[userid];
-                                                } else {
-                                                    for (var k in b[userid].data) {
-                                                        buffer[userid].data.push(b[userid].data[k]);
-                                                    }
-                                                }
-                                            }
-                                            nbTask++;
-                                            if (nbTask >= processed) {
-
-                                                callback(buffer);
-                                            }
-
-                                        });
-
-                                }
-                                break;
-                            case "OneToMany":
-                                console.log("OneToMany");
-                                var indexArray = cible.map(function (d) {
-                                    return d.id;
-                                }).indexOf(parseInt(index));
-
-                                if (indexArray !== -1) {
-                                    for (var j in cible[indexArray]) {
-                                        cible[indexArray][j] = data[j];
-                                    }
-                                }
-
-                                vm.cache.data = before;
-
-                                var b = vm.buffer(
-                                    function (b) {
-
-                                        for (var userid in b) {
-                                            if (!buffer[userid]) {
-                                                buffer[userid] = b[userid];
-                                            } else {
-                                                for (var k in b[userid].data) {
-                                                    buffer[userid].data.push(b[userid].data[k]);
-                                                }
-                                            }
-                                            nbTask++;
-                                            if (nbTask >= processed) {
-
-                                                callback(buffer);
-                                            }
-                                        }
-                                    }
-
-                                );
-                                break;
+                        for (var userid in b) {
+                            bufferUser(userid)
                         }
                     }
-                    vm.cache.getData(load);
                 }
-                return buffer;
+                processed++;
+
+                if (processed >= nbTask) {
+                    update();
+                }
+
             }
 
-            register(socket) {
-                this.client[socket.id] = socket;
-            }
-
-            buffer(callback) {
-
-                var buffer = [];
-                var vm = this;
-                var processed = 0;
-                var nbTask = this.client.length;
-
-                function parseClient(i) {
-
-                    vm.cache.getData(function (data) {
-                        var client = clients[i];
-                        buffer[i] = ({
-                            client: client,
-                            data: [JSON.stringify({type: "data", watch: vm.path, data: JSON.stringify(data)})]
-                        });
-
-                        processed++;
-                        if (processed >= nbTask) {
-                            callback(buffer);
-                        }
-                    });
-
-                }
-                for (var i in this.client) {
+            function update() {
+                console.log("update");
+                for (var userid in buffer) {
                     try {
-                        var client = clients[i];
-                        if (!client)
-                            throw "client destroy";
-                        parseClient(i);
-                    } catch (e) {
-                        delete this.client[i];
+                        var client = this.clients[userid];
+                        var data = buffer[userid].data;
+                        client.send(JSON.stringify({type: "buffer", data: JSON.stringify(data)}));
+                    } catch (err) {
+                        console.log(err);
+                        console.log("---------CLIENT DESTROY--------------");
+                        delete vm.client[i];
                     }
                 }
 
             }
-            reload(callback) {
-                var buffer = [];
-                var user = 1; // FROM SESSION
-                this.date.update = {date: Date.now(), user: user};
 
-                this.cache.data = this.fn(this.options);
+        }
+        return false;
+    }
 
-                this.buffer(function (b) {
+    setStream(route) {
+        route.param = [];
+        if (route.path.match(/{([^{}]*)}/g)) {
+            var t = route.path.replace(/{([^{}]*)}/g,
+                function (match) {
 
-                    for (var userid in b) {
-                        if (!buffer[userid]) {
-                            buffer[userid] = b[userid];
-                        } else {
-                            for (var k in b[userid].data) {
-                                buffer[userid].data.push(b[userid].data[k]);
-                            }
-                        }
+                    var c = match.slice(1, -1);
+                    route.param.push(c);
+                    if (route.requirements.hasOwnProperty(c)) {
+                        var r = route.requirements.id;
+                        return "([" + r + "^/])";
                     }
-                    callback(buffer);
-                });
+                    return "([.^/]{1,})"
+                }
+            );
+        } else {
+            var t = route.path;
+        }
+        route.regex = new RegExp('^' + t + '$', 'gi');
+        this.STREAM.push(route);
+    }
+    
+    getStream(path, option) {
 
+        for (var i in this.STREAM) {
+            if (path.match(this.STREAM[i].regex)) {
+                var r = {};
+                var t = this.STREAM[i].regex.exec(path);
 
+                for (var j = 0; j < this.STREAM[i].param.length; j++) {
+                    r[this.STREAM[i].param[j]] = t[j + 1];
+                }
+                ;
 
+                return this.STREAM[i].getSpace(r, {}, path, this.CACHE);
             }
         }
+        return false;
+    }
+    
+    addRoute(BUNDLE) {
 
-
-        class ROOM {
-            constructor(path, fn, requirements, persistence) {
-                this.persistence = persistence;
-                for (var i in persistence) {
-                    if (persistence[i].hasOwnProperty("targetEntity")) {
-                        var entity = persistence[i].targetEntity;
-                        if (!PERISISTENCE[entity]) {
-                            PERISISTENCE[entity] = new ENTITY();
-                        }
-                        PERISISTENCE[entity].rooms.push(this);
-                    }
-                }
-                this.fn = fn;
-                this.path = path;
-                this.requirements = requirements;
-                var cache = [];
-                this.getCache = function () {
-                    return cache;
-                }
-            }
-            getSpace(param, option, path) {
-                var cache = this.getCache();
-                var o = JSON.stringify(option);
-                var p = JSON.stringify(param);
-                var index = (p != undefined ? p : "{}") + "-" + (o != undefined ? o : "{}");
-                if (!cache.hasOwnProperty(index)) {
-                    var options = Object.keys(param).map(
-                        function (k) {
-                            return param[k];
-                        }
-                    );
-
-                    cache[index] = new SPACE(index, path, this.fn, options, this.persistence);
-                }
-                return cache[index];
-            }
+        function parse(options) {
+            return BUNDLE.func.apply(BUNDLE.func, options);
         }
-        var setStream = function (route) {
-            route.param = [];
-            if (route.path.match(/{([^{}]*)}/g)) {
-                var t = route.path.replace(/{([^{}]*)}/g,
-                    function (match) {
-
-                        var c = match.slice(1, -1);
-                        route.param.push(c);
-                        if (route.requirements.hasOwnProperty(c)) {
-                            var r = route.requirements.id;
-                            return "([" + r + "^/])";
-                        }
-                        return "([.^/]{1,})"
-                    }
-                );
-            } else {
-                var t = route.path;
-            }
-            route.regex = new RegExp('^' + t + '$', 'gi');
-            STREAM.push(route);
+        var option = {
+            path: BUNDLE.path,
+            fn: parse,
+            requirements: BUNDLE.requirements || {},
+            persitence: BUNDLE.persitence || {}
         }
-        function updateEntity(entityname, id, object) {
-            var vm = this;
-            if (PERISISTENCE.hasOwnProperty(entityname)) {
-                var buffer = [];
-                var rooms = PERISISTENCE[entityname].rooms;
-                var processed = 0;
-                var nbTask = rooms.length;
-                for (var i in rooms) {
+        this.setStream(new this.component('room')(option.path, option.fn, option.requirements, option.persitence, this.PERISISTENCE));
 
-                    var room = rooms[i];
-                    var cache = room.getCache();
-                    for (var j in cache) {
-                        //var b=cache [j].reload(load);                             /// RELOAD REQUEST
-                        cache[j].uploadEntity(entityname, object, load);     /// PERISTENCE REQUEST 
-
-                        function load(b) {
-
-                            function bufferUser(userid) {
-
-                                if (!buffer[userid]) {
-                                    buffer[userid] = b[userid];
-
-                                } else {
-                                    for (var k in b[userid].data) {
-                                        buffer[userid].data.push(b[userid].data[k]);
-                                    }
-                                }
-
-                            }
-                            for (var userid in b) {
-                                bufferUser(userid)
-                            }
-                            processed++;
-                            if (processed >= nbTask) {
-                                update();
-                            }
-
-                        }
-                    }
-                }
-
-                function update() {
-
-                    for (var userid in buffer) {
-                        try {
-                            var client = clients[userid];
-                            var data = buffer[userid].data;
-                            client.send(JSON.stringify({type: "buffer", data: JSON.stringify(data)}));
-                        } catch (err) {
-                            console.log(err);
-                            console.log("---------CLIENT DESTROY--------------");
-                            delete vm.client[i];
-                        }
-                    }
-
-                }
-
-            }
-            return false;
-        }
-        return {
-            updateEntity: updateEntity,
-            setStream: setStream,
-            getStream: function (path, option) {
-
-                for (var i in STREAM) {
-                    if (path.match(STREAM[i].regex)) {
-                        var r = {};
-                        var t = STREAM[i].regex.exec(path);
-
-                        for (var j = 0; j < STREAM[i].param.length; j++) {
-                            r[STREAM[i].param[j]] = t[j + 1];
-                        }
-                        ;
-
-                        return STREAM[i].getSpace(r, {}, path);
-                    }
-                }
-                return false;
-            },
-            addRoute: function (BUNDLE) {
-
-     
-                    function parse(options) {
-                        return BUNDLE.func.apply(BUNDLE.func, options);
-                    }
-                    var option = {
-                        path: BUNDLE.path,
-                        fn: parse,
-                        requirements: BUNDLE.requirements || {},
-                        persistence: BUNDLE.persistence || {}
-                    }
-                    setStream(new ROOM(option.path, option.fn, option.requirements, option.persistence));
-              
-           
-            },
-            PERISISTENCE: PERISISTENCE,
-        }
 
     }
 
-
-
 }
+

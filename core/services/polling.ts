@@ -1,12 +1,8 @@
 @Service({
     selector: "polling",
     provider: [
-        "$app",
         "event",
-        "jsYaml",
         "cache",
-        "path",
-        "fs",
         "$bundles",
     ],
     params: [
@@ -19,22 +15,12 @@ class{
     
     constructor() {
         
-        const $jsYaml = this.get("jsYaml"); 
-        const $app = this.get("$app");
-        const $cache = this.get("cache");
-        const $path = this.get("path");
-        const $event = this.get("event");
-        const $fs = this.get("fs");
-        const $bundles = this.get("$bundles");
-        
         var clients = [];
-        const cache = $cache(this.params("cache_type") || "memory");
         
+        const cache = this.get("cache")(this.params("cache_type") || "memory");
         const stream = this.component("stream")(clients, cache);
         
-        var reload = false;
-        
-        $bundles.forEach((a)=>{
+        this.get("$bundles").forEach((a)=>{
             for(var i in  a.STREAM){
                 stream.addRoute(a.STREAM[i]);
             }
@@ -42,12 +28,12 @@ class{
         
         this.component("poll")(
             this.params("path") || "/event/",
-            reload,
+            false,
             stream,
             clients,
         );
 
-        $event.on("updateEntity", function (d) {
+        this.get("event").on("updateEntity", function (d) {
             stream.updateEntity(d.entity, d.id, d.data);
         });
 

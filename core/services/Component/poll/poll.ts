@@ -14,24 +14,19 @@ class {
         clients
     ) {
     
-        const $nodeUuid = this.get("nodeUuid");
-        const $app = this.get("$app");
-        
-        var TASKS = [];
+        this.TASKS = [];
+        var vm = this;
         var clientsSession = [];
 
         const maxinstance = 20;
-
         const timeDos = 100;
-        var BUFFER = this.component("buffer");
-  
-        var CLIENT = this.component("client");
-        
-        $app.post(path, function (req, res, next) {
+       
+
+        this.get("$app").post(path, function (req, res, next) {
             console.log("POST");
             try {
                 if (!clientsSession[req.sessionID]) {
-                    clientsSession[req.sessionID] = new CLIENT(req.sessionID);
+                    clientsSession[req.sessionID] = new vm.component("client")(req.sessionID);
                 } else {
                     if (Date.now() < clientsSession[req.sessionID].maxdate + timeDos) {
                         throw "prevent denial of service"
@@ -40,9 +35,9 @@ class {
                 clientsSession[req.sessionID].garbage(clients);
                       
                 if (!req.body.sid) {
-                    var id = $nodeUuid.v4();
+                    var id = vm.get("nodeUuid").v4();
                     if (Object.keys(clientsSession[req.sessionID].instance).length < maxinstance) {
-                        clientsSession[req.sessionID].addInstance(id, clients);
+                        clientsSession[req.sessionID].addInstance(id, clients , vm.TASKS);
                         setTimeout(function () {
                             res.send(JSON.stringify({
                                 type: "buffer",
@@ -100,8 +95,6 @@ class {
                                 send();
                             }
                         });
-
-
                     }
                     function send() {
                         res.send(JSON.stringify({type: "buffer", data: JSON.stringify(buffer)}));
@@ -121,11 +114,12 @@ class {
         function checkUpdate(req, res) {
             try {
                 var sid = req.body.sid;
-                if (TASKS[sid]) {
+                console.log(this.TASKS[sid]);
+                if (this.TASKS[sid]) {
                     res.send(JSON.stringify(
-                        {type: "buffer", data: JSON.stringify(TASKS[sid].data)}
+                        {type: "buffer", data: JSON.stringify(this.TASKS[sid].data)}
                     ));
-                    TASKS[sid] = false;
+                    this.TASKS[sid] = false;
                 } else {
                     if (reload) {
                         res.phase++;
