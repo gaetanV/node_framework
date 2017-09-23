@@ -1,7 +1,7 @@
 @Controller({
     path : "/"
 })
-class ViewSQLController {
+class UserSQLController {
     
     @StreamMapping({
         path : "/{id}/",

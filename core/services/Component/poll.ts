@@ -21,70 +21,11 @@ class {
         var clientsSession = [];
 
         const maxinstance = 20;
-        const timeInstance = 2000;
+
         const timeDos = 100;
-
-        class BUFFER {
-            constructor() {
-                this.type = "buffer";
-                this.data = [];
-            }
-            addData(data) {
-                var dataJSON = JSON.parse(data);
-                try {
-                    if (dataJSON.type === "buffer") {
-                        var collectionJSON = JSON.parse(dataJSON.data);
-                        for (var i in collectionJSON) {
-                            this.data.push((collectionJSON[i]));
-                        }
-                    } else {
-                        this.data.push(data);
-                    }
-                } catch (err) {
-                    console.log(err);
-                }
-            }
-        }
-
-        class CLIENT {
-            constructor(sessionID) {
-                this.sessionID = sessionID;
-                this.instance = [];
-                this.maxdate = Date.now();
-
-            }
-            garbage() {
-                var vm = this;
-                for (var i in vm.instance) {
-                    var client = vm.instance[i];
-                    if (client.update < (Date.now() + timeInstance)) {
-                        delete vm.instance[i];
-                        delete clients[i];
-                    }
-                }
-            }
-            addInstance(pollingId) {
-                this.instance[pollingId] = {
-                    id: pollingId,
-                    sessionID: this.sessionID,
-                    create: {date: Date.now()},
-                    update: {date: Date.now()},
-                    send: function (data) {
-
-                        if (!TASKS[this.id]) {
-                            tasks = new BUFFER()
-                        } else {
-                            var tasks = TASKS[this.id];
-                        }
-                        ;
-                        tasks.addData(data);
-                        TASKS[this.id] = tasks;
-                    }
-                }
-                clients[pollingId] = this.instance[pollingId];
-                this.maxdate = Date.now();
-            }
-        }
+        var BUFFER = this.component("buffer");
+  
+        var CLIENT = this.component("client");
         
         $app.post(path, function (req, res, next) {
             console.log("POST");
@@ -96,12 +37,12 @@ class {
                         throw "prevent denial of service"
                     }
                 }
-                clientsSession[req.sessionID].garbage();
+                clientsSession[req.sessionID].garbage(clients);
                       
                 if (!req.body.sid) {
                     var id = $nodeUuid.v4();
                     if (Object.keys(clientsSession[req.sessionID].instance).length < maxinstance) {
-                        clientsSession[req.sessionID].addInstance(id);
+                        clientsSession[req.sessionID].addInstance(id, clients);
                         setTimeout(function () {
                             res.send(JSON.stringify({
                                 type: "buffer",
