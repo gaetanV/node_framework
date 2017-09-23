@@ -1,5 +1,5 @@
 @Controller({
-    path : "/user"
+    path : "/"
 })
 class UserController {
     

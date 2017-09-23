@@ -4,8 +4,11 @@
 class ViewSQLController {
     
     @StreamMapping({
-        path : "/user/:id/",
-        persitence: [];
+        path : "/{id}/",
+        persitence: [],
+        requirements: {
+            id: "\\d+"
+        }
     })
     getOne() : string {
         
@@ -17,7 +20,7 @@ class ViewSQLController {
     }
     
     @StreamMapping({
-        path : "/user/",
+        path : "/",
         persitence: [];
     })
     

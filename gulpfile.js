@@ -34,9 +34,13 @@ for(var i in config.framework.bundles){
     gulp.task(i, function () {
     return gulp.src([
         
-        "./core/bundle/decoration/**/*.ts",
+        
         "./core/bundle/Bundle.ts",
+        "./core/bundle/decoration/Controller.decoration.ts",
+        "./core/bundle/decoration/Controller/**/*.ts",
         "./src/"+i+"/Controller/*.ts",
+        "./core/bundle/decoration/ViewSQL/**/*.ts",
+        "./src/"+i+"/ViewSQL/*.ts",
         "./core/bundle/lockController.ts",
         "./core/bundle/exportBundle.ts",
     ])

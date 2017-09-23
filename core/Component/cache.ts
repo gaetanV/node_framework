@@ -6,7 +6,7 @@ class{
     get:(name:string)=> any;
 
     constructor(type) {
-        
+
         var $path = this.get('path');
         var $fs = this.get('fs');
         var db = this.get('monk')('localhost:27017/hostel');

@@ -22,13 +22,15 @@ class{
         const $jsYaml = this.get("jsYaml"); 
         const $app = this.get("$app");
         const $cache = this.get("cache");
+       
         const $path = this.get("path");
         const $event = this.get("event");
         const $fs = this.get("fs");
         const $bundles = this.get("$bundles");
+        
         var clients = [];
         const cache = $cache(this.params("cache_type") || "memory");
-        
+ 
         const stream = this.component("stream")(clients, cache);
         
         var reload = true;
@@ -39,8 +41,6 @@ class{
             }
         })
      
-   
-        
         this.component("poll")(
             this.params("path") || "/event/",
             reload,

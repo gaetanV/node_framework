@@ -36,7 +36,7 @@ class{
         
         $bundles.forEach((a)=>{
             for(var i in  a.STREAM){
-                //stream.addRoute(a.STREAM[i]);
+                stream.addRoute(a.STREAM[i]);
             }
         })
         
