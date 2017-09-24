@@ -5,7 +5,7 @@ var CORE = new _share.core({
                  'pug', 
                  'node-uuid', 
                  'monk', 
-                 'Mustache', 
+                 'mustache', 
                  'js-yaml'],
     bootPath: {
         root_dir: "./app/",

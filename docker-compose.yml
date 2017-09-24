@@ -1,0 +1,27 @@
+version  : '2'
+
+services:
+    node:
+        build:
+            context: .
+            dockerfile: node.dockerfile
+        ports:
+            - "7200:7200"
+        networks:
+            - nodeapp
+    mongodb:
+        image: mongo
+        ports:
+           - "27017:27017"
+        networks:
+            - nodeapp
+    redis:
+        image: redis:alpine
+        ports:
+            - 6379:6379    
+        networks:
+            - nodeapp
+networks:
+    nodeapp:
+        driver: bridge
+        

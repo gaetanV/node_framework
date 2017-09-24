@@ -19,7 +19,7 @@ class {
       
         const enginer = ['pug', 'mustache', 'html'];
         const fs: FsInterface = this.get("fs");
-        const Mustache = this.get("mustache");
+        const mustache = this.get("mustache");
         const pug = this.get("pug");
         const $parameters = this.get("parameters");
         const $path = this.get("path");
@@ -51,7 +51,7 @@ class {
             case "mustache":
                 this.parser = function (path, param) {
                     if(!this.views[path]) throw "view" + this.views[path] +"not found";
-                    return Mustache.render(this.views[path], param);
+                    return mustache.render(this.views[path], param);
                 }
                 break;
         }
