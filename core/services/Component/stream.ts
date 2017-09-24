@@ -11,25 +11,27 @@ class {
         this.PERISISTENCE = [];
     }
 
-    updateEntity(entityname, id, object) {
-
+    updateEntity(entityname, id, collection) {
+    
         var vm = this;
         if (this.PERISISTENCE.hasOwnProperty(entityname)) {
+            
             var buffer = [];
             var rooms = this.PERISISTENCE[entityname].rooms;
 
             var processed = 0;
             var nbTask = rooms.length;
+            var clients = this.clients;
+            
             for (var i in rooms) {
-
-                var room = rooms[i];
-                var cache = room.getCache();
-
-                for (var j in cache) {
-                    //var b=cache [j].reload(load);                             /// RELOAD REQUEST
-                    cache[j].uploadEntity(entityname, object, load);     /// PERISTENCE REQUEST 
+                processed++;
+                for (var j in rooms[i].collection) {
+                    nbTask++;
+                    //var b=cache [j].reload(load);    
+                    //                         /// RELOAD REQUEST
+                    rooms[i].collection[j].uploadEntity(entityname, collection, load);     /// PERISTENCE REQUEST 
                     function load(b) {
-                        function bufferUser(userid) {
+                        for (var userid in b) {
                             if (!buffer[userid]) {
                                 buffer[userid] = b[userid];
 
@@ -39,24 +41,20 @@ class {
                                 }
                             }
                         }
-                        for (var userid in b) {
-                            bufferUser(userid)
-                        }
+                        
+                        processed++;
+                        if (processed >= nbTask) update();
+                        
                     }
                 }
-                processed++;
-
-                if (processed >= nbTask) {
-                    update();
-                }
-
+            
+               
             }
-
+            
             function update() {
-                console.log("update");
                 for (var userid in buffer) {
                     try {
-                        var client = this.clients[userid];
+                        var client = clients[userid];
                         var data = buffer[userid].data;
                         client.send(JSON.stringify({type: "buffer", data: JSON.stringify(data)}));
                     } catch (err) {
@@ -65,7 +63,6 @@ class {
                         delete vm.client[i];
                     }
                 }
-
             }
 
         }
@@ -104,7 +101,7 @@ class {
                 for (var j = 0; j < this.STREAM[i].param.length; j++) {
                     r[this.STREAM[i].param[j]] = t[j + 1];
                 }
-                ;
+ 
 
                 return this.STREAM[i].getSpace(r, {}, path, this.CACHE);
             }
@@ -117,13 +114,15 @@ class {
         function parse(options) {
             return BUNDLE.func.apply(BUNDLE.func, options);
         }
-        var option = {
-            path: BUNDLE.path,
-            fn: parse,
-            requirements: BUNDLE.requirements || {},
-            persitence: BUNDLE.persitence || {}
-        }
-        this.setStream(new this.component('room')(option.path, option.fn, option.requirements, option.persitence, this.PERISISTENCE));
+   
+        this.setStream(new this.component('room')(
+            BUNDLE.path, 
+            parse, 
+            BUNDLE.requirements || {}, 
+            BUNDLE.persitence || {}, 
+            this.PERISISTENCE,
+            this.clients
+        ));
 
 
     }

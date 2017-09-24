@@ -13,8 +13,11 @@ class{
         
         var collection = db.get("query");
         var $nodeUuid = this.get('nodeUuid');
-        var cachefile = $path.join(this.get("parameters").getParameter("kernel.cache_dir"), "query");
-
+        var kernel_cache_dir = this.get("parameters").getParameter("kernel.cache_dir");
+        var cachefile = $path.join(kernel_cache_dir, "query");
+        
+        if (!$fs.existsSync(kernel_cache_dir) $fs.mkdirSync(kernel_cache_dir);
+       
         function factory(type) {
 
             switch (type) {
@@ -30,7 +33,9 @@ class{
                                     $fs.unlinkSync(curPath);
                                 }
                             });
-                            //  $fs.rmdirSync(path);
+                  
+                        }else{
+                           $fs.mkdirSync(path);
                         }
                     }
                     var path = cachefile;
@@ -88,14 +93,13 @@ class{
                             break;
                         case "file":
                             try {
+
                                 return checkUpdate();
                                 function checkUpdate() {
                                     if (!vm.write) {
                                         if ($fs.existsSync(vm.path)) {
                                             var t = $fs.readFileSync(vm.path, 'utf8');
-
                                             var data = JSON.parse(t);
-
                                             callback(data);
 
                                         } else {

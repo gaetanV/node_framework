@@ -5,12 +5,12 @@ framework:
     bundles:
         UserBundle: { 
             templating: mustache,
-            prefix: /user/
+            prefix: /user
         }  
     
 services:
     
-    #CACHE ['mongo','files','memory','redis']
+    #CACHE ['mongo','file','memory','redis']
     db:
         params:
     ws:
@@ -21,7 +21,7 @@ services:
                 -  { path: /user/.* , roles: [ROLE_ADMIN] , auth: api_area , whiteip:[192.168.0.11]  }
     longpolling:
         params: 
-            cache_type : memory
+            cache_type : file
             path: /event/
                 
     polling:

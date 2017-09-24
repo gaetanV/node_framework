@@ -18,7 +18,7 @@ class UserSQLController {
     getOne(id) : string {
     
         var db = this.get("db");
-        /// GET FROM BD
+        /// GET YOUR QUERY FROM YOUR FAVORITE BD ENGINE
         var data = db.user[0];
 
         return data;
@@ -30,19 +30,15 @@ class UserSQLController {
             OneToMany:{
                 targetEntity: "user"
                 join:  "id"
-                referenced: "users.u"
-                attributes:{
-                     name: "~"
-                }   
+                referenced: "users.u" 
             }
         };
     })
-    
     getAll() : string {
        
         
         var db = this.get("db");
-        /// GET FROM BD
+        /// GET YOUR QUERY FROM YOUR FAVORITE BD ENGINE
         var data = {users: {u: db.user.slice(0)}};
 
         return data;

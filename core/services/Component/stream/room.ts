@@ -6,8 +6,12 @@ function ENTITY() {
 })
 class {
 
-    constructor(path, fn, requirements, persistence,PERISISTENCE) {
-       
+    constructor(path, fn, requirements, persistence, PERISISTENCE,clients) {
+        
+        this.collection = [];
+        
+        this.clients = clients;
+        
         this.persistence = persistence;
         for (var i in persistence) {
             if (persistence[i].hasOwnProperty("targetEntity")) {
@@ -22,26 +26,32 @@ class {
         this.fn = fn;
         this.path = path;
         this.requirements = requirements;
-        var cache = [];
-        this.getCache = function () {
-            return cache;
-        }
+ 
     }
+    
+
     getSpace(param, option, path, CACHE) {
-        var cache = this.getCache();
+       
         var o = JSON.stringify(option);
         var p = JSON.stringify(param);
         var index = (p != undefined ? p : "{}") + "-" + (o != undefined ? o : "{}");
-        if (!cache.hasOwnProperty(index)) {
+        if (!this.collection.hasOwnProperty(index)) {
             var options = Object.keys(param).map(
                 function (k) {
                     return param[k];
                 }
             );
-
-            cache[index] = new this.component('space')(index, path, this.fn, options, this.persistence,CACHE);
+            this.collection[index] = new this.component('space')(
+                index, 
+                path, 
+                this.fn, 
+                options, 
+                this.persistence,
+                CACHE,
+                this.clients
+            );
         }
-        return cache[index];
+        return this.collection[index];
     }
 
 

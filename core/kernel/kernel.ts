@@ -147,8 +147,8 @@ class kernel {
                                     return req.params[key];
                                 }
                         };
-                        
-                        action.func.apply(action.func, params);
+                     
+                        action.func.apply(action.func,Object.values(params));
                     });
                 } catch (err) {
                     console.log(err);

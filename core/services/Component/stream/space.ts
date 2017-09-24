@@ -3,7 +3,7 @@
 })
 class {
 
-    constructor(index, path, fn, options, persistence, CACHE) {
+    constructor(index, path, fn, options, persistence, CACHE,clients) {
         
         this.fn = fn;
         this.options = options; 
@@ -12,6 +12,7 @@ class {
         this.path = path;
         this.index = index;
         this.cache = new CACHE();
+        this.clients = clients;
         
         for (var i in persistence) {
             if (!this.persistence[persistence[i].targetEntity]) this.persistence[persistence[i].targetEntity] = []
@@ -33,7 +34,7 @@ class {
         var vm = this;
         var processed = 0;
         var nbTask = this.persistence[entity].length;
-
+       
         for (var i in this.persistence[entity]) {
 
             var replace = this.persistence[entity][i];
@@ -49,8 +50,10 @@ class {
                         }
                     }
                 }
+                
                 switch (replace.type) {
                     case "OneToOne":
+                        console.log("OneToOne");
                         if (cible.id === index) {
                             for (var j in cible) {
                                 cible[j] = data[j];
@@ -58,8 +61,9 @@ class {
                             vm.cache.data = before;
                             var b = vm.buffer(
                                 function (b) {
-
+                                 
                                     for (var userid in b) {
+                                      
                                         if (!buffer[userid]) {
                                             buffer[userid] = b[userid];
                                         } else {
@@ -69,11 +73,8 @@ class {
                                         }
                                     }
                                     nbTask++;
-                                    if (nbTask >= processed) {
-
-                                        callback(buffer);
-                                    }
-
+                                    if (nbTask >= processed)  callback(buffer);
+      
                                 });
 
                         }
@@ -104,10 +105,8 @@ class {
                                         }
                                     }
                                     nbTask++;
-                                    if (nbTask >= processed) {
-
-                                        callback(buffer);
-                                    }
+                                    if (nbTask >= processed) callback(buffer);
+                                 
                                 }
                             }
 
@@ -130,9 +129,9 @@ class {
         var vm = this;
         var processed = 0;
         var nbTask = this.client.length;
-
+        var clients = this.clients;
         function parseClient(i) {
-
+    
             vm.cache.getData(function (data) {
                 var client = clients[i];
                 buffer[i] = ({
@@ -141,20 +140,23 @@ class {
                 });
 
                 processed++;
-                if (processed >= nbTask) {
-                    callback(buffer);
-                }
+                   
+                if (processed >= nbTask)  callback(buffer);
+          
             });
 
         }
+     
         for (var i in this.client) {
+
             try {
                 var client = clients[i];
+               
                 if (!client)
                     throw "client destroy";
                 parseClient(i);
             } catch (e) {
-                delete this.client[i];
+                delete client[i];
             }
         }
     }
@@ -179,8 +181,6 @@ class {
             }
             callback(buffer);
         });
-
-
 
     }
 }

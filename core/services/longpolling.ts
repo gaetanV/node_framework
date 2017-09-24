@@ -16,22 +16,36 @@ class{
     constructor() {
         
         var clients = [];
+       
+        //////////////////
+        //  STREAM 
+        //////////////////
         
-        const cache = this.get("cache")(this.params("cache_type") || "memory");
-        const stream = this.component("stream")(clients, cache);
+        const stream = this.component("stream")(
+            clients, 
+            this.get("cache")(this.params("cache_type") || "memory")
+        );
         
         this.get("$bundles").forEach((a)=>{
             for(var i in  a.STREAM){
                 stream.addRoute(a.STREAM[i]);
             }
         })
-     
+        
+        //////////////////
+        //  POLL 
+        //////////////////
+        
         this.component("poll")(
             this.params("path") || "/event/",
             true,
             stream,
             clients,
         );
+        
+        //////////////////
+        //  EVENT 
+        //////////////////
 
         this.get("event").on("updateEntity", function (d) {
             stream.updateEntity(d.entity, d.id, d.data);

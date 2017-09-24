@@ -25,15 +25,17 @@ class {
     }
     
     addInstance(pollingId,clients, TASKS) {
+        var buffer = this.component("buffer");
         this.instance[pollingId] = {
             id: pollingId,
             sessionID: this.sessionID,
             create: {date: Date.now()},
             update: {date: Date.now()},
             send: function (data) {
-                var tasks = TASKS[this.id] || new this.component("buffer")() ;
+                var tasks = TASKS[this.id] || new buffer() ;
                 tasks.addData(data);
                 TASKS[this.id] = tasks;
+                
             }
         }
         clients[pollingId] = this.instance[pollingId];

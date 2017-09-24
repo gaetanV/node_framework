@@ -25,13 +25,18 @@ class{
             port: this.params("port")|| 8098,
             host: this.get("parameters").getParameter("server.host")}
         );
-  
-        const cache = this.get("cache")( this.params("cache_type") || "memory");
-        const stream = this.component("stream")(clients, cache);
-     
         
         wss.on('connection', connection);
         this.get("$event").on("updateEntity", updateEntity);
+        
+        //////////////////
+        //  STREAM 
+        //////////////////
+        
+        const stream = this.component("stream")(
+            clients, 
+            this.get("cache")(this.params("cache_type") || "memory")
+        );
         
         this.get("$bundles").forEach((a)=>{
             for(var i in  a.STREAM){
@@ -39,7 +44,18 @@ class{
             }
         })
         
-        ///////////////////
+        //////////////////
+        //  EVENT 
+        //////////////////
+        
+        function updateEntity(d){
+             stream.updateEntity(d.entity, d.id, d.data);
+        }
+        
+        //////////////////
+        //  POLL 
+        //////////////////
+        
         var vm = this;
         
         function connection(ws){
@@ -58,8 +74,8 @@ class{
                 
                 try {
                     var message = JSON.parse(param);
+                    
                     if (message.hasOwnProperty("watch")) {
-
                         var mystream = stream.getStream(message.watch, {});
                         /// TO DO REMOVE REGISTER PING (10min)
                         if(mystream){
@@ -69,8 +85,8 @@ class{
                             }); 
                         }
 
-
                     }
+                    
                     if (message.hasOwnProperty("pull")) {
                         var mystream = stream.getStream(message.pull, {});
                         if(mystream){
@@ -78,7 +94,6 @@ class{
                                 ws.send(JSON.stringify({type: "pull", watch: message.pull, data: JSON.stringify(data)}))
                             });
                         }
-
                     }
 
                 } catch (err) {
@@ -87,10 +102,7 @@ class{
             }
             
         }
-        
-        function updateEntity(d){
-             stream.updateEntity(d.entity, d.id, d.data);
-        }
+
         
     }
     
