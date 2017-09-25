@@ -7,6 +7,7 @@ services:
             dockerfile: node.dockerfile
         ports:
             - "7200:7200"
+            - "8098:8098"    
         networks:
             - nodeapp
     mongodb:

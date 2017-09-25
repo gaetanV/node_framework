@@ -95,12 +95,13 @@
          
 
          <script>
+             var hostName = window.location.hostname;
              function updateEntity(data){
                  $.ajax({
                     type:"GET",
                     cache: false,
                     data:data,
-                    url: "http://localhost:7200/user/1",
+                    url: "http://"+hostName+":7200/user/1",
                     xhrFields: {
                         withCredentials: true
                     },
@@ -113,9 +114,9 @@
                 });
              }
    
-              var s=new Ws("ws://localhost:8098",Stream);
-              var d=new LongPolling("http://localhost:7200/event/",Stream); 
-              var z=new Polling("http://localhost:7200/polling/",Stream); 
+              var s=new Ws("ws://"+hostName+":8098",Stream);
+              var d=new LongPolling("http://"+hostName+":7200/event/",Stream); 
+              var z=new Polling("http://"+hostName+":7200/polling/",Stream); 
               
               
              new Vue({
