@@ -1,18 +1,12 @@
 FROM node:latest
 
-MAINTAINER Gaetan Vigneron
-
-
 ENV NODE_ENV=development 
-ENV PORT = 7200
-ENV PORTWS = 8098
 
-COPY   . /var/www
+RUN mkdir /var/www
+
+COPY package.json /var/www/package.json
 WORKDIR   /var/www
 
 RUN  npm install
-
-EXPOSE $PORT
-EXPOSE $PORTWS
 
 ENTRYPOINT ["npm", "start"]
