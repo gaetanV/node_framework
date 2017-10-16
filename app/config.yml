@@ -7,7 +7,10 @@ framework:
             templating: mustache,
             prefix: /user
         }  
-    
+    node: 
+        - vue/dist/vue.min.js
+        - jquery/dist/jquery.min.js
+        
 services:
     
     #CACHE ['mongo','file','memory','redis']

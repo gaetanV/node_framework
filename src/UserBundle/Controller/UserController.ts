@@ -18,7 +18,6 @@ class UserController {
         return this.render('index.pug', {name: "objects change"});
  
     }
-    
 
 }
 
