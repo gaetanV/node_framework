@@ -1,5 +1,9 @@
+/**/.idea/*
+/**/.vscode/*
+
 /app/cache/query
 /test/
+/core_c/build/
 /node_modules/
 /db/
 /package-lock.json
