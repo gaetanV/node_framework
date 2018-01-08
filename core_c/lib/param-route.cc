@@ -4,89 +4,22 @@ namespace ParamRoute {
 
     int Index = 0;
 
-    const int stepTab = 15;
-    const char paramChar = '$';
+    const int STEPTAB = 15;
+    const char CH_PARAM = '$';
 
-    struct collectOr {
+    struct Buffer {
+        int *index;
+        int cmp = 0;
+    };
+
+    struct Collector {
         int *index;
         int cmp = 0;
         bool end;
     };
 
-    struct collectOr indextabL[100]  = {};
+    struct Collector indextabL[100]  = {};
     char * tab[100]  = {};
-
-    bool _matchEgal(
-        char* a,
-        int aPos, 
-        char* b , 
-        int bPos, 
-        int len
-    ){
-        for(int i = 0; i < len  ; i++){
-            if(a[i+aPos] != b[i+bPos]){
-                return false;
-            }
-        }
-        return true;
-    }
-
-    int _match(    
-        char* a,
-        int aPos, 
-        char* b , 
-        int bPos, 
-        int len,
-        int max
-    ){
-
-        for(int i = 0; i < max - aPos  ; i++){
-            if(a[aPos+i] == b[bPos]){
-                if(_matchEgal(
-                    a,
-                    aPos+i,
-                    b,
-                    bPos,
-                    len
-                )){
-                    return i;
-                }
-            }
-        } 
-        return -1;
-    }
-
-    int  _firstPass(
-        int paramStart,
-        int index,
-        char* param1 ,
-        int posParam,
-        int size,
-        struct collectOr *buffer
-    ){
-
-        if(posParam+1 < indextabL[index].cmp){
-            
-            int lenSecond = indextabL[index].index[posParam+1] - indextabL[index].index[posParam] -1;
-            
-            int match = _match(
-                param1,
-                paramStart,
-                tab[index],
-                indextabL[index].index[posParam]+1,
-                lenSecond,
-                size
-            );
-
-            if(match != -1 ){
-                buffer->index[buffer->cmp++] = (paramStart);
-                buffer->index[buffer->cmp++] = match + (paramStart);
-                return match+lenSecond;
-            }
-        }
-    
-        return -1;
-    }
 
     int Match(char* param1,int size) {
 
@@ -96,77 +29,72 @@ namespace ParamRoute {
 
             printf("MATCH: %s  \n",tab[index]); 
             paramStart = 0;
-
-            if(indextabL[index].cmp>1 && _matchEgal(
-                param1,
-                paramStart,
-                tab[index],
-                0,
-                indextabL[index].index[0]
-            )){
-                paramStart += indextabL[index].index[0];
-               
-                struct collectOr buffer;
-                collectOr *bufferP= &buffer;
-                bufferP->index = (int*) malloc( (indextabL[index].cmp-1) * 2  * sizeof (int));
-
-                int j=0;
-                if(indextabL[index].end){
-                    for( ; j < indextabL[index].cmp-2 ; j++){
-                        int match = _firstPass(
-                            paramStart,
-                            index,
-                            param1,
-                            j,
-                            size,
-                            bufferP
-                        );  
-                        if(match == -1){
-                            break;
-                        } 
-                        paramStart += match;
-                    }
-                    bufferP->index[bufferP->cmp++] = (paramStart);
-                    bufferP->index[bufferP->cmp++] = size;
-
-
-                    j++;
-                    paramStart = size; 
-                    
-                } else{
-                    for( ; j < indextabL[index].cmp-1 ; j++){
-                        int match = _firstPass(
-                            paramStart,
-                            index,
-                            param1,
-                            j,
-                            size,
-                            bufferP
-                        );  
-                        if(match == -1){
-                            break;
-                        } 
-                        paramStart += match;
-                    }
-                    
+            // matchEgal
+            for(int i = 0; i < indextabL[index].index[0]  ; i++){
+                if(param1[i+paramStart] != tab[index][i]){
+                    continue;
                 }
-    
-                if(j == indextabL[index].cmp-1 && size == paramStart ){
-                    
-                    printf("MATCH %d  %d:%d\n",Index,j,indextabL[index].cmp-1);
+            }
 
-                    for(int k = 0 ; k < bufferP->cmp  ; k+=2){
-                        for(int i = bufferP->index[k]; i< bufferP->index[k+1]; i++){
-                            printf("%c",param1[i]);
+            paramStart += indextabL[index].index[0];
+            
+            struct Buffer buffer;
+            buffer.index = (int*) malloc( (indextabL[index].cmp-1) * 2  * sizeof (int));
+
+       
+            int max = indextabL[index].end? indextabL[index].cmp-2: indextabL[index].cmp-1;
+            int i=0;
+            for( ; i < max;){
+                // matchStep
+                if(i+1 < indextabL[index].cmp){
+                            
+                    int lenSecond = indextabL[index].index[i+1] - indextabL[index].index[i] -1;
+                    int posB = indextabL[index].index[i]+1;
+                    // match
+                    for(int j = 0; j < size - paramStart  ; j++){
+
+                        if(param1[paramStart+j] == tab[index][posB]){
+                            // matchEgal
+                            for(int k = 0; k < lenSecond  ; k++){
+                                if(param1[k+paramStart+j] != tab[index][k+posB]){
+                                    goto end;
+                                }
+                            }
+                            buffer.index[buffer.cmp++] = (paramStart);
+                            buffer.index[buffer.cmp++] = j + (paramStart);
+                            paramStart += j+lenSecond;
                         }
-                        printf("\n");
+
+                    } 
+
+                }
+end:
+              i++;
+            }
+
+            if(indextabL[index].end){
+                buffer.index[buffer.cmp++] = (paramStart);
+                buffer.index[buffer.cmp++] = size;
+                i++;
+                paramStart = size; 
+            } 
+
+            if(i == indextabL[index].cmp-1 && size == paramStart ){
+                
+                printf("MATCH %d  %d:%d\n",Index,i,indextabL[index].cmp-1);
+
+                for(int j = 0 ; j < buffer.cmp  ; j+=2){
+                    for(int k = buffer.index[j]; k< buffer.index[j+1]; k++){
+                        printf("%c",param1[k]);
                     }
-                    
-                    return index;
+                    printf("\n");
                 }
                 
-                free(bufferP);
+                return index;
             }
+            
+            free(buffer.index);
+          
         }
         return 0;
     }
@@ -179,11 +107,11 @@ namespace ParamRoute {
         strcpy(tab[Index],param1);
 
         if(!indextabL[Index].index) {
-            indextabL[Index].index = (int*) malloc( stepTab * sizeof (int));
+            indextabL[Index].index = (int*) malloc( STEPTAB * sizeof (int));
         }
 
         for(int i = 1 ; i < size ; i++){
-            if(param1[i] == paramChar){
+            if(param1[i] == CH_PARAM){
                 indextabL[Index].index[indextabL[Index].cmp] = i;
                 indextabL[Index].cmp++;
             }

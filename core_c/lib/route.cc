@@ -4,16 +4,16 @@ namespace Route {
 
     int Index = 0;
 
-    const int stepTab = 15;
+    const int STEPTAB = 15;
 
-    struct collectOr {
+    struct Collector {
         int *index;
         int cmp = 0;
         bool end;
     };
 
     char * tab[100]  = {};
-    struct collectOr tabL[100]  = {};
+    struct Collector tabL[100]  = {};
 
     int Match(char* param1,int size) {
     
@@ -30,9 +30,9 @@ namespace Route {
     void Route(char* param1) {
 
         int size = strlen(param1);
-        
+
         if(!tabL[size].index) {
-            tabL[size].index = (int*) malloc( stepTab * sizeof (int));
+            tabL[size].index = (int*) malloc( STEPTAB * sizeof (int));
         }
         tabL[size].index[tabL[size].cmp] = Index;
         tabL[size].cmp ++;

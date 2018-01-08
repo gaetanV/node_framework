@@ -3,6 +3,7 @@
 #include "lib/tools.cc"
 #include "lib/param-route.cc"
 #include "lib/route.cc"
+#include "lib/param.cc"
 
 namespace OldNodeFramework {
 
@@ -20,6 +21,12 @@ namespace OldNodeFramework {
         args.GetReturnValue().Set(0);
     }
 
+    void Param(const FunctionCallbackInfo<Value>& args) {
+        char* param1 = ToCString(args[0]->ToString());
+        int size = strlen(param1);
+
+        Param::Param(param1,size);
+    }
 
     void Route(const FunctionCallbackInfo<Value>& args) {
         char* param1 = ToCString(args[0]->ToString());
@@ -45,6 +52,7 @@ namespace OldNodeFramework {
     void init(Local<Object> exports) {
         NODE_SET_METHOD(exports, "match", Match);
         NODE_SET_METHOD(exports, "route", Route);
+        NODE_SET_METHOD(exports, "param", Param);
         NODE_SET_METHOD(exports, "routeParam", RouteParam);
     }
 

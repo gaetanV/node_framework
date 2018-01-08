@@ -52,6 +52,11 @@ OldNodeFramework.routeParam("/$/$/index.h");
 
 OldNodeFramework.match("/test/abc/index.html");
 
+OldNodeFramework.param("?test=54&re=super");
+OldNodeFramework.param("?test=");
+OldNodeFramework.param("?test=a&");
+
+
 /*
 http.createServer(function (req, res) {
 
