@@ -18,14 +18,19 @@ namespace nodeFramework {
     args.GetReturnValue().Set(0);
   }
 
+ void Match(const FunctionCallbackInfo<Value>& args) {
+    char* param1 = ToCString(args[0]->ToString());
+    args.GetReturnValue().Set(Route::Match(param1));
+  }
 
-  void Match(const FunctionCallbackInfo<Value>& args) {
+  void FastMatch(const FunctionCallbackInfo<Value>& args) {
     char* param1 = ToCString(args[0]->ToString());
     int size = strlen(param1);
-    args.GetReturnValue().Set(Route::Match(param1,size));
+    args.GetReturnValue().Set(Route::FastMatch(param1,size));
   }
 
   void init(Local<Object> exports) {
+    NODE_SET_METHOD(exports, "fastMatch", FastMatch);
     NODE_SET_METHOD(exports, "match", Match);
     NODE_SET_METHOD(exports, "route", Route);
 

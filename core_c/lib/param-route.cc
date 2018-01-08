@@ -1,9 +1,10 @@
-#include <string.h>
-
 namespace ParamRoute {
 
-    int Index = 0;
+    #include <string.h>
+    #include "param.cc"
 
+    int Index = 0;
+  
     const int STEPTAB = 15;
     const char CH_PARAM = '$';
 
@@ -74,10 +75,25 @@ end:
 
             if(indextabL[index].end){
                 buffer.index[buffer.cmp++] = (paramStart);
-                buffer.index[buffer.cmp++] = size;
+                for(; paramStart<size; paramStart++){
+                    if(param1[paramStart] == Param::CH_MARK){
+                        break;
+                    }
+                }
+                buffer.index[buffer.cmp++] = paramStart;
                 i++;
-                paramStart = size; 
             } 
+
+            if(size != paramStart){
+                if(param1[paramStart] == Param::CH_MARK){
+                    paramStart++;
+                    paramStart = Param::Param(
+                        param1,
+                        size,
+                        paramStart
+                    );
+                }
+            }
 
             if(i == indextabL[index].cmp-1 && size == paramStart ){
                 

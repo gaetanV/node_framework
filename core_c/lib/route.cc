@@ -1,6 +1,8 @@
-#include <string.h>
 
 namespace Route {
+
+    #include <string.h>
+    #include "param.cc"
 
     int Index = 0;
 
@@ -15,8 +17,7 @@ namespace Route {
     char * tab[100]  = {};
     struct Collector tabL[100]  = {};
 
-    int Match(char* param1,int size) {
-    
+    int FastMatch(char* param1,int size) {
         if(tabL[size].cmp > 0){
             for(int i = 0 ; i < tabL[size].cmp ; i++){
                 if(strcmp(tab[tabL[size].index[i]], param1) == 0){
@@ -25,6 +26,27 @@ namespace Route {
             }
         }
         return 0;
+    }
+
+    int Match(char* param1) {
+        int i= 0; 
+        for(i ; param1[i]; ++i){
+            if(param1[i] == Param::CH_MARK){
+                if(tabL[i].cmp > 0){
+                    for(int k = 0 ; k < tabL[i].cmp ; k++){
+                        if(memcmp ( tab[tabL[i].index[k]], param1, i ) == 0){
+                            Param::Param(
+                                param1,
+                                strlen(param1),
+                                i + 1 
+                            );
+                            return tabL[i].index[k]+1;
+                        } 
+                    }
+                } 
+            }
+        }
+        return FastMatch(param1,i);
     }
 
     void Route(char* param1) {
