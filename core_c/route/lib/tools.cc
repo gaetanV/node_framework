@@ -1,7 +1,7 @@
-#include <node.h>
-
 namespace Tools {
-    
+
+    #include <node.h>
+
     using v8::String;
     using v8::Local;
 

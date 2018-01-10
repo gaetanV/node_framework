@@ -1,6 +1,7 @@
 
 var http = require('http'); 
-const nodeFramework = require('./build/Release/nodeFramework');
+const nodeFramework = require('./route/build/Release/route');
+const OldNodeFramework = require('./route/build/Release/paramRoute');
 
 const routeFunc =
 [
@@ -35,8 +36,6 @@ nodeFramework.route("/index.bmp");
 
 //console.log(nodeFramework.fastMatch("/index.html"));
 console.log(nodeFramework.match("/index.html?a=5&b=8"));
-
-const OldNodeFramework = require('./build/Release/OldNodeFramework');
 
 /*
 // OK TRUE

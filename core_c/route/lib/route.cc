@@ -1,9 +1,8 @@
-
 namespace Route {
 
     #include <string.h>
     #include "param.cc"
-
+    
     int Index = 0;
 
     const int STEPTAB = 15;

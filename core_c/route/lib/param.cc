@@ -1,7 +1,6 @@
-
 namespace Param {
-
-   #include <string.h>
+    
+    #include <string.h>
 
    struct Buffer {
         int *index;
