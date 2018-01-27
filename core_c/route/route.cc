@@ -1,5 +1,5 @@
 #include <node.h>
-#include "lib/tools.cc"
+#include "../lib/tools.cc"
 #include "lib/route.cc"
 
 namespace nodeFramework {

@@ -1,6 +1,6 @@
 
 #include <node.h>
-#include "lib/tools.cc"
+#include "../lib/tools.cc"
 #include "lib/param-route.cc"
 #include "lib/route.cc"
 
