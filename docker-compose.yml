@@ -11,11 +11,6 @@ services:
         networks:
             - nodeapp
         volumes:
-          - ./server.js:/var/www/server.js
-          - ./dist/:/var/www/dist
-          - ./web/:/var/www/web
-          - ./app/config.yml:/var/www/app/config.yml
-          - ./src/UserBundle/Ressources:/var/www/src/UserBundle/Ressources
           - /var/www/node_modules
     mongodb:
         image: mongo

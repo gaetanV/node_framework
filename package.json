@@ -1,37 +1,16 @@
 {
   "name": "framework",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "(c) Gaetan Vigneron <gaetan@webworkshops.fr>",
   "date": "04/11/2016",
   "description": "LIVE & Structure Express with Symfony security + ",
   "main": "server.js",
   "dependencies": {
-    "body-parser": "^1.15.2",
-    "compression": "^1.6.2",
-    "cookie-parser": "^1.4.3",
-    "express": "^4.14.0",
-    "express-session": "^1.14.2",
-    "gulp-concat": "^2.6.1",
-    "http": "^0.0.0",
-    "jquery": "^3.2.1",
-    "js-yaml": "^3.6.1",
-    "mongodb": "^2.2.11",
-    "mongoose": "^4.6.6",
-    "monk": "^6.0.3",
-    "mustache": "^2.2.1",
-    "node-uuid": "^1.4.7",
-    "path": "^0.12.7",
-    "pug": "^2.0.0-beta6",
-    "typescript": "^2.5.2",
-    "vue": "^2.5.2",
-    "ws": "^1.1.1"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": ""
   },
   "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-typescript": "^3.2.2"
   },
   "repository": {
     "type": "git",
